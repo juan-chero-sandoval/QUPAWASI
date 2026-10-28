@@ -1,0 +1,32 @@
+# Flutter / Dart
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/build/
+**/.packages
+**/coverage/
+**/android/local.properties
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+# Secretos y firma
+.env
+.env.*
+!.env.example
+**/key.properties
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.pem
+# Archivos locales
+.idea/
+.vscode/
+*.iml
+__pycache__/
+*.pyc
+tmp/
+output/
+artifacts/
+# pubspec.lock debe versionarse en una app.
