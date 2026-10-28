@@ -1,0 +1,28 @@
+name: qupa_wasi
+description: "Q'UPA WASI - prototipo offline de reciclaje UNP"
+publish_to: 'none'
+
+# versionName+versionCode de Android.
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  go_router: ^18.1.1
+  provider: ^6.1.5+1
+  shared_preferences: ^2.5.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  # Almacén en memoria para probar SharedPreferencesAsync sin plugin nativo.
+  shared_preferences_platform_interface: ^2.4.2
+
+flutter:
+  uses-material-design: true
