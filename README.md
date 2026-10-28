@@ -9,11 +9,11 @@ Prototipo Android **offline** de reciclaje universitario para la UNP. Unidad II:
 3. [Protocolo Git y contribuciones](docs/FLUJO_EQUIPO.md).
 4. [PRP por integrante](prps/README.md).
 
-**F02: Juan**, dominio y persistencia local. El siguiente turno será **Brianna, F03**, cuando F02 esté integrada en `develop`. Informes: [F01](docs/entregas/F01.md), [F02](docs/entregas/F02.md).
+**F03: Brianna**, CRUD visible y borradores. El siguiente turno será **Adriana, F04**, cuando F03 esté integrada en `develop`. Informes: [F01](docs/entregas/F01.md), [F02](docs/entregas/F02.md), [F03](docs/entregas/F03.md).
 
 ## Estado real
 
-App Flutter en [`apps/mobile/`](apps/mobile/README.md) con navegación por IDs, tema/onboarding/alias en Shared Preferences y cinco pestañas base. F02 añade Drift/SQLite real en archivo, CRUD mediante casos de uso, estadísticas, borradores, sugerencias y canjes simulados atómicos. **El formulario y el CRUD visibles en pantalla siguen pendientes de F03.** Consulta [el estado](docs/ESTADO.md).
+App Flutter en [`apps/mobile/`](apps/mobile/README.md) con navegación por IDs, tema/onboarding/alias en Shared Preferences y cinco pestañas base. F02 añade Drift/SQLite real en archivo, CRUD mediante casos de uso, estadísticas, borradores, sugerencias y canjes simulados atómicos. F03 añade el CRUD visible en Reciclar (lista, detalle, crear/editar en tres pasos y eliminar con confirmación) y borradores que sobreviven al cierre de la app. Inicio, Mapa, Premios, Ranking y Sugerencias quedan para F04. Consulta [el estado](docs/ESTADO.md).
 
 Unidad 2 fue revisada: al menos tres pantallas, parámetros, eventos, estado, ciclo de vida, Shared Preferences, CRUD SQLite, commits de los cinco, video de máximo cinco minutos y sustentación. [Cobertura de rúbrica](docs/TRAZABILIDAD.md).
 
