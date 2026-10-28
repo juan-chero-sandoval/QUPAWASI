@@ -9,28 +9,60 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_page.dart';
 import '../../core/widgets/state_message.dart';
-import '../../domain/entities/record_preview.dart';
+import '../../domain/entities/recycling_draft.dart';
+import '../../domain/entities/recycling_record.dart';
+import 'record_format.dart';
+import 'record_list_view_model.dart';
 
-/// Pestaña Reciclar. La lista real con SQLite llega en F02/F03; aquí solo
-/// hay acceso a crear y enlaces de ejemplo para probar rutas con ID.
-class RecyclingView extends StatefulWidget {
+/// Pestaña Reciclar: historial de registros guardados en SQLite.
+class RecyclingView extends StatelessWidget {
   const RecyclingView({super.key, this.filter});
 
+  /// Valor crudo de `/recycling?filter=` (`pet` o `aluminum`).
   final String? filter;
 
   @override
-  State<RecyclingView> createState() => _RecyclingViewState();
+  Widget build(BuildContext context) {
+    final local = context.read<AppDependencies>().local;
+    final material = RecordListViewModel.parseFilter(filter);
+    return ChangeNotifierProvider(
+      key: ValueKey(material),
+      create: (_) => RecordListViewModel(
+        recycling: local.recycling,
+        overview: local.overview,
+        drafts: local.drafts,
+        material: material,
+      )..start(),
+      child: const _RecyclingBody(),
+    );
+  }
 }
 
-class _RecyclingViewState extends State<RecyclingView> {
-  late final Future<List<RecordPreview>> _previews = context
-      .read<AppDependencies>()
-      .recordPreviewRepository
-      .list();
+class _RecyclingBody extends StatefulWidget {
+  const _RecyclingBody();
+
+  @override
+  State<_RecyclingBody> createState() => _RecyclingBodyState();
+}
+
+class _RecyclingBodyState extends State<_RecyclingBody> {
+  bool _wasCurrent = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Al volver a esta ruta (p. ej. tras salir del formulario) se reconsulta
+    // el borrador, que pudo guardarse o descartarse en otra pantalla.
+    final isCurrent = ModalRoute.isCurrentOf(context) ?? true;
+    if (isCurrent && !_wasCurrent) {
+      context.read<RecordListViewModel>().refreshDrafts();
+    }
+    _wasCurrent = isCurrent;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final viewModel = context.watch<RecordListViewModel>();
     return AppPage(
       title: 'Reciclar',
       children: [
@@ -39,75 +71,185 @@ class _RecyclingViewState extends State<RecyclingView> {
           icon: const Icon(Icons.add),
           label: const Text('Nuevo registro'),
         ),
-        if (widget.filter != null) ...[
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'Filtro recibido: ${widget.filter}',
-            style: TextStyle(color: palette.textMuted),
+        if (viewModel.pendingDraft case final draft?) ...[
+          const SizedBox(height: AppSpacing.md),
+          _DraftBanner(
+            draft: draft,
+            onContinue: () => context.go(
+              draft.recordId == null
+                  ? AppRoutes.newRecord()
+                  : AppRoutes.editRecord(draft.recordId!),
+            ),
+            onDiscard: viewModel.discardPendingDraft,
           ),
         ],
         const SizedBox(height: AppSpacing.md),
-        const StateMessage.inPreparation(
-          message:
-              'Tu historial de registros se guardará con SQLite (F02) y '
-              'tendrá crear, editar y eliminar (F03).',
-        ),
-        const SectionHeader(
-          title: 'Ejemplos para navegación',
-          trailing: 'No guardados',
-        ),
-        FutureBuilder<List<RecordPreview>>(
-          future: _previews,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return const Text('No se pudieron cargar los ejemplos.');
-            }
-            final items = snapshot.data;
-            if (items == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return Column(
+        _FilterChips(selected: viewModel.material),
+        const SectionHeader(title: 'Mis registros', trailing: 'En este equipo'),
+        switch (viewModel.status) {
+          RecordListStatus.loading => const Padding(
+            padding: EdgeInsets.all(AppSpacing.xl),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          RecordListStatus.error => StateMessage(
+            icon: Icons.error_outline,
+            title: 'No se pudo cargar',
+            message: viewModel.errorMessage ?? 'Error de almacenamiento.',
+            actionLabel: 'Reintentar',
+            onAction: viewModel.start,
+          ),
+          RecordListStatus.empty => StateMessage(
+            icon: Icons.recycling,
+            title: viewModel.material == null
+                ? 'Aún no tienes registros'
+                : 'Sin registros con este filtro',
+            message:
+                'Registra tus botellas PET o latas. Se guardarán en este '
+                'dispositivo y podrás editarlas o eliminarlas.',
+            actionLabel: 'Registrar reciclaje',
+            onAction: () => context.go(AppRoutes.newRecord()),
+          ),
+          RecordListStatus.data => Column(
+            children: [
+              for (final record in viewModel.records) ...[
+                _RecordTile(
+                  record: record,
+                  pointName: viewModel.pointName(record.pointId),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
+            ],
+          ),
+        },
+      ],
+    );
+  }
+}
+
+class _FilterChips extends StatelessWidget {
+  const _FilterChips({required this.selected});
+
+  final RecyclingMaterial? selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final options = <(RecyclingMaterial?, String)>[
+      (null, 'Todos'),
+      (RecyclingMaterial.pet, 'PET'),
+      (RecyclingMaterial.aluminum, 'Latas'),
+    ];
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      children: [
+        for (final (material, label) in options)
+          ChoiceChip(
+            label: Text(label),
+            selected: selected == material,
+            onSelected: (_) =>
+                context.go(AppRoutes.recyclingList(filter: material?.name)),
+          ),
+      ],
+    );
+  }
+}
+
+class _RecordTile extends StatelessWidget {
+  const _RecordTile({required this.record, required this.pointName});
+
+  final RecyclingRecord record;
+  final String pointName;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
+    return AppCard(
+      onTap: () => context.go(AppRoutes.recordDetail(record.id)),
+      child: Row(
+        children: [
+          IconBadge(icon: RecordFormat.materialIcon(record.material)),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final item in items) ...[
-                  AppCard(
-                    onTap: () => context.go(AppRoutes.recordDetail(item.id)),
-                    child: Row(
-                      children: [
-                        const IconBadge(icon: Icons.receipt_long_outlined),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${item.materialLabel} × ${item.quantity}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                '${item.pointName} · ID ${item.id}',
-                                style: TextStyle(color: palette.textMuted),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(Icons.chevron_right),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                ],
-                TextButton(
-                  onPressed: () =>
-                      context.go(AppRoutes.recordDetail('id-inexistente')),
-                  child: const Text('Probar un ID inexistente'),
+                Text(
+                  RecordFormat.quantity(record.material, record.quantity),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  '$pointName · '
+                  '${RecordFormat.dateTime(context, record.occurredAt)}',
+                  style: TextStyle(color: palette.textMuted),
                 ),
               ],
-            );
-          },
-        ),
-      ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            '+${record.earnedPoints}',
+            style: TextStyle(color: palette.brand, fontWeight: FontWeight.w800),
+          ),
+          const Icon(Icons.chevron_right),
+        ],
+      ),
+    );
+  }
+}
+
+class _DraftBanner extends StatelessWidget {
+  const _DraftBanner({
+    required this.draft,
+    required this.onContinue,
+    required this.onDiscard,
+  });
+
+  final RecyclingDraft draft;
+  final VoidCallback onContinue;
+  final VoidCallback onDiscard;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = AppPalette.of(context);
+    final kind = draft.recordId == null ? 'nuevo registro' : 'edición';
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: palette.notice,
+        borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+        border: Border.all(color: palette.accent),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Tienes un $kind sin terminar',
+            style: TextStyle(
+              color: palette.onNotice,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          Text(
+            'Guardado el ${RecordFormat.dateTime(context, draft.updatedAt)}.',
+            style: TextStyle(color: palette.onNotice),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              FilledButton(
+                onPressed: onContinue,
+                child: const Text('Continuar'),
+              ),
+              OutlinedButton(
+                onPressed: onDiscard,
+                child: const Text('Descartar borrador'),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

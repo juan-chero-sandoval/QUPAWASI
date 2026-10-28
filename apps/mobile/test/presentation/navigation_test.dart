@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qupa_wasi/app/routes.dart';
+import 'package:qupa_wasi/data/local/demo_seed.dart';
+import 'package:qupa_wasi/domain/entities/recycling_record.dart';
 import 'package:qupa_wasi/core/widgets/prototype_banner.dart';
 import 'package:qupa_wasi/presentation/common/not_found_view.dart';
 import 'package:qupa_wasi/presentation/home/home_view.dart';
@@ -8,6 +10,7 @@ import 'package:qupa_wasi/presentation/map/map_view.dart';
 import 'package:qupa_wasi/presentation/recycling/record_detail_view.dart';
 import 'package:qupa_wasi/presentation/recycling/recycling_view.dart';
 
+import '../helpers/fake_local_services.dart';
 import '../helpers/test_app.dart';
 
 void main() {
@@ -48,15 +51,21 @@ void main() {
     }
   });
 
-  testWidgets('el detalle recibe el ID por la ruta y recarga el registro', (
+  testWidgets('el detalle recibe el UUID por la ruta y recarga el registro', (
     tester,
   ) async {
-    await openApp(tester, initialLocation: AppRoutes.recycling);
+    final local = FakeLocal();
+    final record = await local.seedRecord(
+      quantity: 3,
+      material: RecyclingMaterial.aluminum,
+      pointId: DemoSeed.libraryId,
+    );
+    await openApp(tester, initialLocation: AppRoutes.recycling, local: local);
 
-    await tapVisible(tester, find.textContaining('ID demo-0002'));
+    await tapVisible(tester, find.text('Lata de aluminio × 3'));
 
     expect(find.byType(RecordDetailView), findsOneWidget);
-    expect(find.text('demo-0002'), findsOneWidget);
+    expect(find.text(record.id), findsOneWidget);
     expect(find.text('Biblioteca'), findsOneWidget);
     expect(selectedTab(tester), 1);
 
@@ -79,32 +88,39 @@ void main() {
     expect(find.byType(RecyclingView), findsOneWidget);
   });
 
-  testWidgets('pointId y recordId llegan como parámetros al formulario', (
+  testWidgets('editar un ID inexistente no abre un formulario vacío', (
     tester,
   ) async {
-    await openApp(
-      tester,
-      initialLocation: AppRoutes.newRecord(pointId: 'biblioteca'),
-    );
-    expect(find.text('Nuevo registro'), findsOneWidget);
-    expect(find.text('pointId: biblioteca'), findsOneWidget);
+    await openApp(tester, initialLocation: AppRoutes.editRecord('no-existe'));
 
-    await openApp(tester, initialLocation: AppRoutes.editRecord('demo-0001'));
     expect(find.text('Editar registro'), findsOneWidget);
-    expect(find.text('recordId: demo-0001'), findsOneWidget);
+    expect(find.text('Registro no encontrado'), findsOneWidget);
+    expect(find.text('Siguiente'), findsNothing);
   });
 
-  testWidgets('el mapa reenvía su pointId a nuevo registro', (tester) async {
+  testWidgets('el mapa reenvía su pointId al nuevo registro', (tester) async {
     await openApp(
       tester,
-      initialLocation: AppRoutes.mapPoint(pointId: 'comedor'),
+      initialLocation: AppRoutes.mapPoint(pointId: DemoSeed.diningId),
     );
     expect(find.byType(MapView), findsOneWidget);
 
     await tapVisible(tester, find.text('Registrar en este punto'));
 
-    expect(find.text('pointId: comedor'), findsOneWidget);
+    expect(find.text('Nuevo registro'), findsOneWidget);
     expect(selectedTab(tester), 1);
+    // El punto del mapa queda preseleccionado (radio marcado en su tarjeta).
+    final dining = find.ancestor(
+      of: find.text('Comedor'),
+      matching: find.byType(InkWell),
+    );
+    expect(
+      find.descendant(
+        of: dining,
+        matching: find.byIcon(Icons.radio_button_checked),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('una ruta desconocida muestra vista segura con retorno', (
