@@ -1,12 +1,12 @@
 # Estado y siguiente turno
 
-Actualizado: 2026-10-28 durante F02. F01 integrada en `develop` por merge commit `2eac7c9`.
+Actualizado: 2026-10-28 tras validar F02. F01 integrada en `develop` por merge commit `2eac7c9`.
 
 - Base remota inspeccionada: `95ac9db6112a4d9cb3d8bdfe141bb49d69c3b46c`, `main`, solo README.
 - Cuenta conectada a GitHub: `juan-chero-sandoval`; permisos `admin`, lectura y escritura confirmados por conector.
 - Preparación publicada e integrada; ya disponible para todos los colaboradores.
 - F01: [PR #2](https://github.com/juan-chero-sandoval/QUPAWASI/pull/2) comprobado con CI de contexto/móvil aprobado y fusionado conservando el commit/autor de Cristopher. [Informe F01](entregas/F01.md).
-- F02: dominio/casos de uso y persistencia Drift/SQLite implementados en `codex/f02-sqlite-dominio`; 70 tests aprobados. Primera compilación local descargando NDK; CI/build pendientes antes de declarar validación completa. [Informe y API F02](entregas/F02.md).
+- F02: commit de Juan `5ac9450`, dominio/casos de uso y persistencia Drift/SQLite; 70 tests aprobados. [CI móvil con APK y artefacto aprobado](https://github.com/juan-chero-sandoval/QUPAWASI/actions/runs/40772687468) y contexto aprobado. [PR #4](https://github.com/juan-chero-sandoval/QUPAWASI/pull/4), pendiente de revisión/fusión hacia develop. [Informe y API F02](entregas/F02.md). No se declara instalación Android local: ADB unauthorized.
 - Unidad II recibida y leída: alcance offline y rúbrica incorporados. No requiere Supabase para estas fases.
 - Se debe explicar/confirmar con docente la adaptación de la consigna genérica de MYPE al proyecto UNP ya trabajado.
 - Preparación validada: enlaces locales, tres skills con validador oficial, sintaxis YAML/PowerShell y comprobación de espacios. [Registro histórico](entregas/PREPARACION.md). Desde F02 el script móvil genera Drift antes de análisis/test/build.
@@ -14,8 +14,8 @@ Actualizado: 2026-10-28 durante F02. F01 integrada en `develop` por merge commit
 | Fase | Responsable | Estado | Evidencia |
 | --- | --- | --- | --- |
 | F01 | Cristhoper | INTEGRADA en develop, CI aprobado | [F01](entregas/F01.md), PR #2 |
-| F02 | Juan | IMPLEMENTADA; 70 tests OK; build/CI en validación | [F02](entregas/F02.md) |
-| F03 | Brianna | PENDIENTE F02 integrada | Pendiente |
+| F02 | Juan | IMPLEMENTADA Y VALIDADA; 70 tests y CI/APK aprobados; PR #4 pendiente de integrar | [F02](entregas/F02.md) |
+| F03 | Brianna | SIGUIENTE tras integrar PR #4 con merge que preserve autores | [PRP F03](../prps/F03-BRIANNA.md) |
 | F04 | Adriana | PENDIENTE F03 integrada | Pendiente |
 | F05 | Carla | PENDIENTE F04 integrada | Pendiente |
 
