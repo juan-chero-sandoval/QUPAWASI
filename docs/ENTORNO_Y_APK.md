@@ -39,11 +39,11 @@ python scripts/validar_contexto.py
 powershell -File scripts/validar_mobile.ps1
 ```
 
-El segundo comando falla deliberadamente si no existe app o Flutter, y ejecuta dependencias, formato en modo comprobación, análisis, tests y build debug. Tras F02, generar Drift antes de la comprobación si hay cambios de tablas:
+El segundo comando falla deliberadamente si no existe app o Flutter, y ejecuta dependencias, generación Drift, formato en modo comprobación, análisis, tests y build debug. Para regenerar/formatear manualmente tras cambios de tablas:
 
 ```powershell
 cd apps/mobile
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 dart format lib test integration_test
 flutter analyze
 flutter test
