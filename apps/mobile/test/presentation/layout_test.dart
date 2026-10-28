@@ -16,6 +16,8 @@ void main() {
     AppRoutes.map,
     AppRoutes.rewards,
     AppRoutes.profile,
+    AppRoutes.ranking,
+    AppRoutes.suggestions,
   ];
 
   for (final width in widths) {
@@ -37,6 +39,21 @@ void main() {
                 : Brightness.light;
             await openApp(tester, initialLocation: location);
             expect(tester.takeException(), isNull, reason: location);
+            // Build every lazily laid-out section, including badges/catalog.
+            for (var scroll = 0; scroll < 25; scroll++) {
+              final list = find.byType(Scrollable).hitTestable().first;
+              final state = tester.state<ScrollableState>(list);
+              if (state.position.pixels >= state.position.maxScrollExtent) {
+                break;
+              }
+              await tester.drag(list, const Offset(0, -450));
+              await tester.pumpAndSettle();
+              expect(
+                tester.takeException(),
+                isNull,
+                reason: '$location scroll $scroll',
+              );
+            }
           }
         }
         tester.platformDispatcher.clearPlatformBrightnessTestValue();

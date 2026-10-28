@@ -13,6 +13,27 @@ class SharedPreferencesRepository implements PreferencesRepository {
   static const String themeKey = 'qupawasi.v1.themeMode';
   static const String onboardingKey = 'qupawasi.v1.onboardingCompleted';
   static const String aliasKey = 'qupawasi.v1.alias';
+  static const pendingKey = 'qupawasi.v1.pendingRedemption';
+
+  @override
+  Future<PendingRedemption?> loadPendingRedemption() async {
+    final value = await _preferences.getStringList(pendingKey);
+    if (value == null) return null;
+    if (value.length != 2) {
+      throw const PreferencesException('Confirmación local inválida.');
+    }
+    return PendingRedemption(value[0], value[1]);
+  }
+
+  @override
+  Future<void> setPendingRedemption(PendingRedemption? pending) => _write(
+    () => pending == null
+        ? _preferences.remove(pendingKey)
+        : _preferences.setStringList(pendingKey, [
+            pending.rewardId,
+            pending.operationId,
+          ]),
+  );
 
   @override
   Future<AppPreferences> loadPreferences() async {

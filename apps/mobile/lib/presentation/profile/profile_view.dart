@@ -7,17 +7,19 @@ import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_page.dart';
-import '../../core/widgets/state_message.dart';
 import '../../domain/entities/app_preferences.dart';
 import '../common/user_avatar.dart';
 import '../settings/app_settings_view_model.dart';
 import 'alias_dialog.dart';
+import '../home/overview_view_model.dart';
+import '../home/home_view.dart';
+import '../common/local_state.dart';
+import '../../domain/entities/recycling_statistics.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
-  /// Niveles por EcoPuntos ganados (docs/CONTRATOS.md). Solo se listan;
-  /// el cálculo del nivel actual llega con `DemoScoringPolicy` en F02.
+  /// Level descriptions; current progress comes from the domain policy.
   static const List<({String name, int points, IconData icon})> levels = [
     (name: 'Semilla', points: 0, icon: Icons.grass),
     (name: 'Brote', points: 200, icon: Icons.eco_outlined),
@@ -38,32 +40,47 @@ class ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
     final settings = context.watch<AppSettingsViewModel>();
+    final overview = context.watch<OverviewViewModel>();
     return AppPage(
       title: 'Mi perfil',
       children: [
         _ProfileHeader(
           alias: settings.alias,
+          level: overview.data?.level.label ?? 'Cargando',
           onEdit: () => showAliasDialog(context),
         ),
         const SizedBox(height: AppSpacing.md),
-        const Row(
-          children: [
-            Expanded(
-              child: _StatTile(
-                icon: Icons.local_fire_department_outlined,
-                value: '0 días',
-                label: 'Racha de reciclaje',
+        LocalState(
+          vm: overview,
+          builder: (stats) => Column(
+            children: [
+              LinearProgressIndicator(
+                value: stats.levelProgress,
+                semanticsLabel: 'Progreso de nivel',
               ),
-            ),
-            SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: _StatTile(
-                icon: Icons.emoji_events_outlined,
-                value: '0/6',
-                label: 'Insignias logradas',
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatTile(
+                      icon: Icons.local_fire_department_outlined,
+                      value: stats.streakDays == 1
+                          ? '1 día'
+                          : '${stats.streakDays} días',
+                      label: 'Racha de reciclaje',
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: _StatTile(
+                      icon: Icons.emoji_events_outlined,
+                      value: '${stats.badges.length}/6',
+                      label: 'Insignias logradas',
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SectionHeader(title: 'Apariencia'),
         AppCard(
@@ -75,29 +92,22 @@ class ProfileView extends StatelessWidget {
                 style: TextStyle(color: palette.textMuted),
               ),
               const SizedBox(height: AppSpacing.sm),
-              SegmentedButton<ThemePreference>(
-                showSelectedIcon: false,
-                segments: const [
-                  ButtonSegment(
-                    value: ThemePreference.system,
-                    icon: Icon(Icons.brightness_auto_outlined),
-                    label: Text('Sistema'),
-                  ),
-                  ButtonSegment(
-                    value: ThemePreference.light,
-                    icon: Icon(Icons.light_mode_outlined),
-                    label: Text('Claro'),
-                  ),
-                  ButtonSegment(
-                    value: ThemePreference.dark,
-                    icon: Icon(Icons.dark_mode_outlined),
-                    label: Text('Oscuro'),
-                  ),
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final mode in ThemePreference.values)
+                    ChoiceChip(
+                      label: Text(switch (mode) {
+                        ThemePreference.system => 'Sistema',
+                        ThemePreference.light => 'Claro',
+                        ThemePreference.dark => 'Oscuro',
+                      }),
+                      selected: settings.themePreference == mode,
+                      onSelected: settings.isSaving
+                          ? null
+                          : (_) => _changeTheme(context, mode),
+                    ),
                 ],
-                selected: {settings.themePreference},
-                onSelectionChanged: settings.isSaving
-                    ? null
-                    : (selection) => _changeTheme(context, selection.first),
               ),
             ],
           ),
@@ -125,11 +135,29 @@ class ProfileView extends StatelessWidget {
           ),
         ),
         const SectionHeader(title: 'Insignias'),
-        const StateMessage.inPreparation(
-          message:
-              'Las insignias se calcularán desde tus registros guardados '
-              '(fases F02–F04).',
+        LocalState(
+          vm: overview,
+          builder: (stats) => Column(
+            children: [
+              for (final badge in EcoBadge.values)
+                ListTile(
+                  leading: Icon(
+                    stats.badges.contains(badge)
+                        ? Icons.check_circle_outline
+                        : Icons.lock_outline,
+                  ),
+                  title: Text(badgeLabel(badge)),
+                  subtitle: Text(
+                    stats.badges.contains(badge)
+                        ? 'Lograda · demo local'
+                        : 'Aún pendiente',
+                  ),
+                ),
+            ],
+          ),
         ),
+        const SectionHeader(title: 'Historial local'),
+        const RecentActivity(),
         const SectionHeader(title: 'Más'),
         AppCard(
           padding: EdgeInsets.zero,
@@ -163,9 +191,14 @@ class ProfileView extends StatelessWidget {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.alias, required this.onEdit});
+  const _ProfileHeader({
+    required this.alias,
+    required this.level,
+    required this.onEdit,
+  });
 
   final String alias;
+  final String level;
   final VoidCallback onEdit;
 
   @override
@@ -195,7 +228,7 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Nivel Semilla · alias local',
+                  'Nivel $level · alias local',
                   style: TextStyle(color: onCard.withValues(alpha: 0.85)),
                 ),
               ],
@@ -243,3 +276,12 @@ class _StatTile extends StatelessWidget {
     );
   }
 }
+
+String badgeLabel(EcoBadge badge) => switch (badge) {
+  EcoBadge.firstRecord => 'Primer registro',
+  EcoBadge.fiveDayStreak => 'Cinco días consecutivos',
+  EcoBadge.twentyFivePet => '25 botellas PET',
+  EcoBadge.explorer => 'Tres puntos distintos',
+  EcoBadge.firstRedemption => 'Primer canje activo',
+  EcoBadge.thirtyDayStreak => '30 días consecutivos',
+};

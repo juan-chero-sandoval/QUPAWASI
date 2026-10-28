@@ -12,15 +12,20 @@ import '../common/user_avatar.dart';
 import '../settings/app_settings_view_model.dart';
 import 'home_summary.dart';
 import 'widgets/points_summary_card.dart';
+import 'overview_view_model.dart';
+import '../common/local_state.dart';
+import '../common/local_stream_view_model.dart';
+import '../../app/dependencies.dart';
+import '../../domain/entities/recycling_record.dart';
+import '../recycling/record_format.dart';
 
 class HomeView extends StatelessWidget {
-  const HomeView({super.key, this.summary = const HomeSummary.initial()});
-
-  final HomeSummary summary;
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
+    final overview = context.watch<OverviewViewModel>();
     final alias = context.select<AppSettingsViewModel, String>(
       (vm) => vm.alias,
     );
@@ -74,12 +79,27 @@ class HomeView extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
             const PrototypeBanner(),
             const SizedBox(height: AppSpacing.md),
-            PointsSummaryCard(
-              points: summary.availablePoints,
-              levelName: summary.levelName,
-              progress: summary.levelProgress,
-              nextLevelText: summary.nextLevelText,
-              onRegister: () => context.go(AppRoutes.newRecord()),
+            LocalState(
+              vm: overview,
+              builder: (stats) {
+                final summary = HomeSummary.fromStatistics(stats);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    PointsSummaryCard(
+                      points: summary.availablePoints,
+                      levelName: summary.levelName,
+                      progress: summary.levelProgress,
+                      nextLevelText: summary.nextLevelText,
+                      onRegister: () => context.go(AppRoutes.newRecord()),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Total ganado: ${stats.earnedPoints} EcoPuntos simulados',
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: AppSpacing.md),
             AppCard(
@@ -111,24 +131,27 @@ class HomeView extends StatelessWidget {
               title: 'Tu impacto',
               trailing: 'Conteo de unidades',
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: _ImpactTile(
-                    icon: Icons.local_drink_outlined,
-                    value: '${summary.petBottles}',
-                    label: 'botellas PET',
+            LocalState(
+              vm: overview,
+              builder: (stats) => Row(
+                children: [
+                  Expanded(
+                    child: _ImpactTile(
+                      icon: Icons.local_drink_outlined,
+                      value: '${stats.petCount}',
+                      label: 'botellas PET',
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: _ImpactTile(
-                    icon: Icons.inventory_2_outlined,
-                    value: '${summary.cans}',
-                    label: 'latas',
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: _ImpactTile(
+                      icon: Icons.inventory_2_outlined,
+                      value: '${stats.aluminumCount}',
+                      label: 'latas',
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
@@ -136,20 +159,54 @@ class HomeView extends StatelessWidget {
               style: TextStyle(color: palette.textMuted, fontSize: 12),
             ),
             const SectionHeader(title: 'Actividad reciente'),
-            StateMessage(
-              icon: Icons.history,
-              title: 'Aún no tienes registros',
-              message:
-                  'Cuando registres tu reciclaje aparecerá aquí. Los '
-                  'registros se guardarán en este dispositivo.',
-              actionLabel: 'Registrar mi primer reciclaje',
-              onAction: () => context.go(AppRoutes.newRecord()),
-            ),
+            const RecentActivity(),
           ],
         ),
       ),
     );
   }
+}
+
+class RecentActivity extends StatelessWidget {
+  const RecentActivity({super.key});
+  @override
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+    create: (_) => LocalStreamViewModel(
+      context.read<AppDependencies>().local.recycling.watch,
+    ),
+    child: Consumer<LocalStreamViewModel<List<RecyclingRecord>>>(
+      builder: (context, vm, _) => LocalState(
+        vm: vm,
+        builder: (records) {
+          final sorted = [...records]
+            ..sort((a, b) => b.occurredAt.compareTo(a.occurredAt));
+          if (sorted.isEmpty) {
+            return StateMessage(
+              icon: Icons.history,
+              title: 'Aún no tienes registros',
+              message: 'Tus registros se guardan en este dispositivo.',
+              actionLabel: 'Registrar mi primer reciclaje',
+              onAction: () => context.go(AppRoutes.newRecord()),
+            );
+          }
+          return Column(
+            children: [
+              for (final record in sorted.take(5))
+                ListTile(
+                  title: Text(
+                    RecordFormat.quantity(record.material, record.quantity),
+                  ),
+                  subtitle: Text(
+                    '${RecordFormat.dateTime(context, record.occurredAt)} · ${record.earnedPoints} pts simulados',
+                  ),
+                  onTap: () => context.push(AppRoutes.recordDetail(record.id)),
+                ),
+            ],
+          );
+        },
+      ),
+    ),
+  );
 }
 
 class _ImpactTile extends StatelessWidget {

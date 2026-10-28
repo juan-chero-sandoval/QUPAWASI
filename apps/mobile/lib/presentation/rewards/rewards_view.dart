@@ -1,62 +1,215 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../core/theme/app_palette.dart';
-import '../../core/theme/app_theme.dart';
+import '../../app/dependencies.dart';
+import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_page.dart';
-import '../../core/widgets/state_message.dart';
+import '../../domain/entities/reward.dart';
+import '../common/confirm_local.dart';
+import '../common/local_state.dart';
+import '../home/overview_view_model.dart';
+import '../recycling/record_format.dart';
+import 'rewards_view_model.dart';
 
-/// Pestaña Premios. Catálogo y canjes simulados se implementan en F04.
+String categoryLabel(RewardCategory? value) => switch (value) {
+  null => 'Todas',
+  RewardCategory.photocopies => 'Fotocopias',
+  RewardCategory.mobile => 'Saldo móvil',
+  RewardCategory.cafeteria => 'Cafetería',
+};
+
 class RewardsView extends StatelessWidget {
   const RewardsView({super.key, this.category});
-
   final String? category;
+  @override
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+    key: ValueKey(category),
+    create: (_) {
+      final dependencies = context.read<AppDependencies>();
+      final vm = RewardsViewModel(
+        dependencies.local.rewards,
+        dependencies.preferencesRepository,
+      );
+      vm.category = RewardCategory.values
+          .where((c) => c.name == category)
+          .firstOrNull;
+      return vm;
+    },
+    child: const _RewardsBody(),
+  );
+}
 
+class _RewardsBody extends StatelessWidget {
+  const _RewardsBody();
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
+    final vm = context.watch<RewardsViewModel>();
+    final overview = context.watch<OverviewViewModel>();
+    final balance = overview.data?.availablePoints;
     return AppPage(
       title: 'Recompensas',
       children: [
-        Container(
-          padding: const EdgeInsets.all(AppSpacing.md + 4),
-          decoration: BoxDecoration(
-            color: palette.brandStrong,
-            borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-          ),
-          child: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: AppSpacing.sm,
-            children: [
-              Text('Tu saldo', style: TextStyle(color: palette.onBrandStrong)),
-              Text(
-                '0 EcoPuntos',
-                style: TextStyle(
-                  color: palette.onBrandStrong,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 20,
-                ),
-              ),
-            ],
+        AppCard(
+          child: LocalState(
+            vm: overview,
+            builder: (stats) => Text(
+              'Tu saldo: ${stats.availablePoints} EcoPuntos',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
-        Text(
-          'Los canjes son simulados: no hay dinero real ni entrega comercial.',
-          style: TextStyle(color: palette.textMuted),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            'Canjes simulados: sin entrega comercial, pagos ni transferencia de dinero.',
+          ),
         ),
-        if (category != null) ...[
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'Categoría recibida: $category',
-            style: TextStyle(color: palette.textMuted),
+        if (vm.message != null)
+          Semantics(liveRegion: true, child: Text(vm.message!)),
+        if (vm.busy)
+          const LinearProgressIndicator(
+            semanticsLabel: 'Procesando canje local',
+          ),
+        if (!vm.ready && !vm.busy)
+          OutlinedButton(
+            onPressed: vm.restore,
+            child: const Text('Recuperar confirmación'),
+          ),
+        if (vm.pending != null) ...[
+          const Text(
+            'Hay una confirmación pendiente. Reintentar recupera el mismo canje, incluso tras reiniciar.',
+          ),
+          FilledButton(
+            onPressed: vm.busy ? null : () => vm.redeem(vm.pending!.rewardId),
+            child: const Text('Reintentar canje pendiente'),
+          ),
+          TextButton(
+            onPressed: vm.busy
+                ? null
+                : () async {
+                    if (await confirmLocal(
+                      context,
+                      'Cerrar confirmación pendiente',
+                      'Revisa el historial: un canje ya guardado no se cancela al cerrar esta confirmación.',
+                      'Cerrar confirmación',
+                    )) {
+                      await vm.dismissPending();
+                    }
+                  },
+            child: const Text('Cerrar confirmación pendiente'),
           ),
         ],
-        const SizedBox(height: AppSpacing.md),
-        const StateMessage.inPreparation(
-          message:
-              'El catálogo de demostración, la confirmación de canje y su '
-              'cancelación se implementan en F04.',
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final c in [null, ...RewardCategory.values])
+              ChoiceChip(
+                label: Text(categoryLabel(c)),
+                selected: vm.category == c,
+                onSelected: (_) => vm.filter(c),
+              ),
+          ],
+        ),
+        ListenableBuilder(
+          listenable: vm.catalog,
+          builder: (context, _) => LocalState(
+            vm: vm.catalog,
+            builder: (_) => Column(
+              children: [
+                if (vm.filtered.isEmpty)
+                  const Text('No hay recompensas en esta categoría.'),
+                for (final reward in vm.filtered)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Icon(Icons.card_giftcard_outlined, size: 40),
+                          Text(
+                            reward.title,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          Text(reward.description),
+                          Text('${reward.costPoints} pts simulados'),
+                          if (balance != null && balance < reward.costPoints)
+                            Text(
+                              'Te faltan ${reward.costPoints - balance} puntos',
+                            ),
+                          FilledButton(
+                            onPressed:
+                                vm.busy ||
+                                    !vm.ready ||
+                                    vm.pending != null ||
+                                    overview.loading ||
+                                    overview.error != null ||
+                                    balance == null ||
+                                    balance < reward.costPoints
+                                ? null
+                                : () async {
+                                    if (await confirmLocal(
+                                      context,
+                                      'Confirmar canje simulado',
+                                      '${reward.title}: ${reward.costPoints} puntos. No entrega productos ni dinero.',
+                                      'Confirmar canje',
+                                    )) {
+                                      await vm.redeem(reward.id);
+                                    }
+                                  },
+                            child: const Text('Canjear'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Text('Historial de canjes locales'),
+        ),
+        ListenableBuilder(
+          listenable: vm.history,
+          builder: (context, _) => LocalState(
+            vm: vm.history,
+            builder: (history) => Column(
+              children: [
+                if (history.isEmpty) const Text('Aún no hay canjes simulados.'),
+                for (final r in history)
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(r.titleSnapshot),
+                        Text(
+                          '${r.costSnapshot} pts · ${r.isActive ? "Activo" : "Cancelado"}',
+                        ),
+                        Text(RecordFormat.dateTime(context, r.createdAt)),
+                        if (r.isActive)
+                          OutlinedButton(
+                            onPressed: vm.busy
+                                ? null
+                                : () async {
+                                    if (await confirmLocal(
+                                      context,
+                                      'Cancelar canje simulado',
+                                      '${r.titleSnapshot}: liberar ${r.costSnapshot} puntos una sola vez.',
+                                      'Cancelar canje',
+                                    )) {
+                                      await vm.cancel(r.id);
+                                    }
+                                  },
+                            child: const Text('Cancelar canje'),
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ],
     );

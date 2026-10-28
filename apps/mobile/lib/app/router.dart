@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../presentation/common/not_found_view.dart';
 import '../presentation/common/placeholder_views.dart';
+import '../presentation/suggestions/suggestions_view.dart';
 import '../presentation/home/home_view.dart';
 import '../presentation/map/map_view.dart';
 import '../presentation/onboarding/welcome_view.dart';

@@ -1,7 +1,17 @@
-/// Datos que muestra Inicio. En F01 solo existe el estado inicial (sin
-/// registros); F02 aporta `StatisticsRepository` y `DemoScoringPolicy`
-/// para calcular estos valores desde SQLite.
+import '../../domain/entities/recycling_statistics.dart';
+
+/// Formatting of domain statistics; no independent points calculation.
 class HomeSummary {
+  factory HomeSummary.fromStatistics(RecyclingStatistics stats) => HomeSummary(
+    availablePoints: stats.availablePoints,
+    levelName: stats.level.label,
+    levelProgress: stats.levelProgress,
+    nextLevelText: stats.nextLevel == null
+        ? 'Nivel máximo de demostración'
+        : 'Te faltan ${stats.pointsToNextLevel} pts para ${stats.nextLevel!.label}',
+    petBottles: stats.petCount,
+    cans: stats.aluminumCount,
+  );
   const HomeSummary({
     required this.availablePoints,
     required this.levelName,
