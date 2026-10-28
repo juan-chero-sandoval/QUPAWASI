@@ -1,6 +1,6 @@
 # Arquitectura y contratos comunes
 
-Estado: diseño para implementar, no código existente. F01 fija estructura; F02 fija firmas Dart compatibles con estas semánticas y las documenta en su handoff. Si se ajustan nombres, actualizar este archivo y consumidores juntos.
+Estado: F01 integrada; contratos F02 implementados en `apps/mobile/lib/domain/` y adaptadores en `data/`. La interfaz CRUD visible sigue asignada a F03. Si se ajustan nombres, actualizar este archivo y consumidores juntos.
 
 ## Dependencias y composición
 
@@ -53,10 +53,10 @@ Todos los ID son texto UUID generados en la capa de aplicación/datos, nunca ín
 | Tabla | Campos mínimos | Restricciones |
 | --- | --- | --- |
 | `recycling_points` | id, name, description, occupancy, latitude?, longitude?, is_demo | Nombre no vacío; occupancy 0..100; coordenadas nulas si no verificadas |
-| `recycling_records` | id, point_id, material, quantity, occurred_at, note, created_at, updated_at | FK punto, cantidad 1..100, material permitido, fechas no futuras salvo tolerancia explícita |
+| `recycling_records` | id, point_id, material, quantity, unit_points, occurred_at, note, created_at, updated_at | FK punto, cantidad entera 1..100, material permitido, fechas no futuras |
 | `rewards` | id, title, category, cost_points, description, is_active | Costo entero positivo |
 | `redemptions` | id, operation_id, reward_id, title_snapshot, cost_snapshot, created_at, canceled_at? | operation_id UNIQUE; snapshot de costo/título; activo si canceled_at null |
-| `drafts` | key, record_id?, point_id?, material?, quantity_text, note, step, updated_at | Una fila por formulario; conserva entrada inválida como texto de borrador |
+| `drafts` | key, record_id?, point_id?, material?, quantity_text, note, step, updated_at, occurred_at? | Una fila por formulario; conserva entrada inválida como texto de borrador; paso 0..2 |
 | `suggestions` | id, message, created_at | Mensaje 5..500; local, no estado “enviado” |
 
 No borrar puntos/recompensas referenciados al editar seeds. Sembrar solo si faltan: no duplicar al iniciar ni reactivar registros que el usuario eliminó. Punto demo “Arquitectura”, “Biblioteca” y “Comedor”; no afirmar horarios, disponibilidad o ubicación real. Iniciar sin registros, saldo cero. Catálogo de demostración: fotocopias 80, recarga simulada 100 y cafetería 150, según capturas; todos con aviso sin entrega comercial.
@@ -92,6 +92,8 @@ Valores propuestos para simular: PET = 10 puntos/unidad; aluminio = 5. Guardar p
 
 Crear/editar/eliminar no incrementa un contador acumulado: recalcula desde los registros. Canjear valida saldo en la misma transacción que inserta el canje. `operationId` se genera al confirmar y se conserva en un reintento: el mismo ID devuelve el mismo canje, sin descontar dos veces. Si se repite con otro rewardId, devolver conflicto, no cambiar el canje original.
 
+F02 guarda `unit_points` como snapshot de la política demo aplicada al crear/editar cada registro. El saldo consulta `sum(quantity * unit_points)`. Las tasas 10/5 existen solo en `DemoScoringPolicy`; los triggers SQLite protegen saldo sin duplicar esas tasas. Las fechas SQLite son enteros de milisegundos UTC. No existe tolerancia de fecha futura: `occurredAt <= clock()`.
+
 Editar o eliminar un registro que dejaría `earnedPoints < spentPoints` se rechaza atómicamente con mensaje “Cancela primero un canje simulado para liberar puntos”. La UI de Premios permite cancelar el canje; no restituye dos veces. No ocultar un saldo negativo con `max(0, saldo)`; mantener el invariante en DB. El CRUD de evaluación se demuestra inicialmente sin canjes, y después se demuestra el bloqueo/cancelación.
 
 Impacto: contar PET/latas exactamente; masa/CO₂ solo si se define una política de factores de demostración documentada y probada. Sin fuente validada usar “Estimación no configurada”, no números presentados como medidos. Racha calculada por días locales distintos con registros (no número de clics); probar días consecutivos y vacío. Insignias derivadas de datos: primer registro, cinco días, 25 PET, tres puntos distintos, primer canje activo, 30 días. Una edición/eliminación puede revocar una insignia en esta simulación.
@@ -105,3 +107,25 @@ Restaurar borrador tras abrir proceso nuevo, usando recordId para verificar si a
 ## Extensibilidad posterior
 
 No migrar registros demo a puntos verificados. Una futura integración añadirá identidad, outbox, estados pendientes/aceptados/rechazados y RPC atómica; necesitará migraciones nuevas. No añadir hoy firmas, tokens o columnas especulativas que retrasen el CRUD.
+
+## API Dart disponible para F03 y F04
+
+La composición de producción `AppDependencies.create()` abre SQLite en directorio de soporte interno, archivo `qupawasi.sqlite`, en un isolate nativo. `dependencies.local` expone:
+
+| Acceso | Operaciones |
+| --- | --- |
+| `local.recycling` (`RecyclingUseCases`) | `watch({RecordsFilter? filter})`, `get(id)`, `create(RecordInput)`, `update(id, RecordInput)`, `delete(id)` |
+| `local.overview` (`OverviewUseCases`) | `listPoints()`, `watchPoints()`, `getStatistics()`, `watchStatistics()` |
+| `local.rewards` (`RewardsUseCases`) | `watchCatalog({RewardCategory? category})`, `watchRedemptions()`, `redeem(rewardId, operationId)`, `cancel(redemptionId)` |
+| `local.drafts` (`DraftUseCases`) | `load(key)`, `save(RecyclingDraft)`, `clear(key)` |
+| `local.suggestions` (`SuggestionsUseCases`) | `list()`, `create(message)`, `delete(id)` |
+
+Estas fachadas están en dominio, no importan Flutter y se pueden inyectar a ViewModels sin exponer SQL. Los repositorios concretos se construyen en `LocalServices.withDatabase`; para tests abrir DB temporal, `await db.ensureReady()` y pasar reloj controlado. El propietario llama `await dependencies.close()`/`local.close()` al liberar el entorno; **no** cerrar la DB al pasar la app a segundo plano.
+
+`LocalDataException.code` distingue `validation`, `notFound`, `insufficientPoints`, `committedPoints`, `conflict` y `storage`; `.message` es presentable. No mostrar errores SQL crudos. `get` de ID inexistente devuelve null; update/delete devuelven notFound. Listas/sets de salida son inmutables. `RecyclingMaterial` usa `pet`/`aluminum`; `RewardCategory` usa `photocopies`/`mobile`/`cafeteria`.
+
+Los IDs de puntos/recompensas demo son UUID estables en `DemoSeed`; no usar los alias de preview F01 (`biblioteca`, `demo-0001`) para escribir registros. F03 reemplaza/adapta el preview al repositorio real y actualiza sus pruebas de navegación con IDs obtenidos de SQLite, conservando la cobertura de F01.
+
+Para borradores, una escritura con `updatedAt` anterior a la ya guardada no la sobrescribe. En empate gana la última escritura recibida. F03 igualmente serializa debounce/flush y espera guardados pendientes antes de `clear`: una escritura que llegue **después** de borrar podría recrear el borrador si la UI no la cancela/espera. F02 persiste datos; F03 implementa callbacks y restauración de pantalla.
+
+`watchStatistics` se invalida por cambios de registros/canjes. La racha se calcula por días locales distintos y se considera actual si hay registro hoy o ayer. Al reanudar/cambiar de día sin escrituras, el ViewModel debe volver a consultar/resuscribirse para actualizar la racha; F02 no instala un temporizador global.
