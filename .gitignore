@@ -4,6 +4,7 @@
 **/.flutter-plugins-dependencies
 **/build/
 **/.packages
+**/.kotlin/
 **/coverage/
 **/android/local.properties
 **/ios/Pods/

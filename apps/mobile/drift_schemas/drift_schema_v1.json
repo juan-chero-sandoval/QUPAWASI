@@ -1,0 +1,751 @@
+{
+  "_meta": {
+    "description": "This file contains a serialized version of schema entities for drift.",
+    "version": "1.3.0"
+  },
+  "options": {
+    "store_date_time_values_as_text": false
+  },
+  "entities": [
+    {
+      "id": 0,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "recycling_points",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "name",
+            "getter_name": "name",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(trim(name)) > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "description",
+            "getter_name": "description",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "occupancy",
+            "getter_name": "occupancy",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (typeof(occupancy) = 'integer' AND occupancy BETWEEN 0 AND 100)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "latitude",
+            "getter_name": "latitude",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "longitude",
+            "getter_name": "longitude",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "is_demo",
+            "getter_name": "isDemo",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 1 CHECK (is_demo IN (0, 1))",
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 1,
+      "references": [
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "recycling_records",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "point_id",
+            "getter_name": "pointId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES recycling_points(id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "recycling_points",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "material",
+            "getter_name": "material",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (material IN ('pet', 'aluminum'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "quantity",
+            "getter_name": "quantity",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (typeof(quantity) = 'integer' AND quantity BETWEEN 1 AND 100)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "unit_points",
+            "getter_name": "unitPoints",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (typeof(unit_points) = 'integer' AND unit_points > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "occurred_at",
+            "getter_name": "occurredAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "note",
+            "getter_name": "note",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT '' CHECK (length(note) <= 200)",
+            "default_dart": "const CustomExpression('\\'\\'')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at",
+            "getter_name": "createdAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at",
+            "getter_name": "updatedAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 2,
+      "references": [
+        1
+      ],
+      "type": "index",
+      "data": {
+        "on": 1,
+        "name": "records_occurred_at",
+        "sql": "CREATE INDEX records_occurred_at ON recycling_records(occurred_at DESC, id);",
+        "unique": false,
+        "columns": []
+      }
+    },
+    {
+      "id": 3,
+      "references": [
+        1
+      ],
+      "type": "index",
+      "data": {
+        "on": 1,
+        "name": "records_point",
+        "sql": "CREATE INDEX records_point ON recycling_records(point_id);",
+        "unique": false,
+        "columns": []
+      }
+    },
+    {
+      "id": 4,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "rewards",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "title",
+            "getter_name": "title",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "category",
+            "getter_name": "category",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (category IN ('photocopies', 'mobile', 'cafeteria'))",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "cost_points",
+            "getter_name": "costPoints",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (typeof(cost_points) = 'integer' AND cost_points > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "description",
+            "getter_name": "description",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "is_active",
+            "getter_name": "isActive",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1))",
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 5,
+      "references": [
+        4
+      ],
+      "type": "table",
+      "data": {
+        "name": "redemptions",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "operation_id",
+            "getter_name": "operationId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL UNIQUE",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "unique"
+            ]
+          },
+          {
+            "name": "reward_id",
+            "getter_name": "rewardId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL REFERENCES rewards(id)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "rewards",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "title_snapshot",
+            "getter_name": "titleSnapshot",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "cost_snapshot",
+            "getter_name": "costSnapshot",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (typeof(cost_snapshot) = 'integer' AND cost_snapshot > 0)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at",
+            "getter_name": "createdAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "canceled_at",
+            "getter_name": "canceledAt",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 6,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "drafts",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "key",
+            "getter_name": "key",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "record_id",
+            "getter_name": "recordId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "point_id",
+            "getter_name": "pointId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "material",
+            "getter_name": "material",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "quantity_text",
+            "getter_name": "quantityText",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "note",
+            "getter_name": "note",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(note) <= 200)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "step",
+            "getter_name": "step",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (step BETWEEN 0 AND 2)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at",
+            "getter_name": "updatedAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "occurred_at",
+            "getter_name": "occurredAt",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 7,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "suggestions",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "message",
+            "getter_name": "message",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL CHECK (length(trim(message)) BETWEEN 5 AND 500)",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at",
+            "getter_name": "createdAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 8,
+      "references": [
+        5,
+        1
+      ],
+      "type": "trigger",
+      "data": {
+        "on": 5,
+        "references_in_body": [
+          5,
+          1
+        ],
+        "name": "protect_redemption_balance",
+        "sql": "CREATE TRIGGER protect_redemption_balance\nBEFORE INSERT ON redemptions\nWHEN NEW.canceled_at IS NULL AND (\n  (SELECT coalesce(sum(quantity * unit_points), 0) FROM recycling_records) -\n  (SELECT coalesce(sum(cost_snapshot), 0) FROM redemptions WHERE canceled_at IS NULL)\n) < NEW.cost_snapshot\nBEGIN\n  SELECT RAISE(ABORT, 'insufficient_points');\nEND;"
+      }
+    },
+    {
+      "id": 9,
+      "references": [
+        1,
+        5
+      ],
+      "type": "trigger",
+      "data": {
+        "on": 1,
+        "references_in_body": [
+          1,
+          5
+        ],
+        "name": "protect_record_update_balance",
+        "sql": "CREATE TRIGGER protect_record_update_balance\nBEFORE UPDATE ON recycling_records\nWHEN (\n  (SELECT coalesce(sum(quantity * unit_points), 0) FROM recycling_records)\n  - OLD.quantity * OLD.unit_points + NEW.quantity * NEW.unit_points\n) < (SELECT coalesce(sum(cost_snapshot), 0) FROM redemptions WHERE canceled_at IS NULL)\nBEGIN\n  SELECT RAISE(ABORT, 'committed_points');\nEND;"
+      }
+    },
+    {
+      "id": 10,
+      "references": [
+        1,
+        5
+      ],
+      "type": "trigger",
+      "data": {
+        "on": 1,
+        "references_in_body": [
+          1,
+          5
+        ],
+        "name": "protect_record_delete_balance",
+        "sql": "CREATE TRIGGER protect_record_delete_balance\nBEFORE DELETE ON recycling_records\nWHEN (\n  SELECT coalesce(sum(quantity * unit_points), 0) FROM recycling_records WHERE id != OLD.id\n) < (SELECT coalesce(sum(cost_snapshot), 0) FROM redemptions WHERE canceled_at IS NULL)\nBEGIN\n  SELECT RAISE(ABORT, 'committed_points');\nEND;"
+      }
+    },
+    {
+      "id": 11,
+      "references": [
+        5
+      ],
+      "type": "trigger",
+      "data": {
+        "on": 5,
+        "references_in_body": [
+          5
+        ],
+        "name": "immutable_redemption",
+        "sql": "CREATE TRIGGER immutable_redemption\nBEFORE UPDATE ON redemptions\nWHEN NEW.id != OLD.id OR NEW.operation_id != OLD.operation_id OR\n  NEW.reward_id != OLD.reward_id OR NEW.title_snapshot != OLD.title_snapshot OR\n  NEW.cost_snapshot != OLD.cost_snapshot OR NEW.created_at != OLD.created_at OR\n  (OLD.canceled_at IS NOT NULL AND NEW.canceled_at IS NOT OLD.canceled_at)\nBEGIN\n  SELECT RAISE(ABORT, 'immutable_redemption');\nEND;"
+      }
+    }
+  ],
+  "fixed_sql": [
+    {
+      "name": "recycling_points",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"recycling_points\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"name\" TEXT NOT NULL CHECK (length(trim(name)) > 0), \"description\" TEXT NOT NULL, \"occupancy\" INTEGER NOT NULL CHECK (typeof(occupancy) = 'integer' AND occupancy BETWEEN 0 AND 100), \"latitude\" REAL, \"longitude\" REAL, \"is_demo\" INTEGER NOT NULL DEFAULT 1 CHECK (is_demo IN (0, 1)));"
+        }
+      ]
+    },
+    {
+      "name": "recycling_records",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"recycling_records\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"point_id\" TEXT NOT NULL REFERENCES recycling_points(id), \"material\" TEXT NOT NULL CHECK (material IN ('pet', 'aluminum')), \"quantity\" INTEGER NOT NULL CHECK (typeof(quantity) = 'integer' AND quantity BETWEEN 1 AND 100), \"unit_points\" INTEGER NOT NULL CHECK (typeof(unit_points) = 'integer' AND unit_points > 0), \"occurred_at\" INTEGER NOT NULL, \"note\" TEXT NOT NULL DEFAULT '' CHECK (length(note) <= 200), \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "records_occurred_at",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX records_occurred_at ON recycling_records (occurred_at DESC, id)"
+        }
+      ]
+    },
+    {
+      "name": "records_point",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX records_point ON recycling_records (point_id)"
+        }
+      ]
+    },
+    {
+      "name": "rewards",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"rewards\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"title\" TEXT NOT NULL, \"category\" TEXT NOT NULL CHECK (category IN ('photocopies', 'mobile', 'cafeteria')), \"cost_points\" INTEGER NOT NULL CHECK (typeof(cost_points) = 'integer' AND cost_points > 0), \"description\" TEXT NOT NULL, \"is_active\" INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)));"
+        }
+      ]
+    },
+    {
+      "name": "redemptions",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"redemptions\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"operation_id\" TEXT NOT NULL UNIQUE, \"reward_id\" TEXT NOT NULL REFERENCES rewards(id), \"title_snapshot\" TEXT NOT NULL, \"cost_snapshot\" INTEGER NOT NULL CHECK (typeof(cost_snapshot) = 'integer' AND cost_snapshot > 0), \"created_at\" INTEGER NOT NULL, \"canceled_at\" INTEGER);"
+        }
+      ]
+    },
+    {
+      "name": "drafts",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"drafts\" (\"key\" TEXT NOT NULL PRIMARY KEY, \"record_id\" TEXT, \"point_id\" TEXT, \"material\" TEXT, \"quantity_text\" TEXT NOT NULL, \"note\" TEXT NOT NULL CHECK (length(note) <= 200), \"step\" INTEGER NOT NULL CHECK (step BETWEEN 0 AND 2), \"updated_at\" INTEGER NOT NULL, \"occurred_at\" INTEGER);"
+        }
+      ]
+    },
+    {
+      "name": "suggestions",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"suggestions\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"message\" TEXT NOT NULL CHECK (length(trim(message)) BETWEEN 5 AND 500), \"created_at\" INTEGER NOT NULL);"
+        }
+      ]
+    },
+    {
+      "name": "protect_redemption_balance",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TRIGGER protect_redemption_balance BEFORE INSERT ON redemptions WHEN NEW.canceled_at IS NULL AND((SELECT coalesce(sum(quantity * unit_points), 0) FROM recycling_records) - (SELECT coalesce(sum(cost_snapshot), 0) FROM redemptions WHERE canceled_at IS NULL))< NEW.cost_snapshot BEGIN SELECT RAISE (ABORT, 'insufficient_points');END"
+        }
+      ]
+    },
+    {
+      "name": "protect_record_update_balance",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TRIGGER protect_record_update_balance BEFORE UPDATE ON recycling_records WHEN((SELECT coalesce(sum(quantity * unit_points), 0) FROM recycling_records) - OLD.quantity * OLD.unit_points + NEW.quantity * NEW.unit_points)< (SELECT coalesce(sum(cost_snapshot), 0) FROM redemptions WHERE canceled_at IS NULL) BEGIN SELECT RAISE (ABORT, 'committed_points');END"
+        }
+      ]
+    },
+    {
+      "name": "protect_record_delete_balance",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TRIGGER protect_record_delete_balance BEFORE DELETE ON recycling_records WHEN (SELECT coalesce(sum(quantity * unit_points), 0) FROM recycling_records WHERE id != OLD.id) < (SELECT coalesce(sum(cost_snapshot), 0) FROM redemptions WHERE canceled_at IS NULL) BEGIN SELECT RAISE (ABORT, 'committed_points');END"
+        }
+      ]
+    },
+    {
+      "name": "immutable_redemption",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TRIGGER immutable_redemption BEFORE UPDATE ON redemptions WHEN NEW.id != OLD.id OR NEW.operation_id != OLD.operation_id OR NEW.reward_id != OLD.reward_id OR NEW.title_snapshot != OLD.title_snapshot OR NEW.cost_snapshot != OLD.cost_snapshot OR NEW.created_at != OLD.created_at OR(OLD.canceled_at IS NOT NULL AND NEW.canceled_at IS NOT OLD.canceled_at)BEGIN SELECT RAISE (ABORT, 'immutable_redemption');END"
+        }
+      ]
+    }
+  ]
+}

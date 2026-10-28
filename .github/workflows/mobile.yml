@@ -1,0 +1,53 @@
+name: App móvil Flutter
+on:
+  push:
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/mobile.yml'
+  pull_request:
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/mobile.yml'
+permissions:
+  contents: read
+concurrency:
+  group: mobile-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          # Misma versión registrada en docs/entregas/F01.md.
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+      - name: Dependencias (respeta pubspec.lock)
+        run: flutter pub get --enforce-lockfile
+      - name: Generar Drift
+        run: dart run build_runner build
+      - name: Formato
+        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Análisis
+        run: flutter analyze
+      - name: Pruebas
+        run: flutter test
+      - name: APK debug
+        run: flutter build apk --debug
+      - name: Subir APK de ensayo
+        uses: actions/upload-artifact@v4
+        with:
+          name: qupawasi-debug-apk
+          path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

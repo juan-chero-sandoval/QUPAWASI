@@ -23,7 +23,8 @@ Push-Location -LiteralPath $mobilePath
 try {
     & flutter pub get
     Assert-Exit 'flutter pub get'
-    # F02 debe generar Drift antes de este script si ha cambiado el esquema.
+    & dart run build_runner build
+    Assert-Exit 'generacion Drift'
     $formatPaths = @('lib', 'test')
     if (Test-Path -LiteralPath 'integration_test') {
         $formatPaths += 'integration_test'
