@@ -1,0 +1,13 @@
+APK normal debug (no runner de integration_test)
+Ruta local: C:\dev\QUPAWASI\apps\mobile\build\app\outputs\flutter-apk\app-debug.apk
+Bytes: 196470352
+SHA-256: 813f12e4c231cf27e352f518d34324378df63049dc01535fca1bc27f3e9923e4
+package: name='pe.edu.unp.qupawasi' versionCode='2' versionName='0.2.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='pe.edu.unp.qupawasi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Q'UPA WASI'
+Certificado verificado con apksigner: CN=Android Debug, O=Android, C=US
+SHA-256 certificado: b340dddff767d965b69375929bcc7c702ff8053b173ca7155c081a6656fe36bd
+Instalacion adb install -r: Success (emulator-5554)

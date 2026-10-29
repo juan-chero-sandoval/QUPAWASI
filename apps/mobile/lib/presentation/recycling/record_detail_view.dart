@@ -9,7 +9,9 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_page.dart';
 import '../../core/widgets/state_message.dart';
+import '../../domain/entities/recycling_record.dart';
 import 'record_detail_view_model.dart';
+import 'record_format.dart';
 
 class RecordDetailView extends StatelessWidget {
   const RecordDetailView({super.key, required this.recordId});
@@ -18,10 +20,12 @@ class RecordDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final local = context.read<AppDependencies>().local;
     return ChangeNotifierProvider(
       key: ValueKey(recordId),
-      create: (context) => RecordDetailViewModel(
-        repository: context.read<AppDependencies>().recordPreviewRepository,
+      create: (_) => RecordDetailViewModel(
+        recycling: local.recycling,
+        overview: local.overview,
         recordId: recordId,
       )..load(),
       child: const _RecordDetailBody(),
@@ -31,6 +35,46 @@ class RecordDetailView extends StatelessWidget {
 
 class _RecordDetailBody extends StatelessWidget {
   const _RecordDetailBody();
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    RecyclingRecord record,
+  ) async {
+    final viewModel = context.read<RecordDetailViewModel>();
+    final summary =
+        '${RecordFormat.quantity(record.material, record.quantity)} en '
+        '${viewModel.pointName(record.pointId)} '
+        '(${record.earnedPoints} EcoPuntos simulados)';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Eliminar registro?'),
+        content: Text(
+          'Se borrará $summary de este dispositivo. No se puede deshacer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final deleted = await viewModel.delete();
+    if (!context.mounted) return;
+    if (deleted) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Registro eliminado.')));
+      context.go(AppRoutes.recycling);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,28 +104,13 @@ class _RecordDetailBody extends StatelessWidget {
             actionLabel: 'Reintentar',
             onAction: viewModel.load,
           ),
-          RecordDetailData(:final record) => Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (record.isDemo) const _DemoChip(),
-                    _Field(label: 'ID', value: record.id),
-                    _Field(label: 'Punto', value: record.pointName),
-                    _Field(label: 'Material', value: record.materialLabel),
-                    _Field(label: 'Cantidad', value: '${record.quantity}'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              OutlinedButton.icon(
-                onPressed: () => context.go(AppRoutes.editRecord(record.id)),
-                icon: const Icon(Icons.edit_outlined),
-                label: const Text('Editar'),
-              ),
-            ],
+          RecordDetailData(:final record) => _RecordDetails(
+            record: record,
+            pointName: viewModel.pointName(record.pointId),
+            isDeleting: viewModel.isDeleting,
+            deleteError: viewModel.deleteError,
+            onEdit: () => context.go(AppRoutes.editRecord(record.id)),
+            onDelete: () => _confirmDelete(context, record),
           ),
         },
       ],
@@ -89,20 +118,97 @@ class _RecordDetailBody extends StatelessWidget {
   }
 }
 
-class _DemoChip extends StatelessWidget {
-  const _DemoChip();
+class _RecordDetails extends StatelessWidget {
+  const _RecordDetails({
+    required this.record,
+    required this.pointName,
+    required this.isDeleting,
+    required this.deleteError,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final RecyclingRecord record;
+  final String pointName;
+  final bool isDeleting;
+  final String? deleteError;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Chip(
-        avatar: Icon(Icons.visibility_outlined, color: palette.onNotice),
-        label: const Text('Dato de ejemplo · no guardado'),
-        backgroundColor: palette.notice,
-        side: BorderSide(color: palette.accent),
-      ),
+    final error = Theme.of(context).colorScheme.error;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  IconBadge(icon: RecordFormat.materialIcon(record.material)),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Text(
+                      RecordFormat.quantity(record.material, record.quantity),
+                      style: Theme.of(context).textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _Field(label: 'Punto', value: pointName),
+              _Field(
+                label: 'EcoPuntos simulados',
+                value: '+${record.earnedPoints}',
+              ),
+              _Field(
+                label: 'Fecha',
+                value: RecordFormat.dateTime(context, record.occurredAt),
+              ),
+              _Field(
+                label: 'Nota',
+                value: record.note.isEmpty ? 'Sin nota' : record.note,
+              ),
+              _Field(
+                label: 'Última edición',
+                value: RecordFormat.dateTime(context, record.updatedAt),
+              ),
+              _Field(label: 'ID', value: record.id),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          'Guardado solo en este dispositivo. No acredita un depósito real.',
+          style: TextStyle(color: palette.textMuted, fontSize: 12),
+        ),
+        if (deleteError != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          Text(deleteError!, style: TextStyle(color: error)),
+        ],
+        const SizedBox(height: AppSpacing.md),
+        FilledButton.icon(
+          onPressed: isDeleting ? null : onEdit,
+          icon: const Icon(Icons.edit_outlined),
+          label: const Text('Editar'),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(foregroundColor: error),
+          onPressed: isDeleting ? null : onDelete,
+          icon: isDeleting
+              ? const SizedBox.square(
+                  dimension: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.delete_outline),
+          label: const Text('Eliminar'),
+        ),
+      ],
     );
   }
 }

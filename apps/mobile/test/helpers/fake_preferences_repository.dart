@@ -17,6 +17,16 @@ class FakePreferencesRepository implements PreferencesRepository {
   final bool failWrites;
   final Completer<AppPreferences>? pendingLoad;
   int writes = 0;
+  PendingRedemption? pending;
+  @override
+  Future<PendingRedemption?> loadPendingRedemption() async => pending;
+  @override
+  Future<void> setPendingRedemption(PendingRedemption? value) async {
+    if (failWrites) {
+      throw const PreferencesException('escritura simulada fallida');
+    }
+    pending = value;
+  }
 
   @override
   Future<AppPreferences> loadPreferences() async {

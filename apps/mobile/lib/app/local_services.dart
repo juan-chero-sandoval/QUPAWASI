@@ -41,6 +41,23 @@ class LocalServices {
         ),
       );
 
+  /// Casos de uso ya construidos, sin conexión propia. Pensado para pruebas de
+  /// UI con repositorios controlados; producción usa [open].
+  factory LocalServices.fromUseCases({
+    required RecyclingUseCases recycling,
+    required OverviewUseCases overview,
+    required RewardsUseCases rewards,
+    required DraftUseCases drafts,
+    required SuggestionsUseCases suggestions,
+  }) => LocalServices._(
+    () async {},
+    recycling: recycling,
+    overview: overview,
+    rewards: rewards,
+    drafts: drafts,
+    suggestions: suggestions,
+  );
+
   static Future<LocalServices> open() async =>
       LocalServices.withDatabase(await AppDatabase.open());
 

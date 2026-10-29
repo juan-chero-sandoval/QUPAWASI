@@ -80,6 +80,7 @@ RewardsRepository: watchCatalog(category?), watchRedemptions()
 DraftRepository: load(key), save(draft), clear(key)
 SuggestionsRepository: list(), create(message), delete(id)
 PreferencesRepository: loadPreferences(), setTheme(mode), setAlias(alias), completeOnboarding()
+  loadPendingRedemption(), setPendingRedemption(PendingRedemption? pending)
 ```
 
 Los casos de uso validan entradas antes de escribir y normalizan errores; repositorios validan invariantes también en la transacción. La vista no captura excepciones SQL sin traducir ni calcula estadísticas. `getById` devuelve null para inexistente; update/delete sobre inexistente tienen resultado tipado `notFound`. Cargar, guardar y eliminar tienen estados visibles y posibilidad de reintentar. Streams cancelados en dispose.
@@ -99,6 +100,18 @@ Editar o eliminar un registro que dejaría `earnedPoints < spentPoints` se recha
 Impacto: contar PET/latas exactamente; masa/CO₂ solo si se define una política de factores de demostración documentada y probada. Sin fuente validada usar “Estimación no configurada”, no números presentados como medidos. Racha calculada por días locales distintos con registros (no número de clics); probar días consecutivos y vacío. Insignias derivadas de datos: primer registro, cinco días, 25 PET, tres puntos distintos, primer canje activo, 30 días. Una edición/eliminación puede revocar una insignia en esta simulación.
 
 ## Borrador y ciclo de vida
+
+F04 guarda una sola confirmación pendiente de canje (`rewardId`, `operationId`)
+en la clave `qupawasi.v1.pendingRedemption` de Shared Preferences **antes** de
+llamar a SQLite. No es el historial ni el saldo: ambos siguen en SQLite. Tras
+éxito se limpia; si falla o se cierra el proceso, Premios ofrece reintentar con
+el mismo identificador. Una confirmación pendiente bloquea otros canjes hasta
+recuperarla o cerrarla explícitamente. Cerrar la confirmación no cancela un canje
+ya guardado; el historial tiene su propia cancelación confirmada.
+
+`OverviewViewModel` comparte el stream de estadísticas entre Inicio, Perfil y
+Premios, lo vuelve a consultar al reanudar y al detectar cambio de día (revisión
+cada minuto mientras la app está abierta). Dispone stream, observador y timer.
 
 Persistir borrador con debounce aproximado 400 ms tras inputs y un flush al pausar/inactive; serializar guardados para impedir que un evento viejo sobrescriba otro. Guardar de forma incremental es necesario porque Android puede matar el proceso sin enviar callback final. Una operación pendiente de debounce se confirma al pasar de paso o navegar atrás.
 

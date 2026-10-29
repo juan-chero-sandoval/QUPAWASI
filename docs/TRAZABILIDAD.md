@@ -6,20 +6,33 @@ La tabla combina evidencia prevista y verificaciones por fase. F01 está integra
 
 | ID | Requisito comprobado en fuente | Implementación prevista | Fase | Prueba/evidencia prevista | Estado inicial |
 | --- | --- | --- | --- | --- | --- |
-| U2-01 | P1: al menos 3 pantallas; rúbrica excelente dice +3 | Cinco pestañas + listado/detalle/formulario | F01/F03/F04 | Rutas y prueba de navegación en Android | F01: 5 pestañas + detalle/formulario/ranking/sugerencias; tests y M02 en emulador. Pantallas funcionales en F03/F04 |
-| U2-02 | P1: paso de parámetros | recordId en detalle/edición y pointId desde mapa | F01/F03/F04 | IDs correctos e inexistentes; captura de formulario preseleccionado | F01: recordId/pointId/category por ruta, ID inexistente y ruta desconocida probados (preview, sin SQLite) |
-| U2-03 | P1: guardar estado temporal en segundo plano | Borrador incremental y flush al pausar | F03 | Background, retorno y reinicio con texto sin guardar | Planificado |
-| U2-04 | P1: árbol de widgets/vistas dinámicas | Componentes reutilizables, listas reactivas | F01/F04 | Datos visibles al crear/editar/eliminar; pantallas pequeñas | F01: componentes comunes y layout 320/360/412 dp × texto 2x probado; listas reactivas pendientes |
-| U2-05 | P1: gestión de estado y eventos | MVVM ChangeNotifier/Provider | F01/F03/F04 | Validación inputs, filtros, confirmaciones y navegación | F01: ViewModels de preferencias y detalle, validación de alias; resto F03/F04 |
-| U2-06 | P2: Shared Preferences para datos simples/config | Tema, onboarding y alias demo | F01 | Cambiar, cerrar proceso, reabrir y leer valores | F01: implementado; tests con repositorio reconstruido y M03 en emulador (force-stop) |
-| U2-07 | P2: CRUD completo SQLite | Registros locales: create/read/update/delete | F02/F03 | SQLite real, reapertura, video de editar/eliminar | F02: repositorios/casos de uso y tests SQLite en archivo aprobados; interfaz/recorrido Android pendientes F03/F05 |
-| U2-08 | P2-3: asincronía y separación de lógica/vista | Drift asíncrono, repositorios/casos de uso | F02/F03 | Tests sin bloqueo, revisión de imports y lifecycle | F02: NativeDatabase.createInBackground, dominio sin plugins y tests de streams/transacciones aprobados; lifecycle UI pendiente F03 |
-| U2-09 | P2: fuente y README con compilación/stack/roles | README definitivo y versiones fijadas | F05 | Clon limpio, comandos y enlaces a cinco contribuciones | Planificado |
-| U2-10 | P2: commits de todo el equipo | Cinco fases con autores reales | Todas | Git log y PR sin squash, al menos una contribución real por integrante | Planificado |
-| U2-11 | P2: video máx. 5 min en YouTube/Drive | Guion y grabación real del equipo | F05 | Enlace accesible, duración y prueba SQLite al reabrir | Planificado |
-| U2-12 | P2: ejecutar en emulador/dispositivo y explicar | APK instalado y sustentación repartida | F05/Todos | Android de prueba, versión, hash APK y explicación por autor | Planificado |
+| U2-01 | P1: al menos 3 pantallas; rúbrica excelente dice +3 | Cinco pestañas + listado/detalle/formulario | F01/F03/F04 | Rutas y prueba de navegación en Android | F01–F04 integradas: cinco pestañas y destinos adicionales; navegación Android F05 y widgets, informe F05 |
+| U2-02 | P1: paso de parámetros | recordId en detalle/edición y pointId desde mapa | F01/F03/F04 | IDs correctos e inexistentes; captura de formulario preseleccionado | Rutas UUID, pointId Biblioteca y registro inexistente comprobados en integración Android; pointId inválido en VM/widgets |
+| U2-03 | P1: guardar estado temporal en segundo plano | Borrador incremental y flush al pausar | F03 | Background, retorno y reinicio con texto sin guardar | Borrador real 1.5/nota/paso tras Home/force-stop/reabrir en APK; callbacks y reapertura nativa automatizados F05 |
+| U2-04 | P1: árbol de widgets/vistas dinámicas | Componentes reutilizables, listas reactivas | F01/F04 | Datos visibles al crear/editar/eliminar; pantallas pequeñas | UI reactiva y layout 320/360/412 × texto1/1.3/2 en ambos temas; F05 corrige superposición detectada en APK |
+| U2-05 | P1: gestión de estado y eventos | MVVM ChangeNotifier/Provider | F01/F03/F04 | Validación inputs, filtros, confirmaciones y navegación | Eventos MVVM, validación/cancelación/doble tap/reintento cubiertos; F05 añade regresiones de descarte/conversión fallida |
+| U2-06 | P2: Shared Preferences para datos simples/config | Tema, onboarding y alias demo | F01 | Cambiar, cerrar proceso, reabrir y leer valores | Tema oscuro/alias/onboarding conservados tras reconstrucción nativa y force-stop real F05; pendientes de canje idempotentes |
+| U2-07 | P2: CRUD completo SQLite | Registros locales: create/read/update/delete | F02/F03 | SQLite real, reapertura, video de editar/eliminar | CRUD Android y SQLite en archivo: PET2 → mismo UUID PET3, una fila/30 → eliminar/0 tras detener y reabrir; video pendiente |
+| U2-08 | P2-3: asincronía y separación de lógica/vista | Drift asíncrono, repositorios/casos de uso | F02/F03 | Tests sin bloqueo, revisión de imports y lifecycle | Drift asíncrono en isolate, dominio puro, vistas sin SQL; streams/observadores dispuestos; errores y transacciones probados |
+| U2-09 | P2: fuente y README con compilación/stack/roles | README definitivo y versiones fijadas | F05 | Clon limpio, comandos y enlaces a cinco contribuciones | README/lockfile/versiones/entorno actualizados F05; 117 tests/build local; CI desde checkout limpio configurada y resultado en PR #9 |
+| U2-10 | P2: commits de todo el equipo | Cinco fases con autores reales | Todas | Git log y PR sin squash, al menos una contribución real por integrante | Cinco contribuciones de implementación preservadas: PR #2/#4/#6/#7/#9; Carla c367b2e y 1cb94a3; log/shortlog en evidencia F05 |
+| U2-11 | P2: video máx. 5 min en YouTube/Drive | Guion y grabación real del equipo | F05 | Enlace accesible, duración y prueba SQLite al reabrir | Guion 4:50 preparado; video real, duración y enlace accesible siguen PENDIENTES del equipo; no se publicó |
+| U2-12 | P2: ejecutar en emulador/dispositivo y explicar | APK instalado y sustentación repartida | F05/Todos | Android de prueba, versión, hash APK y explicación por autor | APK debug 0.2.0+2 instalado en Android17/API37, hash/certificado/procesos en F05; sustentación individual y teléfono físico/TalkBack pendientes |
 
 ## Rúbrica de 20 puntos
+
+Actualización de cobertura F04 (validación local, no sustituye CI/video F05):
+
+| Requisito/casos | Evidencia F04 ejecutada |
+| --- | --- |
+| U2-01/U2-02, M02/M09 | Cinco pestañas conservadas; mapa por UUID válido/inexistente; integración Android Biblioteca → formulario F03 |
+| U2-04/U2-05, M11/M12 | Inicio/Perfil reactivos; filtros y confirmaciones; un canje ante doble tap/reintento; cancelación única y rechazo de CRUD con saldo comprometido; tests SQLite en archivo e integración Android |
+| U2-06/U2-07, M03/M13 | Alias/tema/confirmación pendiente y canje/sugerencia recuperados al recrear dependencias nativas; canje y sugerencia comprobados también con force-stop sin reinstalar |
+| U2-08 | Drift asíncrono en isolate, dominio puro, vistas sin SQL; streams/observadores dispuestos; errores y transacciones probados |
+| M04–M07 | Regresión de widgets y recorrido Android F03 aprobados; CRUD SQLite no modificado |
+| M14 | Layout con scroll a 320/360/412 dp, texto 1/1.3/2, ambos temas y ocho destinos; controles etiquetados/tamaño táctil/contraste comprobados en cinco destinos; sugerencia manual con teclado |
+
+Resultados, capturas y límites de TalkBack/teléfono físico: [informe F04](entregas/F04.md). U2-09–U2-12 y video final siguen pendientes del equipo/F05.
 
 | Criterio textual abreviado | Puntos | Condición para apuntar a excelente |
 | --- | --- | --- |
@@ -34,3 +47,18 @@ La tabla combina evidencia prevista y verificaciones por fase. F01 está integra
 La consigna no exige Supabase, IA, QR real, GPS, push, pagos, publicación en tienda ni firma de producción. El APK es parte de la solicitud del owner y sirve para ejecutar la app; el documento pide código, video y sustentación. Esas extensiones no reemplazan CRUD ni preferencias y quedan fuera del camino crítico.
 
 La ficha técnica y Lab01 sí plantean backend/cámara/GPS y arquitectura conectada; esta etapa mantiene separación de capas para implementarlos después. Registrar en README que el prototipo local no acredita reciclaje real.
+
+## Trazabilidad técnica añadida por F05
+
+| Requisito | Fuente/test verificable | Alcance de la evidencia |
+| --- | --- | --- |
+| U2-02/U2-07 | `integration_test/crud_flow_test.dart` | UI por UUID, crear PET2, reapertura de archivo, editar PET3, una fila/puntos derivados y eliminar; baseline relativo evita ignorar duplicados |
+| U2-03/U2-06 | `integration_test/lifecycle_flow_test.dart` | Plugins nativos: tema/alias/onboarding reconstruidos; entrada inválida y borrador tras callbacks lifecycle y nueva conexión; ejecución y límites en F05 |
+| U2-05/U2-08 | `test/presentation/record_form_view_model_test.dart` | SQLite en archivo, error inyectado solo en clear: descartar/convertir no informa éxito falso; reintento confirma borrado tras reapertura |
+| U2-04 | `test/presentation/layout_test.dart`, `experience_accessibility_test.dart` | UI reactiva y layout 320/360/412 × texto1/1.3/2 en ambos temas; F05 corrige superposición detectada en APK |
+| U2-09 | README, `pubspec.yaml`, `pubspec.lock`, workflow mobile | README/lockfile/versiones/entorno actualizados F05; 117 tests/build local; CI desde checkout limpio configurada y resultado en PR #9 |
+| U2-10 | Git log, PR #2/#4/#6/#7 y PR F05 | Cinco contribuciones de implementación preservadas: PR #2/#4/#6/#7/#9; Carla c367b2e y 1cb94a3; log/shortlog en evidencia F05 |
+| U2-11 | `docs/VIDEO_Y_SUSTENTACION.md` | Guion 4:50 preparado; video real, duración y enlace accesible siguen PENDIENTES del equipo; no se publicó |
+| U2-12 | `docs/entregas/F05.md` | APK debug 0.2.0+2 instalado en Android17/API37, hash/certificado/procesos en F05; sustentación individual y teléfono físico/TalkBack pendientes |
+
+El informe [F05](entregas/F05.md) distingue automatización, callbacks inyectados, reapertura de repositorios y detención real del proceso. Ningún resultado de fases anteriores se convierte automáticamente en aprobación manual F05. La entrega académica sigue incompleta mientras falte el video y la sustentación.

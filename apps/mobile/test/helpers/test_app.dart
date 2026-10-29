@@ -4,11 +4,12 @@ import 'package:qupa_wasi/app/app.dart';
 import 'package:qupa_wasi/app/dependencies.dart';
 import 'package:qupa_wasi/app/routes.dart';
 import 'package:qupa_wasi/data/preferences/shared_preferences_repository.dart';
-import 'package:qupa_wasi/data/preview/demo_record_preview_repository.dart';
 import 'package:qupa_wasi/presentation/settings/app_settings_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+
+import 'fake_local_services.dart';
 
 /// Almacén de preferencias en memoria compartido entre "aperturas" de la app.
 void resetPreferencesStore([Map<String, Object> data = const {}]) {
@@ -18,9 +19,12 @@ void resetPreferencesStore([Map<String, Object> data = const {}]) {
 
 /// Simula abrir la app: repositorio y ViewModel nuevos sobre el mismo
 /// almacén, como hace `main()`.
+///
+/// [local] conserva los registros entre aperturas dentro de una prueba.
 Future<AppSettingsViewModel> openApp(
   WidgetTester tester, {
   String initialLocation = AppRoutes.home,
+  FakeLocal? local,
 }) async {
   final repository = SharedPreferencesRepository(SharedPreferencesAsync());
   final settings = AppSettingsViewModel(repository);
@@ -31,7 +35,7 @@ Future<AppSettingsViewModel> openApp(
     QupaWasiApp(
       dependencies: AppDependencies(
         preferencesRepository: repository,
-        recordPreviewRepository: const DemoRecordPreviewRepository(),
+        local: (local ?? FakeLocal()).services,
       ),
       settings: settings,
       initialLocation: initialLocation,
