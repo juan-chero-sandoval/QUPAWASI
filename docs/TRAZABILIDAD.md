@@ -21,6 +21,19 @@ La tabla combina evidencia prevista y verificaciones por fase. F01 está integra
 
 ## Rúbrica de 20 puntos
 
+Actualización de cobertura F04 (validación local, no sustituye CI/video F05):
+
+| Requisito/casos | Evidencia F04 ejecutada |
+| --- | --- |
+| U2-01/U2-02, M02/M09 | Cinco pestañas conservadas; mapa por UUID válido/inexistente; integración Android Biblioteca → formulario F03 |
+| U2-04/U2-05, M11/M12 | Inicio/Perfil reactivos; filtros y confirmaciones; un canje ante doble tap/reintento; cancelación única y rechazo de CRUD con saldo comprometido; tests SQLite en archivo e integración Android |
+| U2-06/U2-07, M03/M13 | Alias/tema/confirmación pendiente y canje/sugerencia recuperados al recrear dependencias nativas; canje y sugerencia comprobados también con force-stop sin reinstalar |
+| U2-08 | Streams/observador/timer dispuestos; racha reconsultada al reanudar tras días sin escrituras; errores de almacenamiento con reintento |
+| M04–M07 | Regresión de widgets y recorrido Android F03 aprobados; CRUD SQLite no modificado |
+| M14 | Layout con scroll a 320/360/412 dp, texto 1/1.3/2, ambos temas y ocho destinos; controles etiquetados/tamaño táctil/contraste comprobados en cinco destinos; sugerencia manual con teclado |
+
+Resultados, capturas y límites de TalkBack/teléfono físico: [informe F04](entregas/F04.md). U2-09–U2-12 y video final siguen pendientes del equipo/F05.
+
 | Criterio textual abreviado | Puntos | Condición para apuntar a excelente |
 | --- | --- | --- |
 | Navegación y UI Dinámica | 4 | Más de tres pantallas, argumentos, widgets reutilizables y adaptables |

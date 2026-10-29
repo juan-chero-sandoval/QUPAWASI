@@ -12,4 +12,14 @@ abstract interface class PreferencesRepository {
   Future<void> setAlias(String alias);
 
   Future<void> completeOnboarding();
+
+  /// One recoverable confirmation, not the redemption ledger (which is SQLite).
+  Future<PendingRedemption?> loadPendingRedemption();
+  Future<void> setPendingRedemption(PendingRedemption? pending);
+}
+
+class PendingRedemption {
+  const PendingRedemption(this.rewardId, this.operationId);
+  final String rewardId;
+  final String operationId;
 }

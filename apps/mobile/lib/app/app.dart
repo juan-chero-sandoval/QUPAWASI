@@ -8,6 +8,7 @@ import '../presentation/settings/app_settings_view_model.dart';
 import 'dependencies.dart';
 import 'router.dart';
 import 'routes.dart';
+import '../presentation/home/overview_view_model.dart';
 
 class QupaWasiApp extends StatefulWidget {
   const QupaWasiApp({
@@ -45,6 +46,9 @@ class _QupaWasiAppState extends State<QupaWasiApp> {
     return MultiProvider(
       providers: [
         Provider<AppDependencies>.value(value: widget.dependencies),
+        ChangeNotifierProvider(
+          create: (_) => OverviewViewModel(widget.dependencies.local.overview),
+        ),
         ChangeNotifierProvider<AppSettingsViewModel>.value(
           value: widget.settings,
         ),

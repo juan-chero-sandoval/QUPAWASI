@@ -211,8 +211,11 @@ class _FakeRewards implements RewardsRepository {
   const _FakeRewards();
 
   @override
-  Stream<List<Reward>> watchCatalog({RewardCategory? category}) =>
-      Stream.value(const []);
+  Stream<List<Reward>> watchCatalog({RewardCategory? category}) => Stream.value(
+    DemoSeed.rewards
+        .where((r) => category == null || r.category == category)
+        .toList(),
+  );
 
   @override
   Stream<List<Redemption>> watchRedemptions() => Stream.value(const []);
