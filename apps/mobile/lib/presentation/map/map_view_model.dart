@@ -18,7 +18,8 @@ class MapViewModel extends ChangeNotifier {
   }) : selected = pointId {
     _subscription = overview.watchPoints().listen(
       (value) {
-        points = value;
+        // Los tachos desactivados conservan historial pero no se ofrecen.
+        points = value.where((p) => p.isActive).toList();
         loading = false;
         error = null;
         selected ??= points.firstOrNull?.id;

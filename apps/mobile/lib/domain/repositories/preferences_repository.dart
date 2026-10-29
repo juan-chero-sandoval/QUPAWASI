@@ -13,6 +13,9 @@ abstract interface class PreferencesRepository {
 
   Future<void> completeOnboarding();
 
+  /// Activa o desactiva el modo administrador simulado.
+  Future<void> setAdminMode(bool enabled);
+
   /// One recoverable confirmation, not the redemption ledger (which is SQLite).
   Future<PendingRedemption?> loadPendingRedemption();
   Future<void> setPendingRedemption(PendingRedemption? pending);

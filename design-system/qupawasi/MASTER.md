@@ -69,3 +69,14 @@ contraste propio. Estados bloqueado/logrado incluyen texto además de color.
 
 Los nombres de las rutas, teclas de widgets y reglas de negocio de C01 se
 mantienen. Prohibido reintroducir alta manual nueva o botón Sugerencias.
+
+## Avisos y textos (C03)
+
+- Simulación: chip compacto «Simulado» en la cabecera de cada pantalla, con
+  explicación al tocarlo. Sin red cambia el icono; el texto no cambia.
+- Feedback: toast superior `AppToast` (éxito/error/info con icono y color),
+  autocierre 3 s (errores 5 s), descartable, uno a la vez, sin animación con
+  movimiento reducido. No usar SnackBar ni dejar estados como texto en la página.
+- Errores de campo siguen junto al campo; estados vacíos con icono, título y acción.
+- Texto mínimo: títulos, datos y acciones. Las explicaciones van en el chip, en
+  tooltips o en diálogos de confirmación. [Entrega C03](../../docs/entregas/C03.md).

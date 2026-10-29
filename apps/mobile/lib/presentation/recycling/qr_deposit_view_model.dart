@@ -49,6 +49,12 @@ class QrDepositViewModel extends ChangeNotifier {
           'Tacho desconocido. Actualiza el catálogo de ubicaciones.',
         );
       }
+      if (!selected.isActive) {
+        throw const LocalDataException(
+          LocalDataError.validation,
+          'Este tacho está desactivado. Usa otro punto.',
+        );
+      }
       if (expectedPointId != null && expectedPointId != selected.id) {
         throw const LocalDataException(
           LocalDataError.validation,

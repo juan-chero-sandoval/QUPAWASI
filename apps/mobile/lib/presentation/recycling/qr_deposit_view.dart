@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/dependencies.dart';
 import '../../app/routes.dart';
+import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/app_page.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/brand_surfaces.dart';
@@ -45,14 +46,13 @@ class _BodyState extends State<_Body> {
           : await Navigator.of(context, rootNavigator: true).push<String>(
               MaterialPageRoute(builder: (_) => const QrCameraView()),
             );
-      if (raw != null && mounted) await vm.read(raw);
+      if (raw != null && mounted) {
+        await vm.read(raw);
+        if (mounted && vm.error != null) AppToast.error(context, vm.error!);
+      }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo abrir la cámara. Reintenta.'),
-          ),
-        );
+        AppToast.error(context, 'No se pudo abrir la cámara. Reintenta.');
       }
     } finally {
       if (mounted) setState(() => scanning = false);
@@ -63,10 +63,31 @@ class _BodyState extends State<_Body> {
   Widget build(BuildContext context) {
     final vm = context.watch<QrDepositViewModel>();
     final receipt = vm.receipt;
-    final p = AppPalette.of(context);
     return AppPage(
       title: 'Registrar reciclaje',
       showBack: true,
+      bottomAction: receipt == null
+          ? FilledButton.icon(
+              onPressed: scanning || vm.busy ? null : scan,
+              icon: const Icon(Icons.qr_code_scanner_rounded),
+              label: const Text('Escanear QR'),
+            )
+          : FilledButton.icon(
+              onPressed: vm.busy
+                  ? null
+                  : () async {
+                      final id = await vm.confirm();
+                      if (!context.mounted) return;
+                      if (id != null) {
+                        AppToast.success(context, 'Reciclaje registrado');
+                        context.go(AppRoutes.recordDetail(id));
+                      } else if (vm.error != null) {
+                        AppToast.error(context, vm.error!);
+                      }
+                    },
+              icon: const Icon(Icons.check_rounded),
+              label: Text(vm.busy ? 'Guardando…' : 'Confirmar reciclaje'),
+            ),
       children: [
         Row(
           children: [
@@ -100,24 +121,8 @@ class _BodyState extends State<_Body> {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  'El tacho envía material, cantidad, fecha, hora y ubicación. No necesitas ingresarlos manualmente.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: p.textMuted,
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                ),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: scanning || vm.busy ? null : scan,
-            icon: const Icon(Icons.qr_code_scanner_rounded),
-            label: const Text('Escanear QR'),
           ),
         ] else ...[
           AppCard(
@@ -139,7 +144,7 @@ class _BodyState extends State<_Body> {
                 ),
                 const SizedBox(height: 20),
                 StatusPill(
-                  label: '+${vm.points} EcoPuntos simulados',
+                  label: '+${vm.points} EcoPuntos',
                   icon: Icons.eco_outlined,
                   highlighted: true,
                 ),
@@ -163,43 +168,16 @@ class _BodyState extends State<_Body> {
                   label: 'Depósito',
                   value: receipt.depositId,
                 ),
-                Text(
-                  'Datos emitidos por el tacho · solo lectura',
-                  style: TextStyle(fontSize: 13, color: p.textMuted),
-                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: vm.busy
-                ? null
-                : () async {
-                    final id = await vm.confirm();
-                    if (id != null && context.mounted) {
-                      context.go(AppRoutes.recordDetail(id));
-                    }
-                  },
-            child: Text(vm.busy ? 'Guardando…' : 'Confirmar reciclaje'),
-          ),
-          OutlinedButton(
+          OutlinedButton.icon(
             onPressed: vm.busy ? null : vm.clear,
-            child: const Text('Leer otro QR'),
+            icon: const Icon(Icons.qr_code_scanner_rounded),
+            label: const Text('Leer otro QR'),
           ),
         ],
-        if (vm.error != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text(
-              vm.error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        const SizedBox(height: 16),
-        Text(
-          'Los puntos se guardan en tu perfil local. Los QR aún no tienen verificación de un servidor.',
-          style: TextStyle(color: p.textMuted, fontSize: 13, height: 1.5),
-        ),
       ],
     );
   }

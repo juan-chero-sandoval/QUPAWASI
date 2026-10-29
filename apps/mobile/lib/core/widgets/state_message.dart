@@ -11,7 +11,7 @@ class StateMessage extends StatelessWidget {
     super.key,
     required this.icon,
     required this.title,
-    required this.message,
+    this.message,
     this.actionLabel,
     this.onAction,
   });
@@ -19,7 +19,7 @@ class StateMessage extends StatelessWidget {
   /// Indica honestamente que la función se implementa en otra fase.
   const StateMessage.inPreparation({
     super.key,
-    required this.message,
+    this.message,
     this.actionLabel,
     this.onAction,
   }) : icon = Icons.construction_outlined,
@@ -27,7 +27,7 @@ class StateMessage extends StatelessWidget {
 
   final IconData icon;
   final String title;
-  final String message;
+  final String? message;
   final String? actionLabel;
   final VoidCallback? onAction;
 
@@ -46,12 +46,14 @@ class StateMessage extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium
                 ?.copyWith(fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: palette.textMuted),
-          ),
+          if (message != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              message!,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: palette.textMuted),
+            ),
+          ],
           if (actionLabel != null && onAction != null) ...[
             const SizedBox(height: AppSpacing.md),
             OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),

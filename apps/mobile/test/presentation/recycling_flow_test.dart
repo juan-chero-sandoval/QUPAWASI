@@ -27,7 +27,7 @@ void main() {
     expect(find.byKey(const Key('quantity-field')), findsNothing);
     await tapVisible(tester, find.text('Escanear QR'));
     expect(find.text('PET × 2'), findsOneWidget);
-    expect(find.text('+20 EcoPuntos simulados'), findsOneWidget);
+    expect(find.text('+20 EcoPuntos'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
     await tapVisible(tester, find.text('Confirmar reciclaje'));
     expect(find.text('Detalle del registro'), findsOneWidget);

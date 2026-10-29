@@ -33,6 +33,16 @@ La tabla combina evidencia prevista y verificaciones por fase. F01 está integra
 | U2-11 | P2: video máx. 5 min en YouTube/Drive | Guion y grabación real del equipo | F05 | Enlace accesible, duración y prueba SQLite al reabrir | Guion 4:50 preparado; video real, duración y enlace accesible siguen PENDIENTES del equipo; no se publicó |
 | U2-12 | P2: ejecutar en emulador/dispositivo y explicar | APK instalado y sustentación repartida | F05/Todos | Android de prueba, versión, hash APK y explicación por autor | APK debug 0.2.0+2 instalado en Android17/API37, hash/certificado/procesos en F05; sustentación individual y teléfono físico/TalkBack pendientes |
 
+## Refuerzo C03 frente a la rúbrica
+
+| Criterio | Qué añade C03 | Evidencia |
+| --- | --- | --- |
+| Persistencia (6) | CRUD completo en SQLite de tachos y recompensas (crear, leer, editar mismo ID, eliminar o desactivar con historial), migración v2 → v3 con datos | `test/data/sqlite_admin_catalog_test.dart` |
+| Interactividad (4) | Formularios con validación por campo, GPS, toasts de éxito/error, confirmaciones | `test/presentation/admin_form_view_model_test.dart`, `admin_flow_test.dart` |
+| Ciclo de vida (3) | Borrador de formularios de admin con debounce, escritura al pausar y oferta al reabrir | Pruebas anteriores y emulador con force-stop ([entrega C03](entregas/C03.md)) |
+| Prefs | Modo administrador persistente | `admin_flow_test.dart` y emulador |
+| Navegación (4) | Rutas `/admin/...` por ID con guarda; botón principal fijo siempre visible | `admin_flow_test.dart`, `layout_test.dart` |
+
 ## Rúbrica de 20 puntos
 
 Actualización de cobertura F04 (validación local, no sustituye CI/video F05):

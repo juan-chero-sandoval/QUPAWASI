@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:qupa_wasi/core/widgets/prototype_banner.dart';
+import 'package:qupa_wasi/core/widgets/simulation_chip.dart';
 import 'package:qupa_wasi/presentation/common/connection_view_model.dart';
 
 void main() {
@@ -15,20 +15,20 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider.value(
           value: vm,
-          child: const MaterialApp(home: Scaffold(body: PrototypeBanner())),
+          child: const MaterialApp(home: Scaffold(body: SimulationChip())),
         ),
       );
-      expect(find.text(PrototypeBanner.message), findsOneWidget);
+      expect(find.text('Simulado'), findsOneWidget);
       stream.add(false);
       await tester.pumpAndSettle();
-      expect(find.textContaining('Sin conexión'), findsOneWidget);
+      expect(find.byIcon(Icons.wifi_off_rounded), findsOneWidget);
       stream.add(true);
       await tester.pumpAndSettle();
-      expect(find.textContaining('Sin conexión'), findsNothing);
-      expect(find.text(PrototypeBanner.message), findsOneWidget);
+      expect(find.byIcon(Icons.wifi_off_rounded), findsNothing);
+      expect(find.text('Simulado'), findsOneWidget);
       stream.add(false);
       await tester.pumpAndSettle();
-      expect(find.textContaining('Sin conexión'), findsOneWidget);
+      expect(find.byIcon(Icons.wifi_off_rounded), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
       vm.dispose();
       unawaited(stream.close());

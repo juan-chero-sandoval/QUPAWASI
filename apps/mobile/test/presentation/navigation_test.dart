@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qupa_wasi/app/routes.dart';
 import 'package:qupa_wasi/data/local/demo_seed.dart';
 import 'package:qupa_wasi/domain/entities/recycling_record.dart';
-import 'package:qupa_wasi/core/widgets/prototype_banner.dart';
+import 'package:qupa_wasi/core/widgets/simulation_chip.dart';
 import 'package:qupa_wasi/presentation/common/not_found_view.dart';
 import 'package:qupa_wasi/presentation/home/home_view.dart';
 import 'package:qupa_wasi/presentation/map/map_view.dart';
@@ -47,7 +47,7 @@ void main() {
           findsOneWidget,
         );
       }
-      expect(find.text(PrototypeBanner.message), findsOneWidget);
+      expect(find.byType(SimulationChip), findsOneWidget);
     }
   });
 

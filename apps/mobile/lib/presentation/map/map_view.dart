@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../app/dependencies.dart';
 import '../../app/routes.dart';
 import '../../core/widgets/app_page.dart';
+import '../../core/widgets/app_toast.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/state_message.dart';
 import '../../core/theme/app_palette.dart';
@@ -78,10 +80,7 @@ class _Body extends StatelessWidget {
     controller.dispose();
     if (raw == null) return;
     final ok = await vm.importJson(raw);
-    if (ok && context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Catálogo guardado.')));
-    }
+    if (ok && context.mounted) AppToast.success(context, 'Catálogo guardado');
   }
 
   @override
@@ -97,36 +96,42 @@ class _Body extends StatelessWidget {
     final point = vm.selectedPoint;
     final nearest = vm.ranked.firstOrNull;
     final distances = {for (final r in vm.ranked) r.point.id: r.meters};
-    return AppPage(
+    final page = AppPage(
       title: 'Mapa',
-      children: [
-        const Text(
-          'Consulta los tachos registrados. Tu ubicación se usa solo al solicitarla y no se guarda.',
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: vm.locating ? null : vm.findNearest,
-          icon: const Icon(Icons.my_location),
-          label: Text(
-            vm.locating ? 'Buscando ubicación…' : 'Usar mi ubicación',
-          ),
-        ),
-        TextButton.icon(
+      bottomAction: point == null
+          ? null
+          : FilledButton.icon(
+              onPressed: () =>
+                  context.go(AppRoutes.newRecord(pointId: point.id)),
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text('Registrar en este punto'),
+            ),
+      actions: [
+        IconButton(
+          tooltip: 'Cargar catálogo de tachos',
           onPressed: vm.importing ? null : () => import(context, vm),
           icon: const Icon(Icons.file_upload_outlined),
-          label: const Text('Cargar catálogo de tachos'),
         ),
-        if (vm.loading) const Center(child: CircularProgressIndicator()),
-        if (vm.error != null)
-          Text(
-            vm.error!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+      ],
+      children: [
+        Tooltip(
+          message: 'Tu ubicación se usa solo al pedirla y no se guarda',
+          child: OutlinedButton.icon(
+            onPressed: vm.locating ? null : vm.findNearest,
+            icon: const Icon(Icons.my_location),
+            label: Text(
+              vm.locating ? 'Buscando ubicación…' : 'Usar mi ubicación',
+            ),
           ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        if (vm.loading) const Center(child: CircularProgressIndicator()),
         if (geographic.isEmpty)
-          const StateMessage(
+          StateMessage(
             icon: Icons.map_outlined,
-            title: 'Tus puntos, más cerca',
-            message: 'Aún no hay ubicaciones geográficas. Carga las coordenadas de los tachos para ver el mapa. Los puntos de ejemplo no indican ubicaciones reales.',
+            title: 'Sin ubicaciones en el mapa',
+            actionLabel: 'Cargar catálogo',
+            onAction: vm.importing ? null : () => import(context, vm),
           ),
         if (geographic.isNotEmpty) ...[
           ClipRRect(
@@ -193,25 +198,39 @@ class _Body extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            online
-                ? '© OpenStreetMap contributors · openstreetmap.org/copyright'
-                : 'Mapa base no disponible sin internet. Los marcadores y distancias del catálogo siguen disponibles.',
-          ),
+          if (online)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                '© OpenStreetMap contributors',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppPalette.of(context).textMuted,
+                ),
+              ),
+            ),
         ],
         if (nearest != null)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              'Más cercano: ${nearest.point.name} · ${nearest.meters.round()} m en línea recta (no es una ruta peatonal).',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.only(top: AppSpacing.md),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.near_me_outlined,
+                  color: AppPalette.of(context).brand,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    'Más cercano: ${nearest.point.name} · '
+                    '${nearest.meters.round()} m',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
           ),
-        const SizedBox(height: 16),
-        Text(
-          'Tachos del catálogo',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        const SectionHeader(title: 'Tachos'),
         for (final p in vm.points)
           ListTile(
             key: ValueKey('point-${p.id}'),
@@ -222,13 +241,9 @@ class _Body extends StatelessWidget {
                   : Icons.radio_button_off,
             ),
             title: Text(p.name),
-            subtitle: Text(
-              p.isDemo
-                  ? 'Punto de ejemplo · no indica disponibilidad real'
-                  : (distances[p.id] != null
-                        ? '${distances[p.id]!.round()} m en línea recta'
-                        : 'Ubicación registrada en el catálogo'),
-            ),
+            subtitle: distances[p.id] == null
+                ? null
+                : Text('${distances[p.id]!.round()} m en línea recta'),
             onTap: () => vm.select(p.id),
           ),
         if (!vm.loading && point == null)
@@ -238,25 +253,23 @@ class _Body extends StatelessWidget {
                 : 'Punto no encontrado. Elige uno de la lista.',
           ),
         if (point != null) ...[
-          AppCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(point.name, style: Theme.of(context).textTheme.titleLarge),
-                Text(point.description),
-                if (validCoordinates(point.latitude, point.longitude))
-                  Text('${point.latitude}, ${point.longitude}'),
-              ],
+          if (validCoordinates(point.latitude, point.longitude))
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    point.name,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  if (validCoordinates(point.latitude, point.longitude))
+                    Text('${point.latitude}, ${point.longitude}'),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: () => context.go(AppRoutes.newRecord(pointId: point.id)),
-            icon: const Icon(Icons.qr_code_scanner),
-            label: const Text('Registrar en este punto'),
-          ),
         ],
       ],
     );
+    return ToastListener(listenable: vm, message: () => vm.error, child: page);
   }
 }

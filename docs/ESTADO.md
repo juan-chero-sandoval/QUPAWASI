@@ -1,5 +1,18 @@
 # Estado y siguiente turno
 
+## Rediseño C03 · avisos y textos
+
+Rama `codex/c03-rediseno-ui` desde `develop` (`b77628c`), de Cristopher. Chip
+«Simulado» en la cabecera, toasts superiores en lugar de SnackBars y mensajes en
+línea, y textos mínimos; paleta, rutas y dominio sin cambios. 164 tests,
+análisis y APK debug aprobados; revisión en emulador. [Entrega C03](entregas/C03.md).
+Segunda parte (rúbrica): CRUD de tachos con GPS y de recompensas en modo
+administrador simulado, migración SQLite v3, borradores de formularios y botón
+principal fijo (corrige el CI `android-integration`). 189 tests. Guion del video
+actualizado al flujo actual.
+Pedido pendiente aparte: Supabase con EcoPuntos verificados, login institucional
+y roles, que requiere acuerdo con el owner porque AGENTS.md lo excluye hoy.
+
 ## Diseño C02
 
 En trabajo local en `codex/f05-diseno-c02`, conservando C01 sin commit/push.

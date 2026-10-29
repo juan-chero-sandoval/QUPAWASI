@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qupa_wasi/app/routes.dart';
 
+import 'package:qupa_wasi/data/preferences/shared_preferences_repository.dart';
+
 import '../helpers/test_app.dart';
 import '../helpers/load_fonts.dart';
 
@@ -22,6 +24,10 @@ void main() {
     AppRoutes.profile,
     AppRoutes.ranking,
     AppRoutes.suggestions,
+    AppRoutes.adminPoints,
+    '/admin/points/new',
+    AppRoutes.adminRewards,
+    '/admin/rewards/new',
   ];
 
   for (final width in widths) {
@@ -34,9 +40,14 @@ void main() {
         addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
         for (final location in locations) {
-          resetPreferencesStore(
-            location == AppRoutes.welcome ? const {} : onboardedStore,
-          );
+          resetPreferencesStore(switch (location) {
+            AppRoutes.welcome => const {},
+            final admin when admin.startsWith(AppRoutes.admin) => const {
+              ...onboardedStore,
+              SharedPreferencesRepository.adminKey: true,
+            },
+            _ => onboardedStore,
+          });
           for (final dark in [false, true]) {
             tester.platformDispatcher.platformBrightnessTestValue = dark
                 ? Brightness.dark

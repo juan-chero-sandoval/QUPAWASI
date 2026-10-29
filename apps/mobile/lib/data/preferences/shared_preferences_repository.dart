@@ -14,6 +14,7 @@ class SharedPreferencesRepository implements PreferencesRepository {
   static const String onboardingKey = 'qupawasi.v1.onboardingCompleted';
   static const String aliasKey = 'qupawasi.v1.alias';
   static const pendingKey = 'qupawasi.v1.pendingRedemption';
+  static const String adminKey = 'qupawasi.v1.adminMode';
 
   @override
   Future<PendingRedemption?> loadPendingRedemption() async {
@@ -39,7 +40,7 @@ class SharedPreferencesRepository implements PreferencesRepository {
   Future<AppPreferences> loadPreferences() async {
     try {
       final values = await _preferences.getAll(
-        allowList: {themeKey, onboardingKey, aliasKey},
+        allowList: {themeKey, onboardingKey, aliasKey, adminKey},
       );
       final storedAlias = values[aliasKey];
       final alias =
@@ -48,10 +49,12 @@ class SharedPreferencesRepository implements PreferencesRepository {
           : LocalAlias.defaultValue;
       final onboarding = values[onboardingKey];
       final theme = values[themeKey];
+      final admin = values[adminKey];
       return AppPreferences(
         themePreference: ThemePreference.parse(theme is String ? theme : null),
         onboardingCompleted: onboarding is bool && onboarding,
         alias: alias,
+        adminMode: admin is bool && admin,
       );
     } on Exception catch (error) {
       throw PreferencesException(
@@ -78,6 +81,10 @@ class SharedPreferencesRepository implements PreferencesRepository {
   @override
   Future<void> completeOnboarding() =>
       _write(() => _preferences.setBool(onboardingKey, true));
+
+  @override
+  Future<void> setAdminMode(bool enabled) =>
+      _write(() => _preferences.setBool(adminKey, enabled));
 
   Future<void> _write(Future<void> Function() action) async {
     try {

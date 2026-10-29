@@ -31,9 +31,7 @@ class _RecordNoteDialogState extends State<RecordNoteDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'El material, cantidad, fecha y ubicación del tacho no se modifican.',
-            ),
+            const Text('Solo cambia la nota.'),
             TextField(
               controller: controller,
               maxLength: 200,

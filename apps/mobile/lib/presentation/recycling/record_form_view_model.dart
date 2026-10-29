@@ -129,10 +129,16 @@ class RecordFormViewModel extends ChangeNotifier {
   Future<void> load() async {
     _setStatus(RecordFormStatus.loading);
     try {
-      _points = await _overview.listPoints();
+      final allPoints = await _overview.listPoints();
+      // Solo tachos activos para nuevos usos; al editar se conserva el actual.
+      _points = allPoints.where((p) => p.isActive).toList();
       final draft = await _drafts.load(draftKey);
       if (isEditing) {
         final record = await _recycling.get(_recordId!);
+        final current = allPoints
+            .where((p) => p.id == record?.pointId && !p.isActive)
+            .firstOrNull;
+        if (current != null) _points = [..._points, current];
         final ownDraft = draft?.recordId == _recordId ? draft : null;
         if (record == null) {
           _offeredDraft = ownDraft;

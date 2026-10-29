@@ -14,6 +14,8 @@ import '../domain/usecases/suggestions_use_cases.dart';
 import '../domain/usecases/deposit_use_cases.dart';
 import '../domain/usecases/point_catalog_use_cases.dart';
 import '../data/repositories/sqlite_deposits_repository.dart';
+import '../data/repositories/sqlite_admin_catalog_repository.dart';
+import '../domain/usecases/admin_catalog_use_cases.dart';
 
 /// Composición F02. Las vistas consumen casos de uso; no reciben conexión SQL.
 class LocalServices {
@@ -26,6 +28,7 @@ class LocalServices {
     required this.suggestions,
     this.deposits,
     this.catalog,
+    this.admin,
   });
 
   factory LocalServices.withDatabase(AppDatabase db, {Clock? clock}) =>
@@ -49,7 +52,17 @@ class LocalServices {
         suggestions: SuggestionsUseCases(
           SqliteSuggestionsRepository(db, clock: clock),
         ),
+        admin: _admin(db),
       );
+
+  static AdminCatalogUseCases _admin(AppDatabase db) {
+    final catalog = SqliteAdminCatalogRepository(db);
+    return AdminCatalogUseCases(
+      catalog,
+      catalog,
+      SqliteFormDraftRepository(db),
+    );
+  }
 
   /// Casos de uso ya construidos, sin conexión propia. Pensado para pruebas de
   /// UI con repositorios controlados; producción usa [open].
@@ -61,6 +74,7 @@ class LocalServices {
     required SuggestionsUseCases suggestions,
     DepositUseCases? deposits,
     PointCatalogUseCases? catalog,
+    AdminCatalogUseCases? admin,
   }) => LocalServices._(
     () async {},
     recycling: recycling,
@@ -70,6 +84,7 @@ class LocalServices {
     suggestions: suggestions,
     deposits: deposits,
     catalog: catalog,
+    admin: admin,
   );
 
   static Future<LocalServices> open() async =>
@@ -82,6 +97,9 @@ class LocalServices {
   final SuggestionsUseCases suggestions;
   final DepositUseCases? deposits;
   final PointCatalogUseCases? catalog;
+
+  /// CRUD de tachos y recompensas del modo administrador simulado.
+  final AdminCatalogUseCases? admin;
   final Future<void> Function() _close;
   Future<void>? _closing;
 

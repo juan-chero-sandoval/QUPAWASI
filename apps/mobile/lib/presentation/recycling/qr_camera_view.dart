@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-import '../../core/widgets/prototype_banner.dart';
+import '../../core/widgets/simulation_chip.dart';
 
 class QrCameraView extends StatefulWidget {
   const QrCameraView({super.key});
@@ -58,19 +58,14 @@ class _QrCameraViewState extends State<QrCameraView>
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Escanear QR del tacho')),
+    appBar: AppBar(
+      title: const Text('Escanear QR'),
+      actions: const [SimulationChip(), SizedBox(width: 8)],
+    ),
     body: SafeArea(
       top: false,
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: PrototypeBanner(),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Apunta al recibo QR generado después del depósito.'),
-          ),
           Expanded(
             child: error != null
                 ? Center(child: Text(error!))
@@ -98,12 +93,13 @@ class _QrCameraViewState extends State<QrCameraView>
           ),
           Padding(
             padding: const EdgeInsets.all(16),
-            child: FilledButton(
+            child: OutlinedButton.icon(
               onPressed: () {
                 setState(() => error = null);
                 unawaited(start());
               },
-              child: const Text('Reintentar cámara'),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Reintentar cámara'),
             ),
           ),
         ],

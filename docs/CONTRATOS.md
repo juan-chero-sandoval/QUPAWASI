@@ -1,5 +1,27 @@
 # Arquitectura y contratos comunes
 
+## Ampliación C03 · administrador simulado
+
+Modo administrador **simulado** (sin cuenta ni permisos reales), activado en
+Perfil y guardado en Shared Preferences `qupawasi.v1.adminMode`
+(`PreferencesRepository.setAdminMode`). Habilita el CRUD de tachos y de
+recompensas mediante `LocalServices.admin` (`AdminCatalogUseCases`).
+
+SQLite v3, migración aditiva v2 → v3 probada con datos: `recycling_points.is_active`,
+tabla `form_drafts(key, payload JSON ≤ 4000, updated_at)` para los borradores
+de los formularios de admin y `app_flags` para sembrar los datos de ejemplo una
+sola vez (lo que el admin borra no reaparece). Un tacho con registros o una
+recompensa con canjes no se borra (`LocalDataError.conflict`): se desactiva y
+deja de ofrecerse, conservando historial y snapshots. Coordenadas del tacho
+obligatorias y validadas; se rellenan con GPS o se escriben.
+
+| Ruta | Semántica |
+| --- | --- |
+| `/admin/points` · `/admin/points/new` · `/admin/points/:pointId` | Lista, alta y edición de tachos |
+| `/admin/rewards` · `/admin/rewards/new` · `/admin/rewards/:rewardId` | Lista, alta y edición de recompensas |
+
+Sin modo administrador activo, toda ruta `/admin` redirige a `/profile`.
+
 ## Contrato vigente C01
 
 Consultar [QR y ubicaciones](QR_Y_UBICACIONES.md). Sustituye el alta manual

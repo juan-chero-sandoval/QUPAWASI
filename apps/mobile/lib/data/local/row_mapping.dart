@@ -32,6 +32,7 @@ RecyclingPoint pointFromRow(QueryRow row) => RecyclingPoint(
   latitude: row.readNullable<double>('latitude'),
   longitude: row.readNullable<double>('longitude'),
   isDemo: row.read<int>('is_demo') == 1,
+  isActive: row.read<int>('is_active') == 1,
 );
 
 Reward rewardFromRow(QueryRow row) => Reward(

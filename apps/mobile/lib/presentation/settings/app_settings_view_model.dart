@@ -23,6 +23,7 @@ class AppSettingsViewModel extends ChangeNotifier {
   bool get onboardingCompleted => _preferences.onboardingCompleted;
   String get alias => _preferences.alias;
   ThemePreference get themePreference => _preferences.themePreference;
+  bool get adminMode => _preferences.adminMode;
 
   /// Último error de lectura/escritura para mostrar al usuario.
   String? get errorMessage => _errorMessage;
@@ -62,6 +63,11 @@ class AppSettingsViewModel extends ChangeNotifier {
     );
     return saved ? null : _errorMessage;
   }
+
+  Future<bool> setAdminMode(bool enabled) => _save(
+    () => _repository.setAdminMode(enabled),
+    _preferences.copyWith(adminMode: enabled),
+  );
 
   Future<bool> completeOnboarding() => _save(
     _repository.completeOnboarding,
