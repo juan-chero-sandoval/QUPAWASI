@@ -1,6 +1,6 @@
 # Estado y siguiente turno
 
-Actualizado: 2026-10-28 tras implementación y validación local F04 en `codex/f04-experiencia-app`, creada desde `develop` actualizado (`1fed2b2`, merge de F03/PR #6). F04 publicada por Adriana (GitHub AdrianaNix) en PR #7, commit `79d4d4d`; INTEGRADA en develop por `f18b8dc` (PR #7), con CI del código aprobada. F05 en ejecución local por Carla en `codex/f05-qa-apk-entrega`, desde `6b46c20`; resultados y pendientes en [F05](entregas/F05.md).
+Actualizado tras QA local F05 de Carla, rama `codex/f05-qa-apk-entrega` desde develop `6b46c20`. [PR #9](https://github.com/juan-chero-sandoval/QUPAWASI/pull/9) publicado, aún sin integrar. Código `c367b2e` y corrección visual `1cb94a3`; 117 tests/análisis/build aprobados, tres recorridos Android antes del ajuste visual y smoke/procesos del APK final. [Informe F05](entregas/F05.md) distingue automatización y manuales. CI remota del head publicado por comprobar; video real y sustentación pendientes.
 
 - Base remota inspeccionada: `95ac9db6112a4d9cb3d8bdfe141bb49d69c3b46c`, `main`, solo README.
 - Cuenta conectada a GitHub: `juan-chero-sandoval`; permisos `admin`, lectura y escritura confirmados por conector.
@@ -19,6 +19,9 @@ Actualizado: 2026-10-28 tras implementación y validación local F04 en `codex/f
 | F02 | Juan | INTEGRADA en develop (`ebe30f7`), CI aprobado | [F02](entregas/F02.md), PR #4 |
 | F03 | Brianna | INTEGRADA en develop (`1fed2b2`), PR #6 | [F03](entregas/F03.md), commit `1088394` |
 | F04 | Adriana | INTEGRADA en develop (`f18b8dc`), PR #7; implementación `79d4d4d`, CI aprobada | [F04](entregas/F04.md) |
-| F05 | Carla | EN QA local; integración real, regresiones y entrega en preparación | [F05](entregas/F05.md) |
+| F05 | Carla | QA local ejecutada; PR #9 publicado sin integrar; CI y pendientes académicos identificados | [F05](entregas/F05.md) |
 
 Cada cierre actualiza esta tabla, añade el informe de fase en `docs/entregas/` y registra su commit y bloqueos reales. Tener permiso en el conector no demuestra las credenciales Git de cada compañero: cada uno las verifica al publicar su rama.
+
+
+Siguiente: owner/equipo revisan PR #9 y su CI; conservan autores al integrar. Carla/equipo completan video ≤5 minutos/enlace autorizado y sustentación. No hay F06 ni publicación externa automática. APK final local 0.2.0+2: SHA-256 `ed1cb2e0735af9853bb8c3c341e1b375e8fb2de33ab1cc24fd53e0b4a9e76a92`; firma Android Debug.

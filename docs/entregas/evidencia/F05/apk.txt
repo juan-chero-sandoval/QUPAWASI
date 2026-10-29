@@ -11,3 +11,7 @@ application-label:'Q'UPA WASI'
 Certificado Android Debug verificado con apksigner
 SHA-256 certificado: b340dddff767d965b69375929bcc7c702ff8053b173ca7155c081a6656fe36bd
 Instalacion final adb install -r: Success (emulator-5554)
+Commit de codigo: 1cb94a319857e38218e23976b6252c0672e97d9f
+Base develop: 6b46c20
+Force-stop final: PID6108 -> PID6364; alias/oscuro y saldo0 conservados
+Radios al cierre: avion1 / WiFi0 / datos0

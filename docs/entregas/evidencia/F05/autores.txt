@@ -1,0 +1,18 @@
+Implementaciones reales (conservadas sin squash):
+291881ef9cf5566b1185bfbdec179bc56dec2c97 | CRISTOPHER | feat: crear base Flutter navegacion y preferencias (F01)
+5ac94502ba919ae700a03692208d9a40648a094e | Juan Chero | feat: implementar dominio y persistencia SQLite (F02)
+1088394c3737f35ea4eeb2d673cb564fc39fef58 | Brianna Becerra | feat: completar CRUD de reciclaje y restaurar borradores (F03)
+79d4d4da0ce0fe06fe45ccef84dca1521da0ef6d | Adriana Nizama | feat: integrar inicio mapa premios y perfil offline (F04)
+c367b2e12c5923ddf5624f179c1709a3f7f3d389 | Carla Novillo | test: validar prototipo offline y preparar APK de entrega (F05)
+1cb94a319857e38218e23976b6252c0672e97d9f | Carla Novillo | fix: evitar superposicion de sugerencias con texto ampliado (F05)
+
+Shortlog del repositorio (incluye merges y aliases de cuentas; no cuenta cinco personas por cantidad de filas):
+     4	Carla Novillo
+     4	Juan Chero
+     4	juan-chero-sandoval
+     2	AdrianaNizama
+     1	Adriana Nizama
+     1	Brianna Becerra
+     1	CRISTOPHER
+     1	ferbri495-byte
+

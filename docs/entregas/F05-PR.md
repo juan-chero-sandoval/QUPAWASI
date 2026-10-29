@@ -23,3 +23,5 @@ Rollback de F05: corrección de descarte, pruebas/helpers, versión/job Android 
 - [x] Sin APK, claves ni datos de estudiantes añadidos al commit.
 - [ ] Verificar checks CI del head final antes de integrar.
 - [ ] Completar video y sustentación; este PR no certifica entrega académica completa.
+
+APK local final: fuente `1cb94a319857e38218e23976b6252c0672e97d9f`, versión0.2.0+2, SHA-256 `ed1cb2e0735af9853bb8c3c341e1b375e8fb2de33ab1cc24fd53e0b4a9e76a92`, 196470352 bytes, firma Android Debug verificada. Instalado/force-stop y revisión física de tres anchos con texto2 aprobados. Las capturas iniciales M14 documentan el defecto; las de sufijo final documentan su corrección.

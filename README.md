@@ -50,7 +50,7 @@ Shared Preferences guarda tema, alias, onboarding y confirmación pendiente de c
 | F02 | Juan Chero | [PR #4](https://github.com/juan-chero-sandoval/QUPAWASI/pull/4), commit `5ac9450`, [informe](docs/entregas/F02.md) |
 | F03 | Brianna Becerra | [PR #6](https://github.com/juan-chero-sandoval/QUPAWASI/pull/6), commit `1088394`, [informe](docs/entregas/F03.md) |
 | F04 | Adriana Nizama | [PR #7](https://github.com/juan-chero-sandoval/QUPAWASI/pull/7), commit `79d4d4d`, [informe](docs/entregas/F04.md) |
-| F05 | Carla Novillo | [informe y QA](docs/entregas/F05.md); commit/PR finales se registran en la descripción del PR |
+| F05 | Carla Novillo | [PR #9](https://github.com/juan-chero-sandoval/QUPAWASI/pull/9), commits `c367b2e`/`1cb94a3`, [informe y QA](docs/entregas/F05.md) |
 
 Los commits se conservan sin squash ni atribuciones artificiales. Los dos commits documentales de cierre F04 firmados por Carla no sustituyen su contribución técnica F05.
 
