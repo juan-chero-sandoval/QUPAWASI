@@ -1,0 +1,11 @@
+Resumen de salidas reales observadas con app normal detenida (variante c367b2e)
+PID antes de force-stop: 1862. PID después de reabrir: 3999.
+Crear: [('89d3930b-0b07-4e1b-b9e6-46ee02b5f314', 2, 'prueba')]; count/sum = [(1, 20)]
+Editar: [('89d3930b-0b07-4e1b-b9e6-46ee02b5f314', 3, 'editada')]; count/sum = [(1, 30)]
+Eliminar confirmado: []; count/sum = [(0, 0)]
+Borrador tras Home + force-stop: [('recycling-new', '1.5', 'borrador F05', 1)]
+Registros durante el borrador: []; count/sum = [(0, 0)]
+Consultas: SELECT id,quantity,note FROM recycling_records;
+SELECT count(*),coalesce(sum(quantity*unit_points),0) FROM recycling_records;
+SELECT key,quantity_text,note,step FROM drafts;
+Copia de archivos nativos (incluido WAL) leída con sqlite3 Python; no mocks.

@@ -1,0 +1,17 @@
+APK FINAL normal debug, con correccion visual de Inicio
+Ruta local: C:\dev\QUPAWASI\apps\mobile\build\app\outputs\flutter-apk\app-debug.apk
+Bytes: 196470352
+SHA-256: ed1cb2e0735af9853bb8c3c341e1b375e8fb2de33ab1cc24fd53e0b4a9e76a92
+package: name='pe.edu.unp.qupawasi' versionCode='2' versionName='0.2.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+uses-permission: name='android.permission.INTERNET'
+uses-permission: name='pe.edu.unp.qupawasi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'
+application-label:'Q'UPA WASI'
+Certificado Android Debug verificado con apksigner
+SHA-256 certificado: b340dddff767d965b69375929bcc7c702ff8053b173ca7155c081a6656fe36bd
+Instalacion final adb install -r: Success (emulator-5554)
+Commit de codigo: 1cb94a319857e38218e23976b6252c0672e97d9f
+Base develop: 6b46c20
+Force-stop final: PID6108 -> PID6364; alias/oscuro y saldo0 conservados
+Radios al cierre: avion1 / WiFi0 / datos0

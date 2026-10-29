@@ -111,7 +111,7 @@ class _RecordFormBodyState extends State<_RecordFormBody> {
   }
 
   Future<void> _discardMissing() async {
-    await _viewModel.discardMissing();
+    if (!await _viewModel.discardMissing()) return;
     if (mounted) context.go(AppRoutes.recycling);
   }
 
@@ -164,6 +164,10 @@ class _RecordFormBodyState extends State<_RecordFormBody> {
               onSave: _save,
             ),
           },
+          if (viewModel.draftError != null &&
+              (viewModel.status == RecordFormStatus.draftOffer ||
+                  viewModel.status == RecordFormStatus.recordMissing))
+            _FieldError(message: viewModel.draftError!),
         ],
       ),
     );

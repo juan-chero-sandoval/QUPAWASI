@@ -10,6 +10,25 @@ import '../helpers/test_app.dart';
 
 void main() {
   setUp(() => resetPreferencesStore(onboardedStore));
+  testWidgets('Sugerencias no cubre contenido con texto ampliado', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 2;
+    tester.view.physicalSize = const Size(824, 1400);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await openApp(tester);
+    final content = find.byKey(const PageStorageKey<String>('home-scroll'));
+    final suggestions = find.text('Sugerencias');
+    expect(
+      tester.getRect(content).bottom,
+      lessThanOrEqualTo(tester.getRect(suggestions).top),
+    );
+    await tester.tap(suggestions);
+    await tester.pumpAndSettle();
+    expect(find.text('Guardar localmente'), findsOneWidget);
+  });
   testWidgets('Inicio reacciona a CRUD y Perfil comparte nivel e insignias', (
     tester,
   ) async {

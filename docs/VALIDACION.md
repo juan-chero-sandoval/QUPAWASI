@@ -55,3 +55,7 @@ No probar persistencia desinstalando o limpiando datos: eso elimina SQLite delib
 4. Informe con resultados y limitaciones; PR revisado e integrado conservando autoría.
 
 F05 añade instalación y recorrido completo, release según entorno, video real y cinco contribuciones. Si no hay dispositivo o Android SDK, registrar el bloqueo; un archivo `.apk` sin prueba de instalación no cubre por sí solo M01–M15.
+
+## Resultados de cierre F05
+
+[Informe F05](entregas/F05.md): 117 tests locales/análisis/build, tres recorridos de integración Android antes de la última corrección visual y prueba manual del APK con SQLite/prefs/force-stop. M01–M15 se registran individualmente, distinguiendo automatización y manual. No se certifica un recorrido manual separado completo ni video/TalkBack/teléfono físico. El PR #9 contiene la CI de checkout limpio y emulador.
