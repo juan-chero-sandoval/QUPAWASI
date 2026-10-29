@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
-import 'prototype_banner.dart';
+import 'simulation_chip.dart';
 
-/// Estructura común de pantalla: encabezado, aviso de prototipo y contenido
-/// con scroll dentro de SafeArea. Evita alturas fijas para texto ampliado.
+/// Estructura común de pantalla: encabezado con el rótulo de simulación y
+/// contenido con scroll dentro de SafeArea. Sin alturas fijas para texto
+/// ampliado.
 class AppPage extends StatelessWidget {
   const AppPage({
     super.key,
@@ -34,7 +35,11 @@ class AppPage extends StatelessWidget {
           maxLines: 2,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
-        actions: actions,
+        actions: [
+          ...?actions,
+          const SimulationChip(),
+          const SizedBox(width: AppSpacing.screen - AppSpacing.xs),
+        ],
         automaticallyImplyLeading: showBack,
       ),
       floatingActionButton: floatingActionButton,
@@ -54,11 +59,7 @@ class AppPage extends StatelessWidget {
                 AppSpacing.screen,
                 AppSpacing.xl,
               ),
-              children: [
-                const PrototypeBanner(),
-                const SizedBox(height: AppSpacing.md),
-                ...children,
-              ],
+              children: children,
             ),
           ),
         ),

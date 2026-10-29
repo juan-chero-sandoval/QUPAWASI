@@ -10,6 +10,7 @@ import 'package:qupa_wasi/data/local/demo_seed.dart';
 import 'package:qupa_wasi/domain/entities/app_preferences.dart';
 import 'package:qupa_wasi/domain/entities/recycling_record.dart';
 import 'package:qupa_wasi/domain/repositories/preferences_repository.dart';
+import 'package:qupa_wasi/presentation/home/widgets/points_summary_card.dart';
 import 'package:qupa_wasi/presentation/settings/app_settings_view_model.dart';
 
 void main() {
@@ -88,7 +89,7 @@ void main() {
       );
       await waitFor(
         () => find
-            .text('Total ganado: 100 EcoPuntos simulados')
+            .byWidgetPredicate((w) => w is PointsSummaryCard && w.points == 100)
             .evaluate()
             .isNotEmpty,
       );
@@ -106,12 +107,7 @@ void main() {
       expect(await deps.local.rewards.watchRedemptions().first, isEmpty);
       await tap(find.text('Canjear'));
       await tap(find.text('Confirmar canje'));
-      await waitFor(
-        () => find
-            .text('Canje simulado guardado. No tiene validez comercial.')
-            .evaluate()
-            .isNotEmpty,
-      );
+      await waitFor(() => find.text('Canje guardado').evaluate().isNotEmpty);
       expect((await deps.local.overview.getStatistics()).availablePoints, 20);
       final redemption =
           (await deps.local.rewards.watchRedemptions().first).single;
@@ -169,10 +165,6 @@ void main() {
       await close();
       await open(AppRoutes.suggestions);
       await waitFor(() => find.text(suggestion.message).evaluate().isNotEmpty);
-      expect(
-        find.text('Solo en este dispositivo; no se ha enviado'),
-        findsOneWidget,
-      );
       await tap(find.text('Eliminar sugerencia'));
       await tap(find.widgetWithText(FilledButton, 'Eliminar'));
       await waitFor(

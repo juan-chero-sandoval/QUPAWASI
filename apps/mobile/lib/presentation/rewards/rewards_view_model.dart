@@ -21,6 +21,9 @@ class RewardsViewModel extends ChangeNotifier {
   bool ready = false;
   bool _disposed = false;
   String? message;
+
+  /// `true` si [message] describe un fallo (el toast usa el estilo de error).
+  bool messageIsError = false;
   RewardCategory? category;
   List<Reward> get filtered => List.unmodifiable(
     (catalog.data ?? []).where(
@@ -36,6 +39,16 @@ class RewardsViewModel extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
+  void _succeed(String text) {
+    message = text;
+    messageIsError = false;
+  }
+
+  void _fail(String text) {
+    message = text;
+    messageIsError = true;
+  }
+
   Future<void> restore() async {
     busy = true;
     message = null;
@@ -44,8 +57,9 @@ class RewardsViewModel extends ChangeNotifier {
       pending = await _preferences.loadPendingRedemption();
       ready = true;
     } catch (_) {
-      message =
-          'No se pudo recuperar la confirmación. Reintenta antes de canjear.';
+      _fail(
+        'No se pudo recuperar la confirmación. Reintenta antes de canjear.',
+      );
     } finally {
       busy = false;
       _notify();
@@ -66,11 +80,13 @@ class RewardsViewModel extends ChangeNotifier {
       final result = await _rewards.redeem(rewardId, pending!.operationId);
       await _preferences.setPendingRedemption(null);
       pending = null;
-      message = result.isActive
-          ? 'Canje simulado guardado. No tiene validez comercial.'
-          : 'Este canje ya estaba cancelado; no se volvió a descontar.';
+      _succeed(
+        result.isActive
+            ? 'Canje guardado'
+            : 'Este canje ya estaba cancelado; no se volvió a descontar',
+      );
     } catch (error) {
-      message = localMessage(error);
+      _fail(localMessage(error));
     } finally {
       busy = false;
       _notify();
@@ -81,14 +97,14 @@ class RewardsViewModel extends ChangeNotifier {
   Future<void> dismissPending() async {
     if (busy) return;
     busy = true;
+    message = null;
     _notify();
     try {
       await _preferences.setPendingRedemption(null);
       pending = null;
-      message =
-          'Confirmación cerrada. Los canjes guardados siguen en el historial.';
+      _succeed('Confirmación cerrada');
     } catch (error) {
-      message = localMessage(error);
+      _fail(localMessage(error));
     } finally {
       busy = false;
       _notify();
@@ -98,12 +114,13 @@ class RewardsViewModel extends ChangeNotifier {
   Future<void> cancel(String id) async {
     if (busy) return;
     busy = true;
+    message = null;
     _notify();
     try {
       await _rewards.cancel(id);
-      message = 'Canje simulado cancelado.';
+      _succeed('Canje cancelado');
     } catch (error) {
-      message = localMessage(error);
+      _fail(localMessage(error));
     } finally {
       busy = false;
       _notify();

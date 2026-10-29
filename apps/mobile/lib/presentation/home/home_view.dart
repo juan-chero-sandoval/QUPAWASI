@@ -6,7 +6,7 @@ import '../../app/routes.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
-import '../../core/widgets/prototype_banner.dart';
+import '../../core/widgets/simulation_chip.dart';
 import '../../core/widgets/state_message.dart';
 import '../common/user_avatar.dart';
 import '../settings/app_settings_view_model.dart';
@@ -49,98 +49,66 @@ class HomeView extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Q'UPA WASI UNP",
-                            style: TextStyle(
-                              color: palette.brand,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.2,
-                              fontSize: 12,
-                            ),
-                          ),
-                          Text(
-                            'Hola, $alias',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Cada envase cuenta.',
-                            style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        "Q'UPA WASI UNP",
+                        style: TextStyle(
+                          color: palette.brand,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
+                    const SimulationChip(),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Hola, $alias',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
                     UserAvatar(
                       alias: alias,
                       onTap: () => context.go(AppRoutes.profile),
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
-                const PrototypeBanner(),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.lg),
                 LocalState(
                   vm: overview,
                   builder: (stats) {
                     final summary = HomeSummary.fromStatistics(stats);
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        PointsSummaryCard(
-                          points: summary.availablePoints,
-                          levelName: summary.levelName,
-                          progress: summary.levelProgress,
-                          nextLevelText: summary.nextLevelText,
-                          onRegister: () => context.go(AppRoutes.newRecord()),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Total ganado: ${stats.earnedPoints} EcoPuntos simulados',
-                          style: TextStyle(
-                            color: palette.textMuted,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
+                    return PointsSummaryCard(
+                      points: summary.availablePoints,
+                      levelName: summary.levelName,
+                      progress: summary.levelProgress,
+                      nextLevelText: summary.nextLevelText,
+                      onRegister: () => context.go(AppRoutes.newRecord()),
                     );
                   },
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AppCard(
                   onTap: () => context.push(AppRoutes.ranking),
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const IconBadge(icon: Icons.emoji_events_outlined),
-                      const SizedBox(width: AppSpacing.md),
+                      IconBadge(icon: Icons.emoji_events_outlined),
+                      SizedBox(width: AppSpacing.md),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Ranking',
-                              style: TextStyle(fontWeight: FontWeight.w800),
-                            ),
-                            Text(
-                              'Ejemplo de demostración, sin estudiantes reales',
-                              style: TextStyle(color: palette.textMuted),
-                            ),
-                          ],
+                        child: Text(
+                          'Ranking',
+                          style: TextStyle(fontWeight: FontWeight.w800),
                         ),
                       ),
-                      const Icon(Icons.chevron_right),
+                      Icon(Icons.chevron_right),
                     ],
                   ),
                 ),
-                const SectionHeader(
-                  title: 'Tu impacto',
-                  trailing: 'Conteo de unidades',
-                ),
+                const SectionHeader(title: 'Tu impacto'),
                 LocalState(
                   vm: overview,
                   builder: (stats) => Row(
@@ -162,11 +130,6 @@ class HomeView extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'Tu impacto se muestra en unidades recicladas.',
-                  style: TextStyle(color: palette.textMuted, fontSize: 12),
                 ),
                 const SectionHeader(title: 'Actividad reciente'),
                 const RecentActivity(),
@@ -196,7 +159,6 @@ class RecentActivity extends StatelessWidget {
             return StateMessage(
               icon: Icons.history,
               title: 'Aún no tienes registros',
-              message: 'Tus registros se guardan en este dispositivo.',
               actionLabel: 'Registrar mi primer reciclaje',
               onAction: () => context.go(AppRoutes.newRecord()),
             );
@@ -205,11 +167,23 @@ class RecentActivity extends StatelessWidget {
             children: [
               for (final record in sorted.take(5))
                 ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: IconBadge(
+                    icon: RecordFormat.materialIcon(record.material),
+                    size: 40,
+                  ),
                   title: Text(
                     RecordFormat.quantity(record.material, record.quantity),
                   ),
                   subtitle: Text(
-                    '${RecordFormat.dateTime(context, record.occurredAt)} · ${record.earnedPoints} pts simulados',
+                    RecordFormat.dateTime(context, record.occurredAt),
+                  ),
+                  trailing: Text(
+                    '+${record.earnedPoints}',
+                    style: TextStyle(
+                      color: AppPalette.of(context).brand,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   onTap: () => context.push(AppRoutes.recordDetail(record.id)),
                 ),

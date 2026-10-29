@@ -1,5 +1,13 @@
 # Guía visual y de interacción
 
+## Avisos y textos C03
+
+Rediseño posterior a C02 con la misma paleta: chip «Simulado» en la cabecera
+en lugar de la franja de cada pantalla, notificaciones emergentes superiores
+para éxito y error, y textos reducidos a títulos, datos y acciones.
+[Sistema visual](../design-system/qupawasi/MASTER.md#avisos-y-textos-c03),
+[entrega C03](entregas/C03.md).
+
 ## Rediseño C02 · UI/UX Pro Max
 
 El owner pidió mejorar el diseño de toda la app e integrar la skill. Se aplica

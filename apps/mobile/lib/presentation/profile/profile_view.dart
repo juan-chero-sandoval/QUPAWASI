@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/routes.dart';
+import '../../core/widgets/app_toast.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
@@ -32,8 +33,7 @@ class ProfileView extends StatelessWidget {
     final settings = context.read<AppSettingsViewModel>();
     final saved = await settings.setTheme(mode);
     if (!saved && context.mounted && settings.errorMessage != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(settings.errorMessage!)));
+      AppToast.error(context, settings.errorMessage!);
     }
   }
 
@@ -89,11 +89,6 @@ class ProfileView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Tema de la app',
-                style: TextStyle(color: palette.textMuted),
-              ),
-              const SizedBox(height: AppSpacing.sm),
               Wrap(
                 spacing: 8,
                 children: [
@@ -177,8 +172,8 @@ class ProfileView extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 stats.badges.contains(badge)
-                                    ? 'Lograda · demo local'
-                                    : 'Aún pendiente',
+                                    ? 'Lograda'
+                                    : 'Pendiente',
                                 style: TextStyle(
                                   color: palette.textMuted,
                                   fontSize: 13,
@@ -194,7 +189,7 @@ class ProfileView extends StatelessWidget {
             },
           ),
         ),
-        const SectionHeader(title: 'Historial local'),
+        const SectionHeader(title: 'Historial'),
         const RecentActivity(),
         const SectionHeader(title: 'Más'),
         AppCard(
@@ -203,18 +198,12 @@ class ProfileView extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.leaderboard_outlined),
-                title: const Text('Ranking de demostración'),
+                title: const Text('Ranking'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(AppRoutes.ranking),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Text(
-          'Perfil local de demostración: no es una cuenta ni requiere '
-          'contraseña. Tus datos se quedan en este dispositivo.',
-          style: TextStyle(color: palette.textMuted, fontSize: 12),
         ),
       ],
     );
@@ -255,7 +244,7 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Nivel $level · alias local',
+                  'Nivel $level',
                   style: TextStyle(color: onCard.withValues(alpha: 0.85)),
                 ),
               ],

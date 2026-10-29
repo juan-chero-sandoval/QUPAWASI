@@ -51,10 +51,10 @@ void main() {
     );
     await tester.tap(navTab('Perfil'));
     await tester.pumpAndSettle();
-    expect(find.text('Nivel Brote · alias local'), findsOneWidget);
+    expect(find.text('Nivel Brote'), findsOneWidget);
     await local.records.delete(record.id);
     await tester.pumpAndSettle();
-    expect(find.text('Nivel Semilla · alias local'), findsOneWidget);
+    expect(find.text('Nivel Semilla'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
     expect(local.records.activeWatchers, 0);
@@ -112,10 +112,6 @@ void main() {
     expect(
       tester.widget<TextField>(find.byType(TextField)).decoration!.errorText,
       isNotNull,
-    );
-    expect(
-      find.text('Solo en este dispositivo; no se ha enviado'),
-      findsOneWidget,
     );
   });
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qupa_wasi/core/widgets/prototype_banner.dart';
+import 'package:qupa_wasi/core/widgets/simulation_chip.dart';
 import 'package:qupa_wasi/presentation/home/home_view.dart';
 import 'package:qupa_wasi/presentation/onboarding/welcome_view.dart';
 
@@ -14,8 +14,7 @@ void main() {
   ) async {
     await openApp(tester);
     expect(find.byType(WelcomeView), findsOneWidget);
-    await scrollTo(tester, find.text(PrototypeBanner.message));
-    expect(find.text(PrototypeBanner.message), findsOneWidget);
+    expect(find.byType(SimulationChip), findsOneWidget);
 
     await tapVisible(tester, find.text('Empezar'));
     expect(find.byType(HomeView), findsOneWidget);
