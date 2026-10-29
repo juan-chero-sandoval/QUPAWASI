@@ -1,12 +1,12 @@
 ## Problema y resultado
 
-F05 de Carla añade integración nativa de preferencias, entradas inválidas y borrador al pausar/reconstruir, y refuerza CRUD con conteo de filas y puntos después de reaperturas. Corrige que descartar/convertir un borrador avanzaba aunque SQLite no hubiera podido borrarlo: ahora conserva la recuperación, muestra error y permite reintentar. Dos pruebas de regresión con archivo SQLite real.
+F05 de Carla añade integración nativa de preferencias, entradas inválidas y borrador al pausar/reconstruir, y refuerza CRUD con conteo de filas y puntos después de reaperturas. Corrige que descartar/convertir un borrador avanzaba aunque SQLite no hubiera podido borrarlo: ahora conserva la recuperación, muestra error y permite reintentar. Dos pruebas de regresión con archivo SQLite real. QA visual Android detectó además que Sugerencias cubría el CTA con texto2; se reserva espacio y una prueba geométrica verifica separación/navegación.
 
 Versión 0.2.0+2, README reproducible, CI Android en modo avión, APK/evidencias/trazabilidad y guion preparados. No hay cambio de esquema ni backend.
 
 ## Verificación real
 
-Consultar [informe F05](https://github.com/juan-chero-sandoval/QUPAWASI/blob/codex/f05-qa-apk-entrega/docs/entregas/F05.md) y evidencias vinculadas: baseline 114 tests/análisis/build aprobados; regresión reproducida antes de corregir; resultados finales Android y build se registran en el informe. La integración recrea dependencias; el force-stop del APK normal es evidencia separada. No se declara CI aprobada hasta que finalice sobre el head publicado.
+Consultar [informe F05](https://github.com/juan-chero-sandoval/QUPAWASI/blob/codex/f05-qa-apk-entrega/docs/entregas/F05.md) y evidencias vinculadas: baseline 114 tests/análisis/build aprobados; regresión reproducida antes de corregir; **117 tests/análisis/build aprobados**, tres integraciones Android aprobadas antes de la corrección visual y smoke/force-stop del APK final; detalle y limitaciones en el informe. La integración recrea dependencias; el force-stop del APK normal es evidencia separada. No se declara CI aprobada hasta que finalice sobre el head publicado.
 
 Revisión sugerida: primero control de descarte + regresiones, luego helpers/integraciones/CI, después identificación APK y documentación. Se mantiene la única rama F05 solicitada; documentación y evidencia pueden superar el presupuesto sugerido de 400 líneas. No se comprimieron pruebas ni se cambiaron los otros autores para reducir el diff.
 

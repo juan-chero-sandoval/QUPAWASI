@@ -1,0 +1,40 @@
+f05-baseline.log
+Formatted 97 files (0 changed) in 0.50 seconds.
+No issues found! (ran in 29.9s)
+00:35 +114: All tests passed!
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+OK: formato, analisis, tests y APK debug. Aun falta verificar instalacion/recorrido en Android.
+
+f05-regression-before.log
+  Expected: RecordFormStatus:<RecordFormStatus.draftOffer>
+    Actual: RecordFormStatus:<RecordFormStatus.editing>
+
+f05-integration-final.log
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+00:54 +1: C:/dev/QUPAWASI/apps/mobile/integration_test/crud_flow_test.dart: (tearDownAll)
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+02:24 +2: C:/dev/QUPAWASI/apps/mobile/integration_test/experience_flow_test.dart: (tearDownAll)
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+04:03 +3: C:/dev/QUPAWASI/apps/mobile/integration_test/lifecycle_flow_test.dart: (tearDownAll)
+04:03 +3: All tests passed!
+
+f05-validation.log
+Formatted 99 files (0 changed) in 0.50 seconds.
+No issues found! (ran in 16.2s)
+00:38 +116: All tests passed!
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+OK: formato, analisis, tests y APK debug. Aun falta verificar instalacion/recorrido en Android.
+
+f05-overlay-before.log
+Expected: a value less than or equal to <556.0>
+  Actual: <620.0>
+
+f05-overlay-after.log
+00:11 +5: All tests passed!
+
+f05-final-build.log
+Formatted 99 files (0 changed) in 0.56 seconds.
+No issues found! (ran in 23.7s)
+00:39 +117: All tests passed!
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+OK: formato, analisis, tests y APK debug. Aun falta verificar instalacion/recorrido en Android.

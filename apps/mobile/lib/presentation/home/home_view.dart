@@ -30,12 +30,14 @@ class HomeView extends StatelessWidget {
       (vm) => vm.alias,
     );
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'suggestions',
-        onPressed: () => context.push(AppRoutes.suggestions),
-        icon: const Icon(Icons.inbox_outlined),
-        label: const Text('Sugerencias'),
-      ),
+      // Reservar espacio: un FAB extendido cubría el CTA al ampliar el texto.
+      persistentFooterButtons: [
+        FilledButton.tonalIcon(
+          onPressed: () => context.push(AppRoutes.suggestions),
+          icon: const Icon(Icons.inbox_outlined),
+          label: const Text('Sugerencias'),
+        ),
+      ],
       body: SafeArea(
         child: ListView(
           // Clave propia: no hereda el desplazamiento de otra pantalla.
