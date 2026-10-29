@@ -53,6 +53,7 @@ class _SuggestionsBodyState extends State<_SuggestionsBody> {
             errorText: vm.fieldError,
           ),
         ),
+        const SizedBox(height: 16),
         FilledButton(
           onPressed: vm.busy
               ? null
@@ -71,6 +72,7 @@ class _SuggestionsBodyState extends State<_SuggestionsBody> {
                 },
           child: const Text('Guardar localmente'),
         ),
+        const SizedBox(height: 16),
         if (vm.loading) const Center(child: CircularProgressIndicator()),
         if (vm.error != null) ...[
           Text(vm.error!),

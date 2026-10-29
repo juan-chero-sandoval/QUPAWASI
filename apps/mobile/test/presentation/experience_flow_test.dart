@@ -10,7 +10,7 @@ import '../helpers/test_app.dart';
 
 void main() {
   setUp(() => resetPreferencesStore(onboardedStore));
-  testWidgets('Sugerencias no cubre contenido con texto ampliado', (
+  testWidgets('Inicio sin botón Sugerencias con texto ampliado', (
     tester,
   ) async {
     tester.view.devicePixelRatio = 2;
@@ -19,15 +19,10 @@ void main() {
     addTearDown(tester.view.reset);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await openApp(tester);
-    final content = find.byKey(const PageStorageKey<String>('home-scroll'));
-    final suggestions = find.text('Sugerencias');
-    expect(
-      tester.getRect(content).bottom,
-      lessThanOrEqualTo(tester.getRect(suggestions).top),
-    );
-    await tester.tap(suggestions);
+    expect(find.text('Sugerencias'), findsNothing);
+    await tester.tap(navTab('Perfil'));
     await tester.pumpAndSettle();
-    expect(find.text('Guardar localmente'), findsOneWidget);
+    expect(find.text('Sugerencias locales'), findsNothing);
   });
   testWidgets('Inicio reacciona a CRUD y Perfil comparte nivel e insignias', (
     tester,
@@ -100,7 +95,8 @@ void main() {
       delta: -200,
     );
     await tapVisible(tester, find.text('Registrar en este punto'));
-    expect(find.text('Nuevo registro'), findsOneWidget);
+    expect(find.text('Registrar reciclaje'), findsOneWidget);
+    expect(find.text('Escanear QR'), findsOneWidget);
   });
 
   testWidgets('Sugerencia inválida conserva texto y muestra error de campo', (

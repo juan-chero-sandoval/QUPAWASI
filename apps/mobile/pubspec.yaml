@@ -3,7 +3,7 @@ description: "Q'UPA WASI - prototipo offline de reciclaje UNP"
 publish_to: 'none'
 
 # versionName+versionCode de Android.
-version: 0.2.0+2
+version: 0.4.0+4
 
 environment:
   sdk: ^3.13.7
@@ -21,6 +21,11 @@ dependencies:
   path: ^1.9.1
   path_provider: ^2.1.6
   uuid: ^4.5.2
+  mobile_scanner: ^7.4.2
+  geolocator: ^14.1.2
+  internet_connection_checker_plus: ^3.1.2
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
 
 dev_dependencies:
   flutter_test:
@@ -35,3 +40,14 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/demo/deposit-qr.png
+    - assets/fonts/outfit/OFL.txt
+    - assets/fonts/worksans/OFL.txt
+  fonts:
+    - family: Outfit
+      fonts:
+        - asset: assets/fonts/outfit/outfit.ttf
+    - family: WorkSans
+      fonts:
+        - asset: assets/fonts/worksans/worksans.ttf

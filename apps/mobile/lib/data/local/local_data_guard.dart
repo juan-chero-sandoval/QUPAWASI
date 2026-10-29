@@ -23,6 +23,12 @@ Future<T> guardLocalData<T>(Future<T> Function() action) async {
 
 LocalDataException mapLocalDataError(Object error) {
   final message = error.toString();
+  if (message.contains('immutable_qr_record')) {
+    return const LocalDataException(
+      LocalDataError.conflict,
+      'Los datos emitidos por el tacho no se pueden editar.',
+    );
+  }
   if (message.contains('committed_points')) {
     return const LocalDataException(
       LocalDataError.committedPoints,

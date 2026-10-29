@@ -21,17 +21,21 @@ import 'package:qupa_wasi/domain/usecases/overview_use_cases.dart';
 import 'package:qupa_wasi/domain/usecases/recycling_use_cases.dart';
 import 'package:qupa_wasi/domain/usecases/rewards_use_cases.dart';
 import 'package:qupa_wasi/domain/usecases/suggestions_use_cases.dart';
+import 'package:qupa_wasi/domain/entities/deposit_qr.dart';
+import 'package:qupa_wasi/domain/repositories/deposits_repository.dart';
+import 'package:qupa_wasi/domain/usecases/deposit_use_cases.dart';
 
 /// Dobles controlados para pruebas de widgets (sin isolate de SQLite ni
 /// temporizadores de Drift). La persistencia real se prueba en
 /// `test/presentation/record_form_view_model_test.dart`, `test/data/` e
 /// `integration_test/`.
 class FakeLocal {
-  FakeLocal() {
+  FakeLocal({List<RecyclingPoint> points = DemoSeed.points}) {
     services = LocalServices.fromUseCases(
       recycling: RecyclingUseCases(records, clock: () => now),
+      deposits: DepositUseCases(_FakeDeposits(records)),
       overview: OverviewUseCases(
-        const _FakePoints(),
+        _FakePoints(points),
         _FakeStatistics(records, () => now),
       ),
       rewards: const RewardsUseCases(_FakeRewards()),
@@ -125,7 +129,21 @@ class FakeRecordsRepository implements RecordsRepository {
         'El registro ya no existe.',
       );
     }
-    final record = _build(id, input, existing.createdAt);
+    final built = _build(id, input, existing.createdAt);
+    final record = RecyclingRecord(
+      id: built.id,
+      pointId: built.pointId,
+      material: built.material,
+      quantity: built.quantity,
+      unitPoints: built.unitPoints,
+      occurredAt: built.occurredAt,
+      note: built.note,
+      createdAt: built.createdAt,
+      updatedAt: built.updatedAt,
+      depositId: existing.depositId,
+      latitude: existing.latitude,
+      longitude: existing.longitude,
+    );
     _rows[id] = record;
     _changes.add(null);
     return record;
@@ -165,6 +183,37 @@ class FakeRecordsRepository implements RecordsRepository {
       );
 }
 
+class _FakeDeposits implements DepositsRepository {
+  _FakeDeposits(this.records);
+  final FakeRecordsRepository records;
+  final Map<String, String> ids = {};
+  @override
+  Future<RecyclingRecord> accept(DepositQr receipt) async {
+    if (ids[receipt.depositId] case final id?) {
+      return (await records.getById(id))!;
+    }
+    final r = await records.create(receipt.input);
+    final qrRecord = RecyclingRecord(
+      id: r.id,
+      pointId: r.pointId,
+      material: r.material,
+      quantity: r.quantity,
+      unitPoints: r.unitPoints,
+      occurredAt: r.occurredAt,
+      note: r.note,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      depositId: receipt.depositId,
+      latitude: receipt.latitude,
+      longitude: receipt.longitude,
+    );
+    records._rows[r.id] = qrRecord;
+    records._changes.add(null);
+    ids[receipt.depositId] = r.id;
+    return qrRecord;
+  }
+}
+
 class FakeDraftRepository implements DraftRepository {
   final Map<String, RecyclingDraft> rows = {};
   final List<String> savedQuantities = [];
@@ -183,13 +232,14 @@ class FakeDraftRepository implements DraftRepository {
 }
 
 class _FakePoints implements PointsRepository {
-  const _FakePoints();
+  const _FakePoints(this.points);
+  final List<RecyclingPoint> points;
 
   @override
-  Future<List<RecyclingPoint>> listPoints() async => DemoSeed.points;
+  Future<List<RecyclingPoint>> listPoints() async => points;
 
   @override
-  Stream<List<RecyclingPoint>> watchPoints() => Stream.value(DemoSeed.points);
+  Stream<List<RecyclingPoint>> watchPoints() => Stream.value(points);
 }
 
 class _FakeStatistics implements StatisticsRepository {

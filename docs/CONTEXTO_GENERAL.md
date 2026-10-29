@@ -1,5 +1,26 @@
 # Contexto general de Q'UPA WASI
 
+## Diseño vigente C02
+
+Rediseño autorizado con UI/UX Pro Max: [plan](../prps/C02-DISENO.md) y
+[sistema visual](../design-system/qupawasi/MASTER.md). Mantener identidad verde,
+fuentes locales Outfit/Work Sans y modo oscuro. C02 cambia presentación, no
+el dominio ni SQLite de C01. QR, proximidad, notas, canjes simulados y aviso
+dinámico de conexión deben seguir funcionando, sin botón Sugerencias.
+
+## Cambio vigente C01 · 29/10/2026
+
+El owner solicitó y autorizó reemplazar el alta manual por escaneo del QR
+emitido por el tacho, con material, cantidad, fecha/hora y ubicación; mapa
+geográfico con proximidad desde catálogo SQLite; retirar botones Sugerencias;
+y ocultar “Sin conexión” al recuperar internet. El equipo aún no tiene QR ni
+coordenadas: se adopta [el contrato JSON y carga de catálogo](QR_Y_UBICACIONES.md).
+Este cambio prevalece sobre las decisiones históricas de F01–F05 descritas
+abajo. Registros manuales existentes conservan edición y borradores; nuevos
+recibos QR son inmutables, deduplicados y locales. No se añade backend ni
+cuenta remota, y los EcoPuntos/canjes continúan simulados. Las ubicaciones
+personales del teléfono no se almacenan. [Plan C01](../prps/C01-QR-MAPA-CONEXION.md).
+
 Fecha base: 28 de octubre de 2026. Este archivo explica el producto, la adaptación académica y las decisiones comunes. Las IA deben leer además su PRP.
 
 ## Objetivo y entrega inmediata

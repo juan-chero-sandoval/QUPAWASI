@@ -1,5 +1,37 @@
 # Arquitectura y contratos comunes
 
+## Contrato vigente C01
+
+Consultar [QR y ubicaciones](QR_Y_UBICACIONES.md). Sustituye el alta manual
+de `/recycling/new?pointId=...` por `QrDepositView`; pointId exige coincidencia
+con el QR cuando procede del mapa. Edición histórica por ID sigue disponible;
+datos del tacho no editables, protegido también mediante trigger SQLite.
+En registros QR se permite editar solo la nota local (sin cambiar puntos).
+
+SQLite v2 agrega `qr_deposit_id UNIQUE`, `latitude`, `longitude` a registros y
+`deposit_receipts(deposit_id PRIMARY KEY, record_id UNIQUE, payload)`. Migración
+v1 → v2 conserva datos; recibo sin FK deliberadamente para deduplicar tras
+eliminar. Registro y recibo se insertan en la misma transacción.
+
+`local.deposits.decode(raw)` valida JSON/fecha/zona/cantidad/material/ubicación;
+`accept(receipt)` valida tacho, coincidencia de coordenadas conocidas y guarda
+idempotentemente. Un ID con distinto payload falla. Los puntos se calculan
+desde política local, nunca desde un campo points del QR.
+
+`local.catalog.importJson(raw)` valida catálogo completo antes de aplicar
+upserts atómicos por ID. No borra puntos omitidos. `MapViewModel` consulta el
+stream SQLite, solicita GPS mediante adaptador y ordena con Haversine solo
+tachos no demo con coordenadas válidas. Sin datos reales muestra pendiente,
+sin inventar coordenadas. No persiste GPS del usuario. Mapa base remoto opcional.
+
+`ConnectionViewModel` expone unknown/online/offline, escucha cambios de acceso
+a internet y reconsulta al reanudar. Banner conserva simulación y solo muestra
+“Sin conexión” en offline. Internet no implica sincronización ni cuenta remota.
+Sin accesos a Sugerencias en Inicio/Perfil; ruta histórica y datos conservados.
+
+Las secciones siguientes documentan la base F01–F05; alta manual/esquema del
+mapa/aviso fijo quedan sustituidos por esta sección.
+
 Estado: F01 integrada; contratos F02 implementados en `apps/mobile/lib/domain/` y adaptadores en `data/`. La interfaz CRUD visible sigue asignada a F03. Si se ajustan nombres, actualizar este archivo y consumidores juntos.
 
 ## Dependencias y composición

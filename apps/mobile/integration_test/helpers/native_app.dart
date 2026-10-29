@@ -9,8 +9,20 @@ class NativeApp {
   late AppDependencies deps;
   late AppSettingsViewModel settings;
 
-  Future<void> open(WidgetTester tester, String location) async {
-    deps = await AppDependencies.create();
+  Future<void> open(
+    WidgetTester tester,
+    String location, {
+    Future<String?> Function()? scanQr,
+  }) async {
+    final production = await AppDependencies.create();
+    deps = AppDependencies(
+      preferencesRepository: production.preferencesRepository,
+      local: production.local,
+      scanQr: scanQr,
+      locate: production.locate,
+      internetChanges: production.internetChanges,
+      checkInternet: production.checkInternet,
+    );
     settings = AppSettingsViewModel(deps.preferencesRepository);
     await settings.load();
     await tester.pumpWidget(

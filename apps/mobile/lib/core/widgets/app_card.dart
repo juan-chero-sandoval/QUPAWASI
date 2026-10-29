@@ -44,9 +44,10 @@ class IconBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.iconBadge,
         borderRadius: BorderRadius.circular(size / 3),
-        border: Border.all(color: palette.accent.withValues(alpha: 0.6)),
       ),
-      child: Icon(icon, color: palette.brand, size: size * 0.5),
+      child: ExcludeSemantics(
+        child: Icon(icon, color: palette.brand, size: size * 0.5),
+      ),
     );
   }
 }
@@ -71,7 +72,7 @@ class SectionHeader extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.titleMedium
-                ?.copyWith(fontWeight: FontWeight.w800),
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
           if (trailing != null)
             Text(

@@ -33,11 +33,29 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await customStatement(
+          'ALTER TABLE recycling_records ADD COLUMN qr_deposit_id TEXT',
+        );
+        await customStatement(
+          'ALTER TABLE recycling_records ADD COLUMN latitude REAL',
+        );
+        await customStatement(
+          'ALTER TABLE recycling_records ADD COLUMN longitude REAL',
+        );
+        await customStatement(
+          'CREATE UNIQUE INDEX records_qr_id ON recycling_records(qr_deposit_id)',
+        );
+        await m.createTable(depositReceipts);
+        await m.createTrigger(immutableQrRecord);
+      }
+    },
     beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
       await customStatement('PRAGMA busy_timeout = 5000');

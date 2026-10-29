@@ -70,17 +70,9 @@ void main() {
         () => find.text('Registrar en este punto').evaluate().isNotEmpty,
       );
       await tap(find.text('Registrar en este punto'));
-      expect(find.text('Nuevo registro'), findsOneWidget);
-      expect(
-        find.descendant(
-          of: find.ancestor(
-            of: find.text('Biblioteca'),
-            matching: find.byType(InkWell),
-          ),
-          matching: find.byIcon(Icons.radio_button_checked),
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Registrar reciclaje'), findsOneWidget);
+      expect(find.text('Escanear QR'), findsOneWidget);
+      expect(find.byKey(const Key('quantity-field')), findsNothing);
       await close();
 
       await open(AppRoutes.home);

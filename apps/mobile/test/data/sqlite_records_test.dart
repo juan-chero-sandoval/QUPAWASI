@@ -14,7 +14,7 @@ void main() {
   tearDown(() async => f.dispose());
 
   test(
-    'base inicial v1: tres puntos, coordenadas desconocidas y cero registros',
+    'base inicial v2: tres puntos, coordenadas desconocidas y cero registros',
     () async {
       final points = await f.services.overview.listPoints();
       expect(points, hasLength(3));
@@ -30,7 +30,7 @@ void main() {
         (await f.db.customSelect('PRAGMA user_version').getSingle()).read<int>(
           'user_version',
         ),
-        1,
+        2,
       );
     },
   );

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../app/dependencies.dart';
 import '../../core/widgets/app_card.dart';
+import '../../core/widgets/brand_surfaces.dart';
+import '../../core/theme/app_palette.dart';
 import '../../core/widgets/app_page.dart';
 import '../../domain/entities/reward.dart';
 import '../common/confirm_local.dart';
@@ -46,22 +48,41 @@ class _RewardsBody extends StatelessWidget {
     final vm = context.watch<RewardsViewModel>();
     final overview = context.watch<OverviewViewModel>();
     final balance = overview.data?.availablePoints;
+    final p = AppPalette.of(context);
     return AppPage(
       title: 'Recompensas',
       children: [
-        AppCard(
+        BrandSurface(
           child: LocalState(
             vm: overview,
-            builder: (stats) => Text(
-              'Tu saldo: ${stats.availablePoints} EcoPuntos',
-              style: Theme.of(context).textTheme.headlineSmall,
+            builder: (stats) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.card_giftcard_outlined, color: p.accent, size: 28),
+                const SizedBox(height: 16),
+                Text(
+                  'Tu saldo: ${stats.availablePoints} EcoPuntos',
+                  style: Theme.of(context).textTheme.headlineSmall
+                      ?.copyWith(color: p.onBrandStrong),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Elige tu próxima recompensa.',
+                  style: TextStyle(color: p.onBrandStrong, fontSize: 14),
+                ),
+              ],
             ),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
           child: Text(
             'Canjes simulados: sin entrega comercial, pagos ni transferencia de dinero.',
+            style: TextStyle(
+              color: p.textMuted,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
         if (vm.message != null)
@@ -126,17 +147,66 @@ class _RewardsBody extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Icon(Icons.card_giftcard_outlined, size: 40),
+                          Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: [
+                              IconBadge(
+                                icon: switch (reward.category) {
+                                  RewardCategory.photocopies =>
+                                    Icons.print_outlined,
+                                  RewardCategory.mobile =>
+                                    Icons.phone_android_outlined,
+                                  RewardCategory.cafeteria =>
+                                    Icons.local_cafe_outlined,
+                                },
+                                size: 48,
+                              ),
+                              StatusPill(
+                                label:
+                                    balance != null &&
+                                        balance >= reward.costPoints
+                                    ? 'Disponible'
+                                    : 'Bloqueado',
+                                icon:
+                                    balance != null &&
+                                        balance >= reward.costPoints
+                                    ? Icons.check
+                                    : Icons.lock_outline,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
                           Text(
                             reward.title,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          Text(reward.description),
-                          Text('${reward.costPoints} pts simulados'),
+                          const SizedBox(height: 8),
+                          Text(
+                            reward.description,
+                            style: TextStyle(fontSize: 14, color: p.textMuted),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            '${reward.costPoints} pts simulados',
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 22,
+                              color: p.brand,
+                            ),
+                          ),
                           if (balance != null && balance < reward.costPoints)
                             Text(
                               'Te faltan ${reward.costPoints - balance} puntos',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: p.textMuted,
+                              ),
                             ),
+                          const SizedBox(height: 16),
                           FilledButton(
                             onPressed:
                                 vm.busy ||

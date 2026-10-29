@@ -27,27 +27,40 @@ class AppPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        toolbarHeight:
+            64 * (MediaQuery.textScalerOf(context).scale(22) / 22).clamp(1, 2),
+        title: Text(
+          title,
+          maxLines: 2,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
         actions: actions,
         automaticallyImplyLeading: showBack,
       ),
       floatingActionButton: floatingActionButton,
       body: SafeArea(
         top: false,
-        child: ListView(
-          // Clave por título: cada pantalla conserva solo su propio scroll.
-          key: PageStorageKey<String>('page-$title'),
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.sm,
-            AppSpacing.screen,
-            AppSpacing.xl,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppSpacing.contentWidth,
+            ),
+            child: ListView(
+              // Clave por título: cada pantalla conserva solo su propio scroll.
+              key: PageStorageKey<String>('page-$title'),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.sm,
+                AppSpacing.screen,
+                AppSpacing.xl,
+              ),
+              children: [
+                const PrototypeBanner(),
+                const SizedBox(height: AppSpacing.md),
+                ...children,
+              ],
+            ),
           ),
-          children: [
-            const PrototypeBanner(),
-            const SizedBox(height: AppSpacing.md),
-            ...children,
-          ],
         ),
       ),
     );

@@ -107,20 +107,10 @@ void main() {
 
     await tapVisible(tester, find.text('Registrar en este punto'));
 
-    expect(find.text('Nuevo registro'), findsOneWidget);
+    expect(find.text('Registrar reciclaje'), findsOneWidget);
     expect(selectedTab(tester), 1);
-    // El punto del mapa queda preseleccionado (radio marcado en su tarjeta).
-    final dining = find.ancestor(
-      of: find.text('Comedor'),
-      matching: find.byType(InkWell),
-    );
-    expect(
-      find.descendant(
-        of: dining,
-        matching: find.byIcon(Icons.radio_button_checked),
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Escanear QR'), findsOneWidget);
+    expect(find.byKey(const Key('quantity-field')), findsNothing);
   });
 
   testWidgets('una ruta desconocida muestra vista segura con retorno', (

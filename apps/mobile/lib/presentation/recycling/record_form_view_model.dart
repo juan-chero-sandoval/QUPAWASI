@@ -143,6 +143,12 @@ class RecordFormViewModel extends ChangeNotifier {
           );
           return;
         }
+        if (record.depositId != null) {
+          throw const LocalDataException(
+            LocalDataError.conflict,
+            'Los datos emitidos por el tacho no se pueden editar.',
+          );
+        }
         _original = record;
         _applyRecord(record);
         _offerOrEdit(ownDraft);

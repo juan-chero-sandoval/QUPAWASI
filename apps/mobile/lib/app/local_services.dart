@@ -11,6 +11,9 @@ import '../domain/usecases/overview_use_cases.dart';
 import '../domain/usecases/recycling_use_cases.dart';
 import '../domain/usecases/rewards_use_cases.dart';
 import '../domain/usecases/suggestions_use_cases.dart';
+import '../domain/usecases/deposit_use_cases.dart';
+import '../domain/usecases/point_catalog_use_cases.dart';
+import '../data/repositories/sqlite_deposits_repository.dart';
 
 /// Composición F02. Las vistas consumen casos de uso; no reciben conexión SQL.
 class LocalServices {
@@ -21,11 +24,18 @@ class LocalServices {
     required this.rewards,
     required this.drafts,
     required this.suggestions,
+    this.deposits,
+    this.catalog,
   });
 
   factory LocalServices.withDatabase(AppDatabase db, {Clock? clock}) =>
       LocalServices._(
         db.close,
+        deposits: DepositUseCases(
+          SqliteDepositsRepository(db, clock: clock),
+          clock: clock,
+        ),
+        catalog: PointCatalogUseCases(SqlitePointsRepository(db)),
         recycling: RecyclingUseCases(
           SqliteRecordsRepository(db, clock: clock),
           clock: clock,
@@ -49,6 +59,8 @@ class LocalServices {
     required RewardsUseCases rewards,
     required DraftUseCases drafts,
     required SuggestionsUseCases suggestions,
+    DepositUseCases? deposits,
+    PointCatalogUseCases? catalog,
   }) => LocalServices._(
     () async {},
     recycling: recycling,
@@ -56,6 +68,8 @@ class LocalServices {
     rewards: rewards,
     drafts: drafts,
     suggestions: suggestions,
+    deposits: deposits,
+    catalog: catalog,
   );
 
   static Future<LocalServices> open() async =>
@@ -66,6 +80,8 @@ class LocalServices {
   final RewardsUseCases rewards;
   final DraftUseCases drafts;
   final SuggestionsUseCases suggestions;
+  final DepositUseCases? deposits;
+  final PointCatalogUseCases? catalog;
   final Future<void> Function() _close;
   Future<void>? _closing;
 

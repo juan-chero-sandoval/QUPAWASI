@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:qupa_wasi/app/routes.dart';
 import 'package:qupa_wasi/domain/entities/app_preferences.dart';
+import 'package:qupa_wasi/domain/entities/recycling_record.dart';
+import 'package:qupa_wasi/data/local/demo_seed.dart';
 import 'package:qupa_wasi/presentation/recycling/record_form_view_model.dart';
 
 import 'helpers/native_app.dart';
@@ -18,9 +20,18 @@ void main() {
     await app.settings.completeOnboarding();
     await app.settings.setAlias('QA Colibri');
     await app.settings.setTheme(ThemePreference.dark);
+    // El formulario manual pertenece solo a registros históricos anteriores al QR.
+    final legacy = await app.deps.local.recycling.create(
+      RecordInput(
+        pointId: DemoSeed.architectureId,
+        material: RecyclingMaterial.pet,
+        quantity: 2,
+        occurredAt: DateTime.now().toUtc(),
+      ),
+    );
     await app.close(tester);
 
-    await app.open(tester, AppRoutes.newRecord());
+    await app.open(tester, AppRoutes.editRecord(legacy.id));
     expect(app.settings.alias, 'QA Colibri');
     expect(app.settings.themePreference, ThemePreference.dark);
     expect(app.settings.onboardingCompleted, isTrue);
@@ -34,7 +45,7 @@ void main() {
       await tester.pumpAndSettle();
       await tapVisible(tester, find.text('Siguiente'));
       expect(find.text('¿Qué reciclaste?'), findsOneWidget);
-      expect(await app.deps.local.recycling.watch().first, isEmpty);
+      expect((await app.deps.local.recycling.get(legacy.id))!.quantity, 2);
     }
     await enterNativeText(tester, quantity, '1.');
     await tester.pumpAndSettle();
@@ -60,12 +71,12 @@ void main() {
     }
     await tester.pumpAndSettle();
     final draft = await app.deps.local.drafts.load(
-      RecordFormViewModel.newDraftKey,
+      RecordFormViewModel.editDraftKey,
     );
     expect(draft!.quantityText, '1.');
     await app.close(tester);
 
-    await app.open(tester, AppRoutes.newRecord());
+    await app.open(tester, AppRoutes.editRecord(legacy.id));
     await waitVisible(tester, find.text('Continuar borrador'));
     await tapVisible(tester, find.text('Continuar borrador'));
     expect(tester.widget<TextField>(quantity).controller!.text, '1.');
@@ -76,17 +87,18 @@ void main() {
           .text,
       'F05 sin terminar',
     );
-    expect(await app.deps.local.recycling.watch().first, isEmpty);
+    expect((await app.deps.local.recycling.get(legacy.id))!.quantity, 2);
     await app.close(tester);
 
-    await app.open(tester, AppRoutes.newRecord());
+    await app.open(tester, AppRoutes.editRecord(legacy.id));
     await tapVisible(tester, find.text('Descartar y empezar de nuevo'));
     expect(
-      await app.deps.local.drafts.load(RecordFormViewModel.newDraftKey),
+      await app.deps.local.drafts.load(RecordFormViewModel.editDraftKey),
       isNull,
     );
     await app.settings.setAlias(original.alias);
     await app.settings.setTheme(original.themePreference);
+    await app.deps.local.recycling.delete(legacy.id);
     await app.close(tester);
     await app.open(tester, AppRoutes.recordDetail('no-existe-f05'));
     await waitVisible(tester, find.text('Registro no encontrado'));

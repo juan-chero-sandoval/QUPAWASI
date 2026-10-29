@@ -573,6 +573,39 @@ class RecyclingRecords extends Table
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
   );
+  static const VerificationMeta _qrDepositIdMeta = const VerificationMeta(
+    'qrDepositId',
+  );
+  late final GeneratedColumn<String> qrDepositId = GeneratedColumn<String>(
+    'qr_deposit_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'UNIQUE',
+  );
+  static const VerificationMeta _latitudeMeta = const VerificationMeta(
+    'latitude',
+  );
+  late final GeneratedColumn<double> latitude = GeneratedColumn<double>(
+    'latitude',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _longitudeMeta = const VerificationMeta(
+    'longitude',
+  );
+  late final GeneratedColumn<double> longitude = GeneratedColumn<double>(
+    'longitude',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -584,6 +617,9 @@ class RecyclingRecords extends Table
     note,
     createdAt,
     updatedAt,
+    qrDepositId,
+    latitude,
+    longitude,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -664,6 +700,27 @@ class RecyclingRecords extends Table
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('qr_deposit_id')) {
+      context.handle(
+        _qrDepositIdMeta,
+        qrDepositId.isAcceptableOrUnknown(
+          data['qr_deposit_id']!,
+          _qrDepositIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('latitude')) {
+      context.handle(
+        _latitudeMeta,
+        latitude.isAcceptableOrUnknown(data['latitude']!, _latitudeMeta),
+      );
+    }
+    if (data.containsKey('longitude')) {
+      context.handle(
+        _longitudeMeta,
+        longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta),
+      );
+    }
     return context;
   }
 
@@ -709,6 +766,18 @@ class RecyclingRecords extends Table
         DriftSqlType.int,
         data['${effectivePrefix}updated_at'],
       )!,
+      qrDepositId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}qr_deposit_id'],
+      ),
+      latitude: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}latitude'],
+      ),
+      longitude: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}longitude'],
+      ),
     );
   }
 
@@ -731,6 +800,9 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
   final String note;
   final int createdAt;
   final int updatedAt;
+  final String? qrDepositId;
+  final double? latitude;
+  final double? longitude;
   const RecyclingRecord({
     required this.id,
     required this.pointId,
@@ -741,6 +813,9 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
     required this.note,
     required this.createdAt,
     required this.updatedAt,
+    this.qrDepositId,
+    this.latitude,
+    this.longitude,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -754,6 +829,15 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
     map['note'] = Variable<String>(note);
     map['created_at'] = Variable<int>(createdAt);
     map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || qrDepositId != null) {
+      map['qr_deposit_id'] = Variable<String>(qrDepositId);
+    }
+    if (!nullToAbsent || latitude != null) {
+      map['latitude'] = Variable<double>(latitude);
+    }
+    if (!nullToAbsent || longitude != null) {
+      map['longitude'] = Variable<double>(longitude);
+    }
     return map;
   }
 
@@ -768,6 +852,15 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
       note: Value(note),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      qrDepositId: qrDepositId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(qrDepositId),
+      latitude: latitude == null && nullToAbsent
+          ? const Value.absent()
+          : Value(latitude),
+      longitude: longitude == null && nullToAbsent
+          ? const Value.absent()
+          : Value(longitude),
     );
   }
 
@@ -786,6 +879,9 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
       note: serializer.fromJson<String>(json['note']),
       createdAt: serializer.fromJson<int>(json['created_at']),
       updatedAt: serializer.fromJson<int>(json['updated_at']),
+      qrDepositId: serializer.fromJson<String?>(json['qr_deposit_id']),
+      latitude: serializer.fromJson<double?>(json['latitude']),
+      longitude: serializer.fromJson<double?>(json['longitude']),
     );
   }
   @override
@@ -801,6 +897,9 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
       'note': serializer.toJson<String>(note),
       'created_at': serializer.toJson<int>(createdAt),
       'updated_at': serializer.toJson<int>(updatedAt),
+      'qr_deposit_id': serializer.toJson<String?>(qrDepositId),
+      'latitude': serializer.toJson<double?>(latitude),
+      'longitude': serializer.toJson<double?>(longitude),
     };
   }
 
@@ -814,6 +913,9 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
     String? note,
     int? createdAt,
     int? updatedAt,
+    Value<String?> qrDepositId = const Value.absent(),
+    Value<double?> latitude = const Value.absent(),
+    Value<double?> longitude = const Value.absent(),
   }) => RecyclingRecord(
     id: id ?? this.id,
     pointId: pointId ?? this.pointId,
@@ -824,6 +926,9 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
     note: note ?? this.note,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    qrDepositId: qrDepositId.present ? qrDepositId.value : this.qrDepositId,
+    latitude: latitude.present ? latitude.value : this.latitude,
+    longitude: longitude.present ? longitude.value : this.longitude,
   );
   RecyclingRecord copyWithCompanion(RecyclingRecordsCompanion data) {
     return RecyclingRecord(
@@ -840,6 +945,11 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
       note: data.note.present ? data.note.value : this.note,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      qrDepositId: data.qrDepositId.present
+          ? data.qrDepositId.value
+          : this.qrDepositId,
+      latitude: data.latitude.present ? data.latitude.value : this.latitude,
+      longitude: data.longitude.present ? data.longitude.value : this.longitude,
     );
   }
 
@@ -854,7 +964,10 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
           ..write('occurredAt: $occurredAt, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('qrDepositId: $qrDepositId, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude')
           ..write(')'))
         .toString();
   }
@@ -870,6 +983,9 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
     note,
     createdAt,
     updatedAt,
+    qrDepositId,
+    latitude,
+    longitude,
   );
   @override
   bool operator ==(Object other) =>
@@ -883,7 +999,10 @@ class RecyclingRecord extends DataClass implements Insertable<RecyclingRecord> {
           other.occurredAt == this.occurredAt &&
           other.note == this.note &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.qrDepositId == this.qrDepositId &&
+          other.latitude == this.latitude &&
+          other.longitude == this.longitude);
 }
 
 class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
@@ -896,6 +1015,9 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
   final Value<String> note;
   final Value<int> createdAt;
   final Value<int> updatedAt;
+  final Value<String?> qrDepositId;
+  final Value<double?> latitude;
+  final Value<double?> longitude;
   final Value<int> rowid;
   const RecyclingRecordsCompanion({
     this.id = const Value.absent(),
@@ -907,6 +1029,9 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.qrDepositId = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RecyclingRecordsCompanion.insert({
@@ -919,6 +1044,9 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
     this.note = const Value.absent(),
     required int createdAt,
     required int updatedAt,
+    this.qrDepositId = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        pointId = Value(pointId),
@@ -938,6 +1066,9 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
     Expression<String>? note,
     Expression<int>? createdAt,
     Expression<int>? updatedAt,
+    Expression<String>? qrDepositId,
+    Expression<double>? latitude,
+    Expression<double>? longitude,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -950,6 +1081,9 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (qrDepositId != null) 'qr_deposit_id': qrDepositId,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -964,6 +1098,9 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
     Value<String>? note,
     Value<int>? createdAt,
     Value<int>? updatedAt,
+    Value<String?>? qrDepositId,
+    Value<double?>? latitude,
+    Value<double?>? longitude,
     Value<int>? rowid,
   }) {
     return RecyclingRecordsCompanion(
@@ -976,6 +1113,9 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      qrDepositId: qrDepositId ?? this.qrDepositId,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1010,6 +1150,15 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<int>(updatedAt.value);
     }
+    if (qrDepositId.present) {
+      map['qr_deposit_id'] = Variable<String>(qrDepositId.value);
+    }
+    if (latitude.present) {
+      map['latitude'] = Variable<double>(latitude.value);
+    }
+    if (longitude.present) {
+      map['longitude'] = Variable<double>(longitude.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1028,6 +1177,281 @@ class RecyclingRecordsCompanion extends UpdateCompanion<RecyclingRecord> {
           ..write('note: $note, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('qrDepositId: $qrDepositId, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class DepositReceipts extends Table
+    with TableInfo<DepositReceipts, DepositReceipt> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  DepositReceipts(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _depositIdMeta = const VerificationMeta(
+    'depositId',
+  );
+  late final GeneratedColumn<String> depositId = GeneratedColumn<String>(
+    'deposit_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _recordIdMeta = const VerificationMeta(
+    'recordId',
+  );
+  late final GeneratedColumn<String> recordId = GeneratedColumn<String>(
+    'record_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL UNIQUE',
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [depositId, recordId, payload];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'deposit_receipts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DepositReceipt> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('deposit_id')) {
+      context.handle(
+        _depositIdMeta,
+        depositId.isAcceptableOrUnknown(data['deposit_id']!, _depositIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_depositIdMeta);
+    }
+    if (data.containsKey('record_id')) {
+      context.handle(
+        _recordIdMeta,
+        recordId.isAcceptableOrUnknown(data['record_id']!, _recordIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recordIdMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {depositId};
+  @override
+  DepositReceipt map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DepositReceipt(
+      depositId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deposit_id'],
+      )!,
+      recordId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}record_id'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+    );
+  }
+
+  @override
+  DepositReceipts createAlias(String alias) {
+    return DepositReceipts(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class DepositReceipt extends DataClass implements Insertable<DepositReceipt> {
+  final String depositId;
+  final String recordId;
+  final String payload;
+  const DepositReceipt({
+    required this.depositId,
+    required this.recordId,
+    required this.payload,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['deposit_id'] = Variable<String>(depositId);
+    map['record_id'] = Variable<String>(recordId);
+    map['payload'] = Variable<String>(payload);
+    return map;
+  }
+
+  DepositReceiptsCompanion toCompanion(bool nullToAbsent) {
+    return DepositReceiptsCompanion(
+      depositId: Value(depositId),
+      recordId: Value(recordId),
+      payload: Value(payload),
+    );
+  }
+
+  factory DepositReceipt.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DepositReceipt(
+      depositId: serializer.fromJson<String>(json['deposit_id']),
+      recordId: serializer.fromJson<String>(json['record_id']),
+      payload: serializer.fromJson<String>(json['payload']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'deposit_id': serializer.toJson<String>(depositId),
+      'record_id': serializer.toJson<String>(recordId),
+      'payload': serializer.toJson<String>(payload),
+    };
+  }
+
+  DepositReceipt copyWith({
+    String? depositId,
+    String? recordId,
+    String? payload,
+  }) => DepositReceipt(
+    depositId: depositId ?? this.depositId,
+    recordId: recordId ?? this.recordId,
+    payload: payload ?? this.payload,
+  );
+  DepositReceipt copyWithCompanion(DepositReceiptsCompanion data) {
+    return DepositReceipt(
+      depositId: data.depositId.present ? data.depositId.value : this.depositId,
+      recordId: data.recordId.present ? data.recordId.value : this.recordId,
+      payload: data.payload.present ? data.payload.value : this.payload,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DepositReceipt(')
+          ..write('depositId: $depositId, ')
+          ..write('recordId: $recordId, ')
+          ..write('payload: $payload')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(depositId, recordId, payload);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DepositReceipt &&
+          other.depositId == this.depositId &&
+          other.recordId == this.recordId &&
+          other.payload == this.payload);
+}
+
+class DepositReceiptsCompanion extends UpdateCompanion<DepositReceipt> {
+  final Value<String> depositId;
+  final Value<String> recordId;
+  final Value<String> payload;
+  final Value<int> rowid;
+  const DepositReceiptsCompanion({
+    this.depositId = const Value.absent(),
+    this.recordId = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DepositReceiptsCompanion.insert({
+    required String depositId,
+    required String recordId,
+    required String payload,
+    this.rowid = const Value.absent(),
+  }) : depositId = Value(depositId),
+       recordId = Value(recordId),
+       payload = Value(payload);
+  static Insertable<DepositReceipt> custom({
+    Expression<String>? depositId,
+    Expression<String>? recordId,
+    Expression<String>? payload,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (depositId != null) 'deposit_id': depositId,
+      if (recordId != null) 'record_id': recordId,
+      if (payload != null) 'payload': payload,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DepositReceiptsCompanion copyWith({
+    Value<String>? depositId,
+    Value<String>? recordId,
+    Value<String>? payload,
+    Value<int>? rowid,
+  }) {
+    return DepositReceiptsCompanion(
+      depositId: depositId ?? this.depositId,
+      recordId: recordId ?? this.recordId,
+      payload: payload ?? this.payload,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (depositId.present) {
+      map['deposit_id'] = Variable<String>(depositId.value);
+    }
+    if (recordId.present) {
+      map['record_id'] = Variable<String>(recordId.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DepositReceiptsCompanion(')
+          ..write('depositId: $depositId, ')
+          ..write('recordId: $recordId, ')
+          ..write('payload: $payload, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2781,6 +3205,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'records_point',
     'CREATE INDEX records_point ON recycling_records (point_id)',
   );
+  late final DepositReceipts depositReceipts = DepositReceipts(this);
+  late final Trigger immutableQrRecord = Trigger(
+    'CREATE TRIGGER immutable_qr_record BEFORE UPDATE ON recycling_records WHEN OLD.qr_deposit_id IS NOT NULL AND(NEW.id != OLD.id OR NEW.point_id != OLD.point_id OR NEW.material != OLD.material OR NEW.quantity != OLD.quantity OR NEW.unit_points != OLD.unit_points OR NEW.occurred_at != OLD.occurred_at OR NEW.created_at != OLD.created_at OR NEW.qr_deposit_id IS NOT OLD.qr_deposit_id OR NEW.latitude IS NOT OLD.latitude OR NEW.longitude IS NOT OLD.longitude)BEGIN SELECT RAISE (ABORT, \'immutable_qr_record\');END',
+    'immutable_qr_record',
+  );
   late final Rewards rewards = Rewards(this);
   late final Redemptions redemptions = Redemptions(this);
   late final Drafts drafts = Drafts(this);
@@ -2810,6 +3239,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     recyclingRecords,
     recordsOccurredAt,
     recordsPoint,
+    depositReceipts,
+    immutableQrRecord,
     rewards,
     redemptions,
     drafts,
@@ -2821,6 +3252,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'recycling_records',
+        limitUpdateKind: UpdateKind.update,
+      ),
+      result: [],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'redemptions',

@@ -1,6 +1,11 @@
 # Q'UPA WASI
 
-Prototipo Android offline de reciclaje universitario UNP para Unidad II. **EcoPuntos y canjes simulados**, sin dinero, depósito verificado, login remoto ni backend. Cinco pestañas, CRUD de registros locales, borradores, preferencias y sugerencias persistentes.
+Prototipo Android de reciclaje universitario UNP que funciona sin conexión.
+**EcoPuntos y canjes simulados**, sin login remoto ni backend. Alta mediante
+QR del tacho, historial SQLite y preferencias persistentes. Mapa del catálogo
+con GPS/proximidad y mapa base opcional con internet. Sin botón Sugerencias.
+Consulta [contrato QR/catálogo](docs/QR_Y_UBICACIONES.md) y
+[plan C01](prps/C01-QR-MAPA-CONEXION.md).
 
 ## Ejecutar desde un clon limpio
 
@@ -24,7 +29,7 @@ Las integraciones deben ejecutarse en un emulador dedicado **sin datos personale
 
 | Componente | Versión |
 | --- | --- |
-| App / applicationId | 0.2.0+2 / `pe.edu.unp.qupawasi` |
+| App / applicationId | 0.3.0+3 / `pe.edu.unp.qupawasi` |
 | Flutter / Dart | 3.47.8 / 3.13.7 |
 | Gradle / AGP / Kotlin | 9.3.1 / 9.1.0 / 2.4.0 |
 | Android min / compile / target | 24 / 36 / 36 |
@@ -38,7 +43,12 @@ Las integraciones deben ejecutarse en un emulador dedicado **sin datos personale
 
 `apps/mobile/lib/app` compone dependencias y rutas por IDs; `presentation` contiene vistas y ViewModels (Provider/ChangeNotifier); `domain` contiene entidades, políticas y casos de uso Dart puros; `data` implementa repositorios. Las vistas no abren SQLite.
 
-Drift abre `qupawasi.sqlite` en soporte interno mediante isolate. La entidad CRUD es el **registro local de reciclaje** (UUID, punto, PET/aluminio, cantidad 1..100, fecha y nota). PET 2 → editar PET 3 conserva una fila y cambia 20 → 30 puntos; eliminar devuelve cero sin canjes. Los canjes se guardan aparte, son idempotentes y bloquean borrar/editar si se compromete el saldo. Cancelarlos libera puntos una vez. Borradores y sugerencias también viven en SQLite. [Contratos](docs/CONTRATOS.md).
+Drift abre `qupawasi.sqlite` v2 en soporte interno mediante isolate, migrando
+v1 sin borrar datos. Nuevos registros provienen del QR: UUID, tacho, material,
+cantidad, fecha/hora, coordenadas e ID único del depósito. No se editan los
+datos del tacho. Reescaneo no duplica puntos; borrar conserva el recibo para
+impedir reacreditación. Históricos manuales siguen editables con borrador.
+Canjes idempotentes bloquean borrar/editar si compromete saldo. [Contratos](docs/CONTRATOS.md).
 
 Shared Preferences guarda tema, alias, onboarding y confirmación pendiente de canje; el saldo y el historial permanecen en SQLite. El formulario guarda incrementalmente y al pausar; un cierre antes del debounce puede perder el último cambio aún no confirmado.
 

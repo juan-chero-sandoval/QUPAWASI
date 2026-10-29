@@ -348,8 +348,8 @@ class _PointStep extends StatelessWidget {
           _FieldError(message: viewModel.pointError!),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Selección manual: funciona sin conexión. El escaneo del QR del '
-          'punto se incorporará en una fase posterior.',
+          'Edición de un registro manual anterior al flujo QR. Los nuevos '
+          'depósitos se registran escaneando el recibo emitido por el tacho.',
           style: TextStyle(color: palette.textMuted, fontSize: 12),
         ),
       ],

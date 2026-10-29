@@ -6,6 +6,7 @@ import '../../app/routes.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
+import '../../core/widgets/brand_surfaces.dart';
 import '../../core/widgets/app_page.dart';
 import '../../domain/entities/app_preferences.dart';
 import '../common/user_avatar.dart';
@@ -58,6 +59,7 @@ class ProfileView extends StatelessWidget {
                 value: stats.levelProgress,
                 semanticsLabel: 'Progreso de nivel',
               ),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -137,23 +139,59 @@ class ProfileView extends StatelessWidget {
         const SectionHeader(title: 'Insignias'),
         LocalState(
           vm: overview,
-          builder: (stats) => Column(
-            children: [
-              for (final badge in EcoBadge.values)
-                ListTile(
-                  leading: Icon(
-                    stats.badges.contains(badge)
-                        ? Icons.check_circle_outline
-                        : Icons.lock_outline,
-                  ),
-                  title: Text(badgeLabel(badge)),
-                  subtitle: Text(
-                    stats.badges.contains(badge)
-                        ? 'Lograda · demo local'
-                        : 'Aún pendiente',
-                  ),
-                ),
-            ],
+          builder: (stats) => LayoutBuilder(
+            builder: (context, constraints) {
+              final columns =
+                  constraints.maxWidth >= 320 &&
+                      MediaQuery.textScalerOf(context).scale(16) <= 21
+                  ? 2
+                  : 1;
+              final width =
+                  (constraints.maxWidth - 12 * (columns - 1)) / columns;
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final badge in EcoBadge.values)
+                    SizedBox(
+                      width: width,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 168),
+                        child: AppCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              IconBadge(
+                                icon: stats.badges.contains(badge)
+                                    ? Icons.verified_outlined
+                                    : Icons.lock_outline,
+                                size: 40,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                badgeLabel(badge),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                stats.badges.contains(badge)
+                                    ? 'Lograda · demo local'
+                                    : 'Aún pendiente',
+                                style: TextStyle(
+                                  color: palette.textMuted,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ),
         const SectionHeader(title: 'Historial local'),
@@ -168,13 +206,6 @@ class ProfileView extends StatelessWidget {
                 title: const Text('Ranking de demostración'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(AppRoutes.ranking),
-              ),
-              const Divider(indent: 16, endIndent: 16),
-              ListTile(
-                leading: const Icon(Icons.inbox_outlined),
-                title: const Text('Sugerencias locales'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push(AppRoutes.suggestions),
               ),
             ],
           ),
@@ -205,12 +236,7 @@ class _ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
     final onCard = palette.onBrandStrong;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: palette.brandStrong,
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius + 4),
-      ),
+    return BrandSurface(
       child: Row(
         children: [
           UserAvatar(alias: alias, radius: 28, inverted: true),
@@ -223,8 +249,9 @@ class _ProfileHeader extends StatelessWidget {
                   alias,
                   style: TextStyle(
                     color: onCard,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 18,
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 24,
                   ),
                 ),
                 Text(
@@ -266,11 +293,8 @@ class _StatTile extends StatelessWidget {
         children: [
           IconBadge(icon: icon, size: 36),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
-          ),
-          Text(label, style: TextStyle(color: palette.textMuted)),
+          Text(value, style: Theme.of(context).textTheme.headlineMedium),
+          Text(label, style: TextStyle(color: palette.textMuted, fontSize: 14)),
         ],
       ),
     );

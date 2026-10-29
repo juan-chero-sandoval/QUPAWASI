@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/brand_surfaces.dart';
 
 /// Tarjeta verde con saldo, nivel, progreso y CTA principal.
 class PointsSummaryCard extends StatelessWidget {
@@ -24,12 +25,7 @@ class PointsSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = AppPalette.of(context);
     final onCard = palette.onBrandStrong;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: palette.brandStrong,
-        borderRadius: BorderRadius.circular(AppSpacing.cardRadius + 4),
-      ),
+    return BrandSurface(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -41,22 +37,15 @@ class PointsSummaryCard extends StatelessWidget {
             children: [
               Text(
                 'Puntos disponibles',
-                style: TextStyle(color: onCard.withValues(alpha: 0.85)),
+                style: TextStyle(
+                  color: onCard.withValues(alpha: 0.88),
+                  fontSize: 14,
+                ),
               ),
-              Chip(
-                avatar: Icon(
-                  Icons.star_border,
-                  size: 16,
-                  color: palette.onAccent,
-                ),
-                label: Text('Nivel $levelName'),
-                labelStyle: TextStyle(
-                  color: palette.onAccent,
-                  fontWeight: FontWeight.w700,
-                ),
-                backgroundColor: palette.accent,
-                side: BorderSide.none,
-                visualDensity: VisualDensity.compact,
+              StatusPill(
+                label: 'Nivel $levelName',
+                icon: Icons.eco_outlined,
+                highlighted: true,
               ),
             ],
           ),
@@ -70,13 +59,15 @@ class PointsSummaryCard extends StatelessWidget {
                   TextSpan(
                     text: '$points ',
                     style: const TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Outfit',
+                      fontSize: 56,
+                      height: 1.1,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const TextSpan(
                     text: 'EcoPuntos',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
@@ -88,7 +79,7 @@ class PointsSummaryCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: progress.clamp(0, 1),
-              minHeight: 8,
+              minHeight: 6,
               color: palette.accent,
               backgroundColor: onCard.withValues(alpha: 0.2),
             ),
@@ -96,7 +87,10 @@ class PointsSummaryCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Text(
             nextLevelText,
-            style: TextStyle(color: onCard.withValues(alpha: 0.85)),
+            style: TextStyle(
+              color: onCard.withValues(alpha: 0.88),
+              fontSize: 13,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(

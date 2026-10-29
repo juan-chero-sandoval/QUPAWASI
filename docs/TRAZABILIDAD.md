@@ -1,5 +1,19 @@
 # Matriz de requisitos y rúbrica de Unidad II
 
+## Cambio C01 posterior a la entrega original
+
+| Solicitud del owner | Implementación | Verificación |
+| --- | --- | --- |
+| Material/cantidad desde QR | Escáner, JSON v1, confirmación de solo lectura, snapshot UTC/coordenadas | Tests parser, VM/widgets y SQLite; integración nativa adaptada |
+| No duplicar puntos por reescaneo | Recibo único permanente, transacción y registro QR inmutable | Reintentos concurrentes, reapertura, conflicto y eliminación |
+| Mapa y tacho más cercano | Catálogo SQLite importable, GPS opcional, Haversine, mapa geográfico | Catálogo persistente/atómico y proximidad con coordenadas sintéticas |
+| Quitar Sugerencias | Retirados botones Inicio/Perfil; datos históricos conservados | Regresión widgets en texto ampliado |
+| Aviso según internet | Monitor de acceso a internet, unknown/online/offline y reconsulta al reanudar | Widget offline → online → offline y respuesta inicial tardía |
+
+Los casos originales de alta manual M04/M09 se sustituyen por alta QR y
+coincidencia de pointId; M06/M08 permanecen para registros manuales históricos.
+El informe C01 registra resultados reales y pendientes de prueba física.
+
 Fuente: `UNIDAD_2_Trabajo_Grupal_Moviles.pdf`, tres páginas, recibido el 28/10/2026. El documento pide un prototipo offline para una MYPE; aquí se adapta al proyecto Q'UPA WASI trabajado en Lab01, sin afirmar aprobación docente específica para esta adaptación.
 
 La tabla combina evidencia prevista y verificaciones por fase. F01 está integrada y F02 aporta tests de persistencia/dominio; F05 completará evidencias Android/video sin sustituirlas por casillas.

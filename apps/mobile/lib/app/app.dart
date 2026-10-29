@@ -9,6 +9,7 @@ import 'dependencies.dart';
 import 'router.dart';
 import 'routes.dart';
 import '../presentation/home/overview_view_model.dart';
+import '../presentation/common/connection_view_model.dart';
 
 class QupaWasiApp extends StatefulWidget {
   const QupaWasiApp({
@@ -46,6 +47,12 @@ class _QupaWasiAppState extends State<QupaWasiApp> {
     return MultiProvider(
       providers: [
         Provider<AppDependencies>.value(value: widget.dependencies),
+        ChangeNotifierProvider(
+          create: (_) => ConnectionViewModel(
+            changes: widget.dependencies.internetChanges,
+            check: widget.dependencies.checkInternet,
+          ),
+        ),
         ChangeNotifierProvider(
           create: (_) => OverviewViewModel(widget.dependencies.local.overview),
         ),

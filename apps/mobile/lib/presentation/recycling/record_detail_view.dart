@@ -12,6 +12,7 @@ import '../../core/widgets/state_message.dart';
 import '../../domain/entities/recycling_record.dart';
 import 'record_detail_view_model.dart';
 import 'record_format.dart';
+import 'record_note_dialog.dart';
 
 class RecordDetailView extends StatelessWidget {
   const RecordDetailView({super.key, required this.recordId});
@@ -109,7 +110,20 @@ class _RecordDetailBody extends StatelessWidget {
             pointName: viewModel.pointName(record.pointId),
             isDeleting: viewModel.isDeleting,
             deleteError: viewModel.deleteError,
-            onEdit: () => context.go(AppRoutes.editRecord(record.id)),
+            onEdit: () async {
+              if (record.depositId == null) {
+                context.go(AppRoutes.editRecord(record.id));
+              } else {
+                viewModel.noteError = null;
+                await showDialog<void>(
+                  context: context,
+                  builder: (_) => RecordNoteDialog(
+                    viewModel: viewModel,
+                    initialNote: record.note,
+                  ),
+                );
+              }
+            },
             onDelete: () => _confirmDelete(context, record),
           ),
         },
@@ -178,6 +192,16 @@ class _RecordDetails extends StatelessWidget {
                 value: RecordFormat.dateTime(context, record.updatedAt),
               ),
               _Field(label: 'ID', value: record.id),
+              if (record.depositId != null) ...[
+                _Field(label: 'Recibo QR', value: record.depositId!),
+                _Field(
+                  label: 'Ubicación del depósito',
+                  value: '${record.latitude}, ${record.longitude}',
+                ),
+                const Text(
+                  'Material, cantidad, fecha y ubicación emitidos por el tacho. Solo lectura.',
+                ),
+              ],
             ],
           ),
         ),
@@ -194,7 +218,7 @@ class _RecordDetails extends StatelessWidget {
         FilledButton.icon(
           onPressed: isDeleting ? null : onEdit,
           icon: const Icon(Icons.edit_outlined),
-          label: const Text('Editar'),
+          label: Text(record.depositId == null ? 'Editar' : 'Editar nota'),
         ),
         const SizedBox(height: AppSpacing.sm),
         OutlinedButton.icon(

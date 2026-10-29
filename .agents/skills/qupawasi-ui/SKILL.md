@@ -11,6 +11,10 @@ Mantén cinco pestañas, tarjetas verdes/claras y jerarquía de las referencias,
 
 ViewModels consumen casos de uso y exponen loading/data/empty/error. No SQL ni cálculo de puntos en build(). Navegación pasa ID serializable y vuelve a consultar el repositorio; manejar entidad inexistente sin null crash. Liberar listeners al disponer.
 
-Aviso “Prototipo offline · EcoPuntos y canjes simulados” consistente. Mapa y ranking de ejemplo identificados; sugerencias locales no aparecen como enviadas. No solicitar notificaciones ni afirmar cámara activa si no está implementada. Selección manual de punto siempre funciona.
+Desde C01: aviso “EcoPuntos y canjes simulados” consistente; “Sin conexión”
+solo en estado offline confirmado. Alta nueva mediante QR del tacho con datos
+de solo lectura y nota local editable; formulario completo solo de históricos. Mapa geográfico con catálogo
+SQLite y GPS opcional; sin coordenadas verificadas no inventar proximidad.
+Sin accesos a Sugerencias en Inicio/Perfil. Consultar docs/QR_Y_UBICACIONES.md.
 
 Verifica eventos, parámetros y reactividad, además de aspecto. Una captura bonita no demuestra CRUD ni persistencia. Documenta diferencias visuales aceptadas y registra pruebas Android reales.

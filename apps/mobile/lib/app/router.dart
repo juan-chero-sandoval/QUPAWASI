@@ -10,6 +10,7 @@ import '../presentation/onboarding/welcome_view.dart';
 import '../presentation/profile/profile_view.dart';
 import '../presentation/recycling/record_detail_view.dart';
 import '../presentation/recycling/record_form_view.dart';
+import '../presentation/recycling/qr_deposit_view.dart';
 import '../presentation/recycling/recycling_view.dart';
 import '../presentation/rewards/rewards_view.dart';
 import '../presentation/settings/app_settings_view_model.dart';
@@ -65,7 +66,7 @@ GoRouter createRouter({
                   // `new` va antes que la ruta dinámica `:recordId`.
                   GoRoute(
                     path: 'new',
-                    builder: (context, state) => RecordFormView.create(
+                    builder: (context, state) => QrDepositView(
                       pointId: state.uri.queryParameters['pointId'],
                     ),
                   ),

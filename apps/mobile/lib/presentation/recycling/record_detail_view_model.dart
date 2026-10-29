@@ -51,6 +51,41 @@ class RecordDetailViewModel extends ChangeNotifier {
   bool _deleted = false;
   String? _deleteError;
   bool _disposed = false;
+  bool isSavingNote = false;
+  String? noteError;
+
+  Future<bool> updateNote(String note) async {
+    if (isSavingNote || _deleting) return false;
+    isSavingNote = true;
+    noteError = null;
+    _notify();
+    try {
+      final record = await _recycling.get(recordId);
+      if (record == null) {
+        throw const LocalDataException(
+          LocalDataError.notFound,
+          'El registro ya no existe.',
+        );
+      }
+      await _recycling.update(
+        recordId,
+        RecordInput(
+          pointId: record.pointId,
+          material: record.material,
+          quantity: record.quantity,
+          occurredAt: record.occurredAt,
+          note: note,
+        ),
+      );
+      return true;
+    } on LocalDataException catch (e) {
+      noteError = e.message;
+      return false;
+    } finally {
+      isSavingNote = false;
+      _notify();
+    }
+  }
 
   RecordDetailState get state => _state;
   bool get isDeleting => _deleting;
@@ -103,7 +138,7 @@ class RecordDetailViewModel extends ChangeNotifier {
 
   /// Elimina tras la confirmación de la vista. `true` solo si se borró.
   Future<bool> delete() async {
-    if (_deleting) return false;
+    if (_deleting || isSavingNote) return false;
     _deleting = true;
     _deleteError = null;
     _notify();
