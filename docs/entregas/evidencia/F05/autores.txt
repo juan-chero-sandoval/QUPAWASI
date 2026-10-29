@@ -6,7 +6,7 @@ Implementaciones reales (conservadas sin squash):
 c367b2e12c5923ddf5624f179c1709a3f7f3d389 | Carla Novillo | test: validar prototipo offline y preparar APK de entrega (F05)
 1cb94a319857e38218e23976b6252c0672e97d9f | Carla Novillo | fix: evitar superposicion de sugerencias con texto ampliado (F05)
 
-Shortlog del repositorio (incluye merges y aliases de cuentas; no cuenta cinco personas por cantidad de filas):
+Shortlog capturado en 1cb94a3 (incluye merges y aliases de cuentas; no cuenta cinco personas por cantidad de filas):
      4	Carla Novillo
      4	Juan Chero
      4	juan-chero-sandoval
@@ -15,4 +15,3 @@ Shortlog del repositorio (incluye merges y aliases de cuentas; no cuenta cinco p
      1	Brianna Becerra
      1	CRISTOPHER
      1	ferbri495-byte
-
