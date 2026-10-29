@@ -14,6 +14,7 @@ class AppPage extends StatelessWidget {
     this.actions,
     this.showBack = false,
     this.floatingActionButton,
+    this.bottomAction,
   });
 
   final String title;
@@ -23,6 +24,10 @@ class AppPage extends StatelessWidget {
   /// Muestra botón volver aunque la pantalla sea raíz de una pestaña.
   final bool showBack;
   final Widget? floatingActionButton;
+
+  /// Acción principal fija abajo: siempre visible, sin tener que desplazarse
+  /// (también en pantallas pequeñas o con texto ampliado).
+  final Widget? bottomAction;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +48,32 @@ class AppPage extends StatelessWidget {
         automaticallyImplyLeading: showBack,
       ),
       floatingActionButton: floatingActionButton,
+      bottomNavigationBar: bottomAction == null
+          ? null
+          : SafeArea(
+              top: false,
+              child: Center(
+                heightFactor: 1,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: AppSpacing.contentWidth,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.screen,
+                      AppSpacing.sm,
+                      AppSpacing.screen,
+                      AppSpacing.md,
+                    ),
+                    // Ancho completo: el botón principal no se encoge al centro.
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: bottomAction,
+                    ),
+                  ),
+                ),
+              ),
+            ),
       body: SafeArea(
         top: false,
         child: Center(

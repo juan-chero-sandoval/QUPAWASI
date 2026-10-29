@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:qupa_wasi/domain/usecases/admin_catalog_use_cases.dart';
 import 'package:qupa_wasi/app/local_services.dart';
 import 'package:qupa_wasi/data/local/demo_seed.dart';
 import 'package:qupa_wasi/domain/entities/local_suggestion.dart';
@@ -25,6 +26,8 @@ import 'package:qupa_wasi/domain/entities/deposit_qr.dart';
 import 'package:qupa_wasi/domain/repositories/deposits_repository.dart';
 import 'package:qupa_wasi/domain/usecases/deposit_use_cases.dart';
 
+import 'fake_admin_catalog.dart';
+
 /// Dobles controlados para pruebas de widgets (sin isolate de SQLite ni
 /// temporizadores de Drift). La persistencia real se prueba en
 /// `test/presentation/record_form_view_model_test.dart`, `test/data/` e
@@ -41,6 +44,7 @@ class FakeLocal {
       rewards: const RewardsUseCases(_FakeRewards()),
       drafts: DraftUseCases(drafts),
       suggestions: const SuggestionsUseCases(_FakeSuggestions()),
+      admin: AdminCatalogUseCases(admin, admin, admin),
     );
   }
 
@@ -49,6 +53,7 @@ class FakeLocal {
   DateTime get now => DateTime.now().toUtc();
   final records = FakeRecordsRepository();
   final drafts = FakeDraftRepository();
+  late final FakeAdminCatalog admin = FakeAdminCatalog(records);
   late final LocalServices services;
 
   Future<RecyclingRecord> seedRecord({

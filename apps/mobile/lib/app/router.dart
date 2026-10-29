@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../presentation/admin/admin_point_form_view.dart';
+import '../presentation/admin/admin_points_view.dart';
+import '../presentation/admin/admin_reward_form_view.dart';
+import '../presentation/admin/admin_rewards_view.dart';
 import '../presentation/common/not_found_view.dart';
 import '../presentation/common/placeholder_views.dart';
 import '../presentation/suggestions/suggestions_view.dart';
@@ -126,6 +130,54 @@ GoRouter createRouter({
         path: AppRoutes.suggestions,
         parentNavigatorKey: rootKey,
         builder: (context, state) => const SuggestionsView(),
+      ),
+      // Sin modo administrador activo, cualquier ruta /admin vuelve a Perfil.
+      GoRoute(
+        path: AppRoutes.admin,
+        parentNavigatorKey: rootKey,
+        redirect: (context, state) {
+          if (!settings.adminMode) return AppRoutes.profile;
+          // En una redirección de ruta, matchedLocation es solo '/admin'
+          // aunque se visite una subruta: se compara la ruta completa.
+          return state.uri.path == AppRoutes.admin
+              ? AppRoutes.adminPoints
+              : null;
+        },
+        routes: [
+          GoRoute(
+            path: 'points',
+            builder: (context, state) => const AdminPointsView(),
+            routes: [
+              // `new` va antes que la ruta dinámica `:pointId`.
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const AdminPointFormView(),
+              ),
+              GoRoute(
+                path: ':pointId',
+                builder: (context, state) => AdminPointFormView(
+                  pointId: state.pathParameters['pointId'],
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'rewards',
+            builder: (context, state) => const AdminRewardsView(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const AdminRewardFormView(),
+              ),
+              GoRoute(
+                path: ':rewardId',
+                builder: (context, state) => AdminRewardFormView(
+                  rewardId: state.pathParameters['rewardId'],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );

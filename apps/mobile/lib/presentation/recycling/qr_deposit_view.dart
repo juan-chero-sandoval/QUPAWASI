@@ -66,6 +66,28 @@ class _BodyState extends State<_Body> {
     return AppPage(
       title: 'Registrar reciclaje',
       showBack: true,
+      bottomAction: receipt == null
+          ? FilledButton.icon(
+              onPressed: scanning || vm.busy ? null : scan,
+              icon: const Icon(Icons.qr_code_scanner_rounded),
+              label: const Text('Escanear QR'),
+            )
+          : FilledButton.icon(
+              onPressed: vm.busy
+                  ? null
+                  : () async {
+                      final id = await vm.confirm();
+                      if (!context.mounted) return;
+                      if (id != null) {
+                        AppToast.success(context, 'Reciclaje registrado');
+                        context.go(AppRoutes.recordDetail(id));
+                      } else if (vm.error != null) {
+                        AppToast.error(context, vm.error!);
+                      }
+                    },
+              icon: const Icon(Icons.check_rounded),
+              label: Text(vm.busy ? 'Guardando…' : 'Confirmar reciclaje'),
+            ),
       children: [
         Row(
           children: [
@@ -101,12 +123,6 @@ class _BodyState extends State<_Body> {
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: scanning || vm.busy ? null : scan,
-            icon: const Icon(Icons.qr_code_scanner_rounded),
-            label: const Text('Escanear QR'),
           ),
         ] else ...[
           AppCard(
@@ -156,22 +172,6 @@ class _BodyState extends State<_Body> {
             ),
           ),
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: vm.busy
-                ? null
-                : () async {
-                    final id = await vm.confirm();
-                    if (!context.mounted) return;
-                    if (id != null) {
-                      AppToast.success(context, 'Reciclaje registrado');
-                      context.go(AppRoutes.recordDetail(id));
-                    } else if (vm.error != null) {
-                      AppToast.error(context, vm.error!);
-                    }
-                  },
-            child: Text(vm.busy ? 'Guardando…' : 'Confirmar reciclaje'),
-          ),
-          const SizedBox(height: 8),
           OutlinedButton.icon(
             onPressed: vm.busy ? null : vm.clear,
             icon: const Icon(Icons.qr_code_scanner_rounded),

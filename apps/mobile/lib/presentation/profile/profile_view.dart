@@ -29,6 +29,22 @@ class ProfileView extends StatelessWidget {
     (name: 'Guardián del bosque', points: 1000, icon: Icons.forest_outlined),
   ];
 
+  Future<void> _changeAdminMode(BuildContext context, bool enabled) async {
+    final settings = context.read<AppSettingsViewModel>();
+    final saved = await settings.setAdminMode(enabled);
+    if (!context.mounted) return;
+    if (saved) {
+      AppToast.info(
+        context,
+        enabled
+            ? 'Modo administrador activado'
+            : 'Modo administrador desactivado',
+      );
+    } else if (settings.errorMessage != null) {
+      AppToast.error(context, settings.errorMessage!);
+    }
+  }
+
   Future<void> _changeTheme(BuildContext context, ThemePreference mode) async {
     final settings = context.read<AppSettingsViewModel>();
     final saved = await settings.setTheme(mode);
@@ -106,6 +122,39 @@ class ProfileView extends StatelessWidget {
                     ),
                 ],
               ),
+            ],
+          ),
+        ),
+        const SectionHeader(title: 'Administración'),
+        AppCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.admin_panel_settings_outlined),
+                title: const Text('Modo administrador'),
+                subtitle: const Text('Simulado · sin cuenta'),
+                value: settings.adminMode,
+                onChanged: settings.isSaving
+                    ? null
+                    : (enabled) => _changeAdminMode(context, enabled),
+              ),
+              if (settings.adminMode) ...[
+                const Divider(indent: 16, endIndent: 16),
+                ListTile(
+                  leading: const Icon(Icons.location_on_outlined),
+                  title: const Text('Tachos'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(AppRoutes.adminPoints),
+                ),
+                const Divider(indent: 16, endIndent: 16),
+                ListTile(
+                  leading: const Icon(Icons.card_giftcard_outlined),
+                  title: const Text('Recompensas'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push(AppRoutes.adminRewards),
+                ),
+              ],
             ],
           ),
         ),

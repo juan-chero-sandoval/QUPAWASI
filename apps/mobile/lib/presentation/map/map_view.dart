@@ -98,6 +98,14 @@ class _Body extends StatelessWidget {
     final distances = {for (final r in vm.ranked) r.point.id: r.meters};
     final page = AppPage(
       title: 'Mapa',
+      bottomAction: point == null
+          ? null
+          : FilledButton.icon(
+              onPressed: () =>
+                  context.go(AppRoutes.newRecord(pointId: point.id)),
+              icon: const Icon(Icons.qr_code_scanner),
+              label: const Text('Registrar en este punto'),
+            ),
       actions: [
         IconButton(
           tooltip: 'Cargar catálogo de tachos',
@@ -259,12 +267,6 @@ class _Body extends StatelessWidget {
                 ],
               ),
             ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: () => context.go(AppRoutes.newRecord(pointId: point.id)),
-            icon: const Icon(Icons.qr_code_scanner),
-            label: const Text('Registrar en este punto'),
-          ),
         ],
       ],
     );

@@ -44,6 +44,10 @@ class FakePreferencesRepository implements PreferencesRepository {
       _write(_stored.copyWith(alias: LocalAlias.normalize(alias)));
 
   @override
+  Future<void> setAdminMode(bool enabled) =>
+      _write(_stored.copyWith(adminMode: enabled));
+
+  @override
   Future<void> completeOnboarding() =>
       _write(_stored.copyWith(onboardingCompleted: true));
 

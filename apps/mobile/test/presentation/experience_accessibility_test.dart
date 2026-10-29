@@ -18,6 +18,12 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
+      // Teléfono vertical (objetivo de la app). En la superficie apaisada por
+      // defecto (800×600) el botón fijo inferior deja texto recortado en el
+      // borde y la regla de contraste mide la parte cortada (falso positivo).
+      tester.view.devicePixelRatio = 2.625;
+      tester.view.physicalSize = const Size(412 * 2.625, 915 * 2.625);
+      addTearDown(tester.view.reset);
       tester.platformDispatcher.platformBrightnessTestValue = dark
           ? Brightness.dark
           : Brightness.light;

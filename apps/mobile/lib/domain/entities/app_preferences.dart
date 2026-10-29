@@ -19,6 +19,7 @@ class AppPreferences {
     required this.themePreference,
     required this.onboardingCompleted,
     required this.alias,
+    this.adminMode = false,
   });
 
   /// Valores de primera instalación.
@@ -32,15 +33,21 @@ class AppPreferences {
   final bool onboardingCompleted;
   final String alias;
 
+  /// Modo administrador **simulado**: muestra el CRUD de tachos y recompensas.
+  /// No es autenticación ni da permisos reales.
+  final bool adminMode;
+
   AppPreferences copyWith({
     ThemePreference? themePreference,
     bool? onboardingCompleted,
     String? alias,
+    bool? adminMode,
   }) {
     return AppPreferences(
       themePreference: themePreference ?? this.themePreference,
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
       alias: alias ?? this.alias,
+      adminMode: adminMode ?? this.adminMode,
     );
   }
 
@@ -49,10 +56,12 @@ class AppPreferences {
       other is AppPreferences &&
       other.themePreference == themePreference &&
       other.onboardingCompleted == onboardingCompleted &&
-      other.alias == alias;
+      other.alias == alias &&
+      other.adminMode == adminMode;
 
   @override
-  int get hashCode => Object.hash(themePreference, onboardingCompleted, alias);
+  int get hashCode =>
+      Object.hash(themePreference, onboardingCompleted, alias, adminMode);
 }
 
 /// Alias de demostración (2..40 caracteres tras trim). No es un nombre real.
