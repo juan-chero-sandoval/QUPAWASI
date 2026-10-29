@@ -318,6 +318,83 @@ void main() {
     final draft = await f.services.drafts.load(RecordFormViewModel.newDraftKey);
     expect(draft!.quantityText, '9');
   });
+
+  test('un descarte fallido conserva la oferta y permite reintentar', () async {
+    final original = form();
+    await original.load();
+    await fillValid(original, note: 'conservar hasta descartar');
+    await original.flushDraft();
+    original.dispose();
+    await f.reopen();
+
+    final faulty = _FailOnceClear(f.services.drafts);
+    final restored = form(drafts: DraftUseCases(faulty));
+    await restored.load();
+    await restored.discardDraft();
+    expect(restored.status, RecordFormStatus.draftOffer);
+    expect(restored.draftError, contains('No se pudo descartar'));
+    expect(restored.offeredDraft!.note, 'conservar hasta descartar');
+    expect(await f.services.recycling.watch().first, isEmpty);
+
+    await restored.discardDraft();
+    expect(restored.status, RecordFormStatus.editing);
+    expect(restored.draftError, isNull);
+    restored.dispose();
+    await f.reopen();
+    expect(
+      await f.services.drafts.load(RecordFormViewModel.newDraftKey),
+      isNull,
+    );
+  });
+  test(
+    'una conversión fallida conserva el ID y borrador del registro ausente',
+    () async {
+      final record = await f.services.recycling.create(f.input());
+      final editor = form(recordId: record.id);
+      await editor.load();
+      editor.setNote('edición pendiente');
+      await editor.flushDraft();
+      editor.dispose();
+      await f.services.recycling.delete(record.id);
+      await f.reopen();
+
+      final restored = form(
+        recordId: record.id,
+        drafts: DraftUseCases(_FailOnceClear(f.services.drafts)),
+      );
+      await restored.load();
+      await restored.convertMissingToNew();
+      expect(restored.status, RecordFormStatus.recordMissing);
+      expect(restored.recordId, record.id);
+      expect(restored.offeredDraft!.note, 'edición pendiente');
+      expect(await f.services.recycling.watch().first, isEmpty);
+      expect(await restored.discardMissing(), isTrue);
+      restored.dispose();
+      await f.reopen();
+      expect(
+        await f.services.drafts.load(RecordFormViewModel.editDraftKey),
+        isNull,
+      );
+    },
+  );
+}
+
+class _FailOnceClear implements DraftRepository {
+  _FailOnceClear(this.actual);
+  final DraftUseCases actual;
+  bool fail = true;
+  @override
+  Future<RecyclingDraft?> load(String key) => actual.load(key);
+  @override
+  Future<void> save(RecyclingDraft draft) => actual.save(draft);
+  @override
+  Future<void> clear(String key) async {
+    if (fail) {
+      fail = false;
+      throw const LocalDataException(LocalDataError.storage, 'Disco ocupado');
+    }
+    await actual.clear(key);
+  }
 }
 
 class _SlowDrafts implements DraftRepository {

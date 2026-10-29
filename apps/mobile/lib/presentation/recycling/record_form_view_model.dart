@@ -216,7 +216,7 @@ class RecordFormViewModel extends ChangeNotifier {
 
   /// Borra el borrador ofrecido y empieza con los datos guardados o vacíos.
   Future<void> discardDraft() async {
-    await _clearDraft(draftKey);
+    if (!await _clearDraft(draftKey)) return;
     _startEditing();
   }
 
@@ -225,7 +225,7 @@ class RecordFormViewModel extends ChangeNotifier {
   Future<void> convertMissingToNew() async {
     final draft = _offeredDraft;
     if (draft == null) return;
-    await _clearDraft(editDraftKey);
+    if (!await _clearDraft(editDraftKey)) return;
     _recordId = null;
     _original = null;
     _applyDraft(draft);
@@ -236,7 +236,7 @@ class RecordFormViewModel extends ChangeNotifier {
   }
 
   /// Descarta el borrador de un registro inexistente.
-  Future<void> discardMissing() => _clearDraft(editDraftKey);
+  Future<bool> discardMissing() => _clearDraft(editDraftKey);
 
   void selectPoint(String id) {
     if (!_editable) return;
@@ -385,15 +385,19 @@ class RecordFormViewModel extends ChangeNotifier {
     });
   }
 
-  Future<void> _clearDraft(String key) {
-    _draftQueue = _draftQueue.then((_) async {
+  Future<bool> _clearDraft(String key) {
+    final result = _draftQueue.then((_) async {
       try {
         await _drafts.clear(key);
+        _setDraftError(null);
+        return true;
       } on LocalDataException catch (error) {
         _setDraftError('No se pudo descartar el borrador: ${error.message}');
+        return false;
       }
     });
-    return _draftQueue;
+    _draftQueue = result.then((_) {});
+    return result;
   }
 
   RecyclingDraft _snapshot(DateTime stamp) => RecyclingDraft(

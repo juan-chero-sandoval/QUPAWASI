@@ -78,3 +78,22 @@ No añadir APK, keystore o build al commit. La entrega puede usar artefactos de 
 ## CI
 
 La CI actual verifica el paquete documental. F01 crea el workflow móvil con checkout, Flutter fijo, caché, pub get, formato/analyze/test/build debug y subida del APK como artefacto de ensayo. F02 incorpora generación Drift; F05 añade integración en emulador si el entorno lo permite. Permisos mínimos `contents: read`; los PR no necesitan secretos. Un workflow verde solo demuestra los pasos que ejecutó; no sustituye prueba de dispositivo ni video real.
+
+## F05: versión de entrega y comprobación de procedencia
+
+Versión 0.2.0+2; paquete `pe.edu.unp.qupawasi`, nombre Q'UPA WASI. Las versiones exactas y comandos desde clon están en [README](../README.md); los resultados y huella del binario final en [F05](entregas/F05.md). Un APK generado por integration_test es el runner: reconstruir el APK normal antes de instalar para la demostración.
+
+```powershell
+flutter build apk --debug
+adb -s emulator-5554 install -r build/app/outputs/flutter-apk/app-debug.apk
+adb -s emulator-5554 shell cmd connectivity airplane-mode enable
+adb -s emulator-5554 shell am force-stop pe.edu.unp.qupawasi
+adb -s emulator-5554 shell am start -n pe.edu.unp.qupawasi/.MainActivity
+Get-FileHash -Algorithm SHA256 build/app/outputs/flutter-apk/app-debug.apk
+```
+
+Ejecutar desde `apps/mobile`, con ADB en PATH y el ID correcto. Para verificar metadatos usar `aapt dump badging` y certificado `apksigner verify --print-certs` de build-tools 36.0.0. La identidad fuente del APK se registra con commit de código y SHA-256; cambios documentales posteriores no implican otro APK.
+
+La variante release heredada sigue firmando con la clave debug. No se creó keystore de producción ni se presenta release de producción. No hay publicación en tiendas.
+
+CI F05 añade `android-integration` con emulador API 36 y plugins nativos en modo avión, según [android-emulator-runner](https://github.com/ReactiveCircus/android-emulator-runner). Sus resultados deben consultarse en el PR: configurar el job no demuestra que haya pasado. El emulador local usa API 37; ambas evidencias se distinguen.

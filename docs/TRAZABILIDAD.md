@@ -47,3 +47,18 @@ Resultados, capturas y límites de TalkBack/teléfono físico: [informe F04](ent
 La consigna no exige Supabase, IA, QR real, GPS, push, pagos, publicación en tienda ni firma de producción. El APK es parte de la solicitud del owner y sirve para ejecutar la app; el documento pide código, video y sustentación. Esas extensiones no reemplazan CRUD ni preferencias y quedan fuera del camino crítico.
 
 La ficha técnica y Lab01 sí plantean backend/cámara/GPS y arquitectura conectada; esta etapa mantiene separación de capas para implementarlos después. Registrar en README que el prototipo local no acredita reciclaje real.
+
+## Trazabilidad técnica añadida por F05
+
+| Requisito | Fuente/test verificable | Alcance de la evidencia |
+| --- | --- | --- |
+| U2-02/U2-07 | `integration_test/crud_flow_test.dart` | UI por UUID, crear PET2, reapertura de archivo, editar PET3, una fila/puntos derivados y eliminar; baseline relativo evita ignorar duplicados |
+| U2-03/U2-06 | `integration_test/lifecycle_flow_test.dart` | Plugins nativos: tema/alias/onboarding reconstruidos; entrada inválida y borrador tras callbacks lifecycle y nueva conexión; ejecución y límites en F05 |
+| U2-05/U2-08 | `test/presentation/record_form_view_model_test.dart` | SQLite en archivo, error inyectado solo en clear: descartar/convertir no informa éxito falso; reintento confirma borrado tras reapertura |
+| U2-04 | `test/presentation/layout_test.dart`, `experience_accessibility_test.dart` | 320/360/412 dp, texto 1/1.3/2, claro/oscuro, scroll y verificaciones automáticas; no equivale a TalkBack |
+| U2-09 | README, `pubspec.yaml`, `pubspec.lock`, workflow mobile | App 0.2.0+2, versiones/comandos/arquitectura/autores; CI desde checkout limpio con generación Drift |
+| U2-10 | Git log, PR #2/#4/#6/#7 y PR F05 | Se conservan cuatro implementaciones previas; Carla añade pruebas/corrección, no autoría ficticia |
+| U2-11 | `docs/VIDEO_Y_SUSTENTACION.md` | Guion preparado; video real, duración y enlace **pendientes** del equipo |
+| U2-12 | `docs/entregas/F05.md` | Identificación del APK, Android y resultados por caso; consultar resultados reales, no inferir instalación por build |
+
+El informe [F05](entregas/F05.md) distingue automatización, callbacks inyectados, reapertura de repositorios y detención real del proceso. Ningún resultado de fases anteriores se convierte automáticamente en aprobación manual F05. La entrega académica sigue incompleta mientras falte el video y la sustentación.

@@ -14,7 +14,7 @@ flutter build apk --debug
 
 Estructura: `lib/app` (composición y router), `lib/core` (tema y widgets comunes), `lib/domain` (entidades y contratos, Dart puro), `lib/data` (adaptadores), `lib/presentation` (vistas y ViewModels).
 
-F02: SQLite/Drift en archivo interno `qupawasi.sqlite`, abierto en isolate nativo. CRUD por `AppDependencies.local.recycling`, estadísticas, premios/canjes locales, borradores y sugerencias. Preferencias de F01 conservadas. La interfaz CRUD visible corresponde a F03: los ejemplos de navegación F01 siguen rotulados como preview, no filas guardadas.
+F02: SQLite/Drift en archivo interno `qupawasi.sqlite`, abierto en isolate nativo. CRUD por `AppDependencies.local.recycling`, estadísticas, premios/canjes locales, borradores y sugerencias. Preferencias de F01 conservadas. F03 aporta CRUD visible por UUID y borrador; F04 integra Inicio, Mapa, Premios, Perfil, Ranking y Sugerencias con eventos y persistencia. F05 añade integración de ciclo de vida y QA de entrega. No quedan previews como sustituto de registros.
 
 Esquema inicial y triggers en `lib/data/local/schema.drift`; generado `.g.dart` y snapshot `drift_schemas/drift_schema_v1.json` versionados. Si cambia el esquema después de instalar, incrementar versión e implementar/probar migración sin borrar datos.
 
@@ -33,3 +33,5 @@ flutter test integration_test -d ID_DEL_DISPOSITIVO
 ```
 
 Al terminar, `flutter test integration_test` desinstala la app y borra sus datos.
+
+Entrega 0.2.0+2: consultar [README final](../../README.md) y [evidencia F05](../../docs/entregas/F05.md) para versiones, APK y límites reales.
