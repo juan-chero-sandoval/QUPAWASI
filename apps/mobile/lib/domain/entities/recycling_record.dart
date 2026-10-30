@@ -33,6 +33,9 @@ class RecyclingRecord {
     required this.note,
     required this.createdAt,
     required this.updatedAt,
+    this.depositId,
+    this.latitude,
+    this.longitude,
   });
 
   final String id;
@@ -46,6 +49,9 @@ class RecyclingRecord {
   final String note;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? depositId;
+  final double? latitude;
+  final double? longitude;
 
   int get earnedPoints => quantity * unitPoints;
 }

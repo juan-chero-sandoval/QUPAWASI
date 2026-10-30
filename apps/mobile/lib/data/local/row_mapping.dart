@@ -19,6 +19,9 @@ RecyclingRecord recordFromRow(QueryRow row) => RecyclingRecord(
   note: row.read<String>('note'),
   createdAt: readUtc(row, 'created_at'),
   updatedAt: readUtc(row, 'updated_at'),
+  depositId: row.readNullable<String>('qr_deposit_id'),
+  latitude: row.readNullable<double>('latitude'),
+  longitude: row.readNullable<double>('longitude'),
 );
 
 RecyclingPoint pointFromRow(QueryRow row) => RecyclingPoint(
@@ -29,6 +32,7 @@ RecyclingPoint pointFromRow(QueryRow row) => RecyclingPoint(
   latitude: row.readNullable<double>('latitude'),
   longitude: row.readNullable<double>('longitude'),
   isDemo: row.read<int>('is_demo') == 1,
+  isActive: row.read<int>('is_active') == 1,
 );
 
 Reward rewardFromRow(QueryRow row) => Reward(

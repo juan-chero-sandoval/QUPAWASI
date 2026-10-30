@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/dependencies.dart';
 import '../../app/routes.dart';
+import '../../core/widgets/app_toast.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
@@ -12,6 +13,7 @@ import '../../core/widgets/state_message.dart';
 import '../../domain/entities/recycling_record.dart';
 import 'record_detail_view_model.dart';
 import 'record_format.dart';
+import 'record_note_dialog.dart';
 
 class RecordDetailView extends StatelessWidget {
   const RecordDetailView({super.key, required this.recordId});
@@ -44,7 +46,7 @@ class _RecordDetailBody extends StatelessWidget {
     final summary =
         '${RecordFormat.quantity(record.material, record.quantity)} en '
         '${viewModel.pointName(record.pointId)} '
-        '(${record.earnedPoints} EcoPuntos simulados)';
+        '(${record.earnedPoints} EcoPuntos)';
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -65,14 +67,13 @@ class _RecordDetailBody extends StatelessWidget {
       ),
     );
     if (confirmed != true || !context.mounted) return;
-    final messenger = ScaffoldMessenger.of(context);
     final deleted = await viewModel.delete();
     if (!context.mounted) return;
     if (deleted) {
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(const SnackBar(content: Text('Registro eliminado.')));
+      AppToast.success(context, 'Registro eliminado');
       context.go(AppRoutes.recycling);
+    } else if (viewModel.deleteError case final message?) {
+      AppToast.error(context, message);
     }
   }
 
@@ -108,8 +109,20 @@ class _RecordDetailBody extends StatelessWidget {
             record: record,
             pointName: viewModel.pointName(record.pointId),
             isDeleting: viewModel.isDeleting,
-            deleteError: viewModel.deleteError,
-            onEdit: () => context.go(AppRoutes.editRecord(record.id)),
+            onEdit: () async {
+              if (record.depositId == null) {
+                context.go(AppRoutes.editRecord(record.id));
+              } else {
+                viewModel.noteError = null;
+                await showDialog<void>(
+                  context: context,
+                  builder: (_) => RecordNoteDialog(
+                    viewModel: viewModel,
+                    initialNote: record.note,
+                  ),
+                );
+              }
+            },
             onDelete: () => _confirmDelete(context, record),
           ),
         },
@@ -123,7 +136,6 @@ class _RecordDetails extends StatelessWidget {
     required this.record,
     required this.pointName,
     required this.isDeleting,
-    required this.deleteError,
     required this.onEdit,
     required this.onDelete,
   });
@@ -131,13 +143,11 @@ class _RecordDetails extends StatelessWidget {
   final RecyclingRecord record;
   final String pointName;
   final bool isDeleting;
-  final String? deleteError;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppPalette.of(context);
     final error = Theme.of(context).colorScheme.error;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -161,10 +171,7 @@ class _RecordDetails extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               _Field(label: 'Punto', value: pointName),
-              _Field(
-                label: 'EcoPuntos simulados',
-                value: '+${record.earnedPoints}',
-              ),
+              _Field(label: 'EcoPuntos', value: '+${record.earnedPoints}'),
               _Field(
                 label: 'Fecha',
                 value: RecordFormat.dateTime(context, record.occurredAt),
@@ -178,23 +185,21 @@ class _RecordDetails extends StatelessWidget {
                 value: RecordFormat.dateTime(context, record.updatedAt),
               ),
               _Field(label: 'ID', value: record.id),
+              if (record.depositId != null) ...[
+                _Field(label: 'Recibo QR', value: record.depositId!),
+                _Field(
+                  label: 'Ubicación del depósito',
+                  value: '${record.latitude}, ${record.longitude}',
+                ),
+              ],
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          'Guardado solo en este dispositivo. No acredita un depósito real.',
-          style: TextStyle(color: palette.textMuted, fontSize: 12),
-        ),
-        if (deleteError != null) ...[
-          const SizedBox(height: AppSpacing.md),
-          Text(deleteError!, style: TextStyle(color: error)),
-        ],
         const SizedBox(height: AppSpacing.md),
         FilledButton.icon(
           onPressed: isDeleting ? null : onEdit,
           icon: const Icon(Icons.edit_outlined),
-          label: const Text('Editar'),
+          label: Text(record.depositId == null ? 'Editar' : 'Editar nota'),
         ),
         const SizedBox(height: AppSpacing.sm),
         OutlinedButton.icon(

@@ -7,6 +7,7 @@ class RecyclingPoint {
     required this.isDemo,
     this.latitude,
     this.longitude,
+    this.isActive = true,
   });
 
   final String id;
@@ -16,4 +17,7 @@ class RecyclingPoint {
   final bool isDemo;
   final double? latitude;
   final double? longitude;
+
+  /// Un tacho desactivado conserva su historial pero no admite nuevos usos.
+  final bool isActive;
 }

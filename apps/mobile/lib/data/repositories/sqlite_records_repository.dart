@@ -97,6 +97,27 @@ class SqliteRecordsRepository implements RecordsRepository {
               'El registro ya no existe.',
             );
           }
+          if (existing.depositId != null) {
+            if (input.pointId != existing.pointId ||
+                input.material != existing.material ||
+                input.quantity != existing.quantity ||
+                !input.occurredAt.isAtSameMomentAs(existing.occurredAt)) {
+              throw const LocalDataException(
+                LocalDataError.conflict,
+                'Los datos emitidos por el tacho no se pueden editar. Solo puedes cambiar la nota.',
+              );
+            }
+            await _db.customUpdate(
+              'UPDATE recycling_records SET note=?,updated_at=? WHERE id=?',
+              variables: [
+                Variable<String>(input.note.trim()),
+                Variable<int>(now.millisecondsSinceEpoch),
+                Variable<String>(id),
+              ],
+              updates: {_db.recyclingRecords},
+            );
+            return (await _find(id))!;
+          }
           await _db.customUpdate(
             'UPDATE recycling_records SET point_id=?,material=?,quantity=?,unit_points=?, '
             'occurred_at=?,note=?,updated_at=? WHERE id=?',

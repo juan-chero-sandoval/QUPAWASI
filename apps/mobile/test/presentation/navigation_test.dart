@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qupa_wasi/app/routes.dart';
 import 'package:qupa_wasi/data/local/demo_seed.dart';
 import 'package:qupa_wasi/domain/entities/recycling_record.dart';
-import 'package:qupa_wasi/core/widgets/prototype_banner.dart';
+import 'package:qupa_wasi/core/widgets/simulation_chip.dart';
 import 'package:qupa_wasi/presentation/common/not_found_view.dart';
 import 'package:qupa_wasi/presentation/home/home_view.dart';
 import 'package:qupa_wasi/presentation/map/map_view.dart';
@@ -47,7 +47,7 @@ void main() {
           findsOneWidget,
         );
       }
-      expect(find.text(PrototypeBanner.message), findsOneWidget);
+      expect(find.byType(SimulationChip), findsOneWidget);
     }
   });
 
@@ -107,20 +107,10 @@ void main() {
 
     await tapVisible(tester, find.text('Registrar en este punto'));
 
-    expect(find.text('Nuevo registro'), findsOneWidget);
+    expect(find.text('Registrar reciclaje'), findsOneWidget);
     expect(selectedTab(tester), 1);
-    // El punto del mapa queda preseleccionado (radio marcado en su tarjeta).
-    final dining = find.ancestor(
-      of: find.text('Comedor'),
-      matching: find.byType(InkWell),
-    );
-    expect(
-      find.descendant(
-        of: dining,
-        matching: find.byIcon(Icons.radio_button_checked),
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Escanear QR'), findsOneWidget);
+    expect(find.byKey(const Key('quantity-field')), findsNothing);
   });
 
   testWidgets('una ruta desconocida muestra vista segura con retorno', (

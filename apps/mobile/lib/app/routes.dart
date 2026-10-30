@@ -10,6 +10,18 @@ abstract final class AppRoutes {
   static const String ranking = '/ranking';
   static const String suggestions = '/suggestions';
 
+  /// Modo administrador simulado: CRUD de tachos y recompensas.
+  static const String admin = '/admin';
+  static const String adminPoints = '/admin/points';
+  static const String adminRewards = '/admin/rewards';
+
+  static String newAdminPoint() => '$adminPoints/new';
+  static String editAdminPoint(String pointId) =>
+      '$adminPoints/${Uri.encodeComponent(pointId)}';
+  static String newAdminReward() => '$adminRewards/new';
+  static String editAdminReward(String rewardId) =>
+      '$adminRewards/${Uri.encodeComponent(rewardId)}';
+
   static String recyclingList({String? filter}) =>
       _withQuery(recycling, {'filter': filter});
 

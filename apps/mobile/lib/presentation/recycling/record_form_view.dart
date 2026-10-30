@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/dependencies.dart';
 import '../../app/routes.dart';
+import '../../core/widgets/app_toast.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
@@ -97,16 +98,17 @@ class _RecordFormBodyState extends State<_RecordFormBody> {
     // Al crear, el ViewModel adopta el ID nuevo: el modo se lee antes.
     final wasEditing = _viewModel.isEditing;
     final id = await _viewModel.save();
-    if (id == null || !mounted) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            wasEditing ? 'Registro actualizado.' : 'Registro guardado.',
-          ),
-        ),
-      );
+    if (!mounted) return;
+    if (id == null) {
+      if (_viewModel.formError case final message?) {
+        AppToast.error(context, message);
+      }
+      return;
+    }
+    AppToast.success(
+      context,
+      wasEditing ? 'Registro actualizado' : 'Registro guardado',
+    );
     context.go(AppRoutes.recordDetail(id));
   }
 
@@ -122,53 +124,54 @@ class _RecordFormBodyState extends State<_RecordFormBody> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _flush();
       },
-      child: AppPage(
-        title: viewModel.isEditing ? 'Editar registro' : 'Nuevo registro',
-        showBack: true,
-        children: [
-          switch (viewModel.status) {
-            RecordFormStatus.loading => const Padding(
-              padding: EdgeInsets.all(AppSpacing.xl),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            RecordFormStatus.loadError => StateMessage(
-              icon: Icons.error_outline,
-              title: 'No se pudo abrir el formulario',
-              message: viewModel.formError ?? 'Error de almacenamiento.',
-              actionLabel: 'Reintentar',
-              onAction: viewModel.load,
-            ),
-            RecordFormStatus.notFound => StateMessage(
-              icon: Icons.search_off,
-              title: 'Registro no encontrado',
-              message:
-                  'No existe un registro con el ID "${viewModel.recordId}". '
-                  'Puede haber sido eliminado.',
-              actionLabel: 'Volver a Reciclar',
-              onAction: () => context.go(AppRoutes.recycling),
-            ),
-            RecordFormStatus.draftOffer => _DraftOffer(
-              savedAt: viewModel.offeredDraft!.updatedAt,
-              onContinue: viewModel.continueDraft,
-              onDiscard: viewModel.discardDraft,
-            ),
-            RecordFormStatus.recordMissing => _MissingRecord(
-              onConvert: viewModel.convertMissingToNew,
-              onDiscard: _discardMissing,
-            ),
-            RecordFormStatus.editing ||
-            RecordFormStatus.saving ||
-            RecordFormStatus.saved => _Wizard(
-              quantity: _quantity,
-              note: _note,
-              onSave: _save,
-            ),
-          },
-          if (viewModel.draftError != null &&
-              (viewModel.status == RecordFormStatus.draftOffer ||
-                  viewModel.status == RecordFormStatus.recordMissing))
-            _FieldError(message: viewModel.draftError!),
-        ],
+      // Fallos del borrador: aviso emergente, sin texto fijo en la página.
+      child: ToastListener(
+        listenable: viewModel,
+        message: () => viewModel.draftError,
+        child: AppPage(
+          title: viewModel.isEditing ? 'Editar registro' : 'Nuevo registro',
+          showBack: true,
+          children: [
+            switch (viewModel.status) {
+              RecordFormStatus.loading => const Padding(
+                padding: EdgeInsets.all(AppSpacing.xl),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              RecordFormStatus.loadError => StateMessage(
+                icon: Icons.error_outline,
+                title: 'No se pudo abrir el formulario',
+                message: viewModel.formError ?? 'Error de almacenamiento.',
+                actionLabel: 'Reintentar',
+                onAction: viewModel.load,
+              ),
+              RecordFormStatus.notFound => StateMessage(
+                icon: Icons.search_off,
+                title: 'Registro no encontrado',
+                message:
+                    'No existe un registro con el ID "${viewModel.recordId}". '
+                    'Puede haber sido eliminado.',
+                actionLabel: 'Volver a Reciclar',
+                onAction: () => context.go(AppRoutes.recycling),
+              ),
+              RecordFormStatus.draftOffer => _DraftOffer(
+                savedAt: viewModel.offeredDraft!.updatedAt,
+                onContinue: viewModel.continueDraft,
+                onDiscard: viewModel.discardDraft,
+              ),
+              RecordFormStatus.recordMissing => _MissingRecord(
+                onConvert: viewModel.convertMissingToNew,
+                onDiscard: _discardMissing,
+              ),
+              RecordFormStatus.editing ||
+              RecordFormStatus.saving ||
+              RecordFormStatus.saved => _Wizard(
+                quantity: _quantity,
+                note: _note,
+                onSave: _save,
+              ),
+            },
+          ],
+        ),
       ),
     );
   }
@@ -190,7 +193,6 @@ class _Wizard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<RecordFormViewModel>();
-    final palette = AppPalette.of(context);
     final step = viewModel.step;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -202,13 +204,6 @@ class _Wizard extends StatelessWidget {
           1 => _MaterialStep(quantity: quantity, note: note),
           _ => const _ConfirmStep(),
         },
-        if (viewModel.formError != null) ...[
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            viewModel.formError!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-        ],
         const SizedBox(height: AppSpacing.lg),
         Row(
           children: [
@@ -244,18 +239,6 @@ class _Wizard extends StatelessWidget {
                     ),
             ),
           ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          viewModel.draftError ??
-              'Tus datos se guardan como borrador en este dispositivo '
-                  'mientras escribes.',
-          style: TextStyle(
-            color: viewModel.draftError == null
-                ? palette.textMuted
-                : Theme.of(context).colorScheme.error,
-            fontSize: 12,
-          ),
         ),
       ],
     );
@@ -322,7 +305,6 @@ class _PointStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<RecordFormViewModel>();
-    final palette = AppPalette.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -347,11 +329,6 @@ class _PointStep extends StatelessWidget {
         if (viewModel.pointError != null)
           _FieldError(message: viewModel.pointError!),
         const SizedBox(height: AppSpacing.sm),
-        Text(
-          'Selección manual: funciona sin conexión. El escaneo del QR del '
-          'punto se incorporará en una fase posterior.',
-          style: TextStyle(color: palette.textMuted, fontSize: 12),
-        ),
       ],
     );
   }
@@ -473,7 +450,7 @@ class _ConfirmStep extends StatelessWidget {
                 ),
               const Divider(),
               Text(
-                '+${viewModel.estimatedPoints ?? 0} EcoPuntos simulados',
+                '+${viewModel.estimatedPoints ?? 0} EcoPuntos',
                 style: TextStyle(
                   color: palette.brand,
                   fontWeight: FontWeight.w900,

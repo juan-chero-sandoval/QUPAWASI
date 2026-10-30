@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/dependencies.dart';
+import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/app_page.dart';
 import '../../core/widgets/app_card.dart';
 import '../common/confirm_local.dart';
@@ -39,7 +40,6 @@ class _SuggestionsBodyState extends State<_SuggestionsBody> {
       title: 'Sugerencias',
       showBack: true,
       children: [
-        const Text('Solo en este dispositivo; no se ha enviado'),
         const SizedBox(height: 16),
         TextField(
           controller: _text,
@@ -53,6 +53,7 @@ class _SuggestionsBodyState extends State<_SuggestionsBody> {
             errorText: vm.fieldError,
           ),
         ),
+        const SizedBox(height: 16),
         FilledButton(
           onPressed: vm.busy
               ? null
@@ -60,17 +61,12 @@ class _SuggestionsBodyState extends State<_SuggestionsBody> {
                   final saved = await vm.save(_text.text);
                   if (context.mounted && saved) {
                     _text.clear();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Guardado solo en este dispositivo; no se ha enviado.',
-                        ),
-                      ),
-                    );
+                    AppToast.success(context, 'Guardada en este dispositivo');
                   }
                 },
           child: const Text('Guardar localmente'),
         ),
+        const SizedBox(height: 16),
         if (vm.loading) const Center(child: CircularProgressIndicator()),
         if (vm.error != null) ...[
           Text(vm.error!),

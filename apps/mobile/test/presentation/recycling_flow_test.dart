@@ -1,233 +1,137 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qupa_wasi/app/routes.dart';
-import 'package:qupa_wasi/domain/entities/recycling_draft.dart';
-import 'package:qupa_wasi/domain/errors/local_data_exception.dart';
-import 'package:qupa_wasi/presentation/recycling/record_detail_view.dart';
-import 'package:qupa_wasi/presentation/recycling/record_form_view_model.dart';
-import 'package:qupa_wasi/presentation/recycling/recycling_view.dart';
+import 'package:qupa_wasi/data/local/demo_seed.dart';
 
 import '../helpers/fake_local_services.dart';
+import '../helpers/qr_payload.dart';
 import '../helpers/test_app.dart';
 
 void main() {
-  setUp(() => resetPreferencesStore(onboardedStore));
+  late FakeLocal f;
+  setUp(() async {
+    resetPreferencesStore(onboardedStore);
+    f = FakeLocal();
+  });
 
-  final quantityField = find.byKey(const Key('quantity-field'));
-  final noteField = find.byKey(const Key('note-field'));
-
-  Future<void> next(WidgetTester tester) =>
-      tapVisible(tester, find.text('Siguiente'));
-
-  Future<void> fillNew(
-    WidgetTester tester, {
-    String point = 'Arquitectura',
-    String quantity = '2',
-    String note = 'prueba',
-  }) async {
-    await tapVisible(tester, find.text(point));
-    await next(tester);
-    await tapVisible(tester, find.text('PET'));
-    await tester.enterText(quantityField, quantity);
-    await tester.enterText(noteField, note);
-    await tester.pump();
-    await next(tester);
-  }
-
-  testWidgets('CRUD visible: crear, ver, editar y eliminar el mismo ID', (
+  testWidgets('alta QR, confirmación de solo lectura, saldo y eliminación', (
     tester,
   ) async {
-    final local = FakeLocal();
-    await openApp(tester, initialLocation: AppRoutes.recycling, local: local);
-    expect(find.text('Aún no tienes registros'), findsOneWidget);
-
-    // Crear
-    await tapVisible(tester, find.text('Nuevo registro'));
-    await fillNew(tester);
-    expect(find.text('+20 EcoPuntos simulados'), findsOneWidget);
-    await tapVisible(tester, find.text('Guardar registro'));
-    expect(find.byType(RecordDetailView), findsOneWidget);
-    expect(find.text('Registro guardado.'), findsOneWidget);
-    final id = local.records.all.single.id;
-    expect(find.text(id), findsOneWidget);
-    expect(find.text('PET × 2'), findsOneWidget);
-
-    // Leer en la lista
-    await tapAppBarBack(tester);
-    expect(find.byType(RecyclingView), findsOneWidget);
-    expect(find.text('PET × 2'), findsOneWidget);
-
-    // Actualizar
-    await tapVisible(tester, find.text('PET × 2'));
-    await tapVisible(tester, find.text('Editar'));
-    expect(find.text('Editar registro'), findsOneWidget);
-    await next(tester);
-    expect(
-      tester.widget<TextField>(quantityField).controller!.text,
-      '2',
-      reason: 'el formulario se precarga con lo guardado',
+    await openApp(
+      tester,
+      initialLocation: AppRoutes.recycling,
+      services: f.services,
+      scanQr: () async => qrPayload(),
     );
-    await tester.enterText(quantityField, '3');
-    await tester.enterText(noteField, 'editada');
-    await tester.pump();
-    await next(tester);
-    await tapVisible(tester, find.text('Guardar cambios'));
-    expect(find.text('Registro actualizado.'), findsOneWidget);
-    expect(find.text('PET × 3'), findsOneWidget);
-    expect(find.text('+30'), findsOneWidget);
-    expect(local.records.all, hasLength(1));
-    expect(local.records.all.single.id, id);
-
-    // Eliminar: cancelar no cambia nada
-    await tapVisible(tester, find.text('Eliminar'));
-    expect(find.textContaining('PET × 3 en Arquitectura'), findsOneWidget);
-    await tester.tap(find.text('Cancelar'));
-    await tester.pumpAndSettle();
-    expect(local.records.all, hasLength(1));
-
+    await tapVisible(tester, find.text('Nuevo registro'));
+    expect(find.byKey(const Key('quantity-field')), findsNothing);
+    await tapVisible(tester, find.text('Escanear QR'));
+    expect(find.text('PET × 2'), findsOneWidget);
+    expect(find.text('+20 EcoPuntos'), findsOneWidget);
+    expect(find.byType(TextField), findsNothing);
+    await tapVisible(tester, find.text('Confirmar reciclaje'));
+    expect(find.text('Detalle del registro'), findsOneWidget);
+    expect(find.text('Editar'), findsNothing);
+    await tapVisible(tester, find.text('Editar nota'));
+    await tester.enterText(find.byType(TextField), 'Nota después de escanear');
+    await tapVisible(tester, find.text('Guardar nota'));
+    expect(find.text('Nota después de escanear'), findsOneWidget);
+    expect((await f.services.overview.getStatistics()).availablePoints, 20);
     await tapVisible(tester, find.text('Eliminar'));
     await tester.tap(find.widgetWithText(FilledButton, 'Eliminar'));
     await tester.pumpAndSettle();
-    expect(local.records.all, isEmpty);
-    expect(find.byType(RecyclingView), findsOneWidget);
     expect(find.text('Aún no tienes registros'), findsOneWidget);
-    expect(find.text('Registro eliminado.'), findsOneWidget);
+    expect((await f.services.overview.getStatistics()).availablePoints, 0);
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('errores de cantidad aparecen junto al campo', (tester) async {
-    await openApp(tester, initialLocation: AppRoutes.newRecord());
-    await tapVisible(tester, find.text('Arquitectura'));
-    await next(tester);
-    await tapVisible(tester, find.text('PET'));
-
-    await tester.enterText(quantityField, '1.5');
-    await next(tester);
-    expect(
-      find.text('Usa un número entero, sin decimales ni signos.'),
-      findsOneWidget,
-    );
-    await tester.enterText(quantityField, '101');
-    await next(tester);
-    expect(find.text('La cantidad debe estar entre 1 y 100.'), findsOneWidget);
-  });
-
-  testWidgets('doble toque en Guardar crea un solo registro', (tester) async {
-    final local = FakeLocal();
-    local.records.writeGate = Completer<void>();
-    await openApp(tester, initialLocation: AppRoutes.newRecord(), local: local);
-    await fillNew(tester);
-
-    await tester.tap(find.text('Guardar registro'));
-    await tester.pump();
-    // Segundo toque mientras la primera escritura sigue en curso.
-    await tester.tap(find.text('Guardar registro'), warnIfMissed: false);
-    await tester.pump();
-    local.records.writeGate!.complete();
-    await tester.pumpAndSettle();
-
-    expect(local.records.createCalls, 1);
-    expect(local.records.all, hasLength(1));
-  });
-
-  testWidgets('si falla la escritura no hay éxito y se conservan los datos', (
+  testWidgets('QR inválido y cancelación de cámara no crean registro', (
     tester,
   ) async {
-    final local = FakeLocal();
-    local.records.failNextWrite = const LocalDataException(
-      LocalDataError.storage,
-      'No se pudo acceder al almacenamiento local. Intenta nuevamente.',
+    var count = 0;
+    await openApp(
+      tester,
+      initialLocation: AppRoutes.newRecord(),
+      services: f.services,
+      scanQr: () async => count++ == 0 ? null : 'QR incorrecto',
     );
-    await openApp(tester, initialLocation: AppRoutes.newRecord(), local: local);
-    await fillNew(tester, quantity: '4');
-
-    await tapVisible(tester, find.text('Guardar registro'));
-
-    expect(find.textContaining('almacenamiento local'), findsOneWidget);
-    expect(find.text('Guardar registro'), findsOneWidget);
-    expect(local.records.all, isEmpty);
-    expect(
-      local.drafts.rows[RecordFormViewModel.newDraftKey]!.quantityText,
-      '4',
-    );
-
-    // Reintento con los mismos datos.
-    await tapVisible(tester, find.text('Guardar registro'));
-    expect(local.records.all, hasLength(1));
-    expect(local.drafts.rows, isEmpty);
+    await tapVisible(tester, find.text('Escanear QR'));
+    expect(find.text('Confirmar reciclaje'), findsNothing);
+    await tapVisible(tester, find.text('Escanear QR'));
+    expect(find.textContaining('QR de reciclaje inválido'), findsOneWidget);
+    expect(f.records.all, isEmpty);
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('pasar a segundo plano guarda el borrador sin esperar', (
+  testWidgets('mapa transmite tacho esperado y rechaza QR de otro tacho', (
     tester,
   ) async {
-    final local = FakeLocal();
-    await openApp(tester, initialLocation: AppRoutes.newRecord(), local: local);
-    await tapVisible(tester, find.text('Biblioteca'));
-    await next(tester);
-    await tester.enterText(quantityField, '5');
-    await tester.pump();
-    expect(
-      local.drafts.rows[RecordFormViewModel.newDraftKey]?.quantityText,
-      isNot('5'),
+    await openApp(
+      tester,
+      initialLocation: AppRoutes.mapPoint(pointId: DemoSeed.libraryId),
+      services: f.services,
+      scanQr: () async => qrPayload(),
     );
-
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-    await tester.pump();
-    final draft = local.drafts.rows[RecordFormViewModel.newDraftKey]!;
-    expect(draft.quantityText, '5');
-    expect(draft.step, 1);
-    expect(local.records.all, isEmpty, reason: 'un borrador no es registro');
-
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pumpAndSettle();
+    await tapVisible(tester, find.text('Registrar en este punto'));
+    await tapVisible(tester, find.text('Escanear QR'));
+    expect(find.textContaining('corresponde a otro tacho'), findsOneWidget);
+    expect(find.text('Confirmar reciclaje'), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('volver atrás guarda el borrador y la lista lo ofrece', (
+  testWidgets('un reescaneo abre el mismo registro sin puntos duplicados', (
     tester,
   ) async {
-    final local = FakeLocal();
-    await openApp(tester, initialLocation: AppRoutes.recycling, local: local);
-    await tapVisible(tester, find.text('Nuevo registro'));
-    await tapVisible(tester, find.text('Comedor'));
-    await next(tester);
-    await tester.enterText(quantityField, '6');
-    await tester.pump();
-
-    await tapAppBarBack(tester);
-
-    expect(
-      local.drafts.rows[RecordFormViewModel.newDraftKey]!.quantityText,
-      '6',
+    final record = await f.services.deposits!.accept(
+      f.services.deposits!.decode(qrPayload()),
     );
-    expect(find.text('Tienes un nuevo registro sin terminar'), findsOneWidget);
-    await tapVisible(tester, find.text('Descartar borrador'));
-    expect(local.drafts.rows, isEmpty);
-    expect(find.text('Tienes un nuevo registro sin terminar'), findsNothing);
+    await openApp(
+      tester,
+      initialLocation: AppRoutes.newRecord(),
+      services: f.services,
+      scanQr: () async => qrPayload(),
+    );
+    await tapVisible(tester, find.text('Escanear QR'));
+    await tapVisible(tester, find.text('Confirmar reciclaje'));
+    await scrollTo(tester, find.text(record.id));
+    expect(find.text(record.id), findsOneWidget);
+    expect(f.records.all, hasLength(1));
+    expect((await f.services.overview.getStatistics()).availablePoints, 20);
+    await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('al reabrir se ofrece continuar o descartar el borrador', (
-    tester,
-  ) async {
-    final local = FakeLocal();
-    local.drafts.rows[RecordFormViewModel.newDraftKey] = RecyclingDraft(
-      key: RecordFormViewModel.newDraftKey,
-      pointId: '00000000-0000-4000-8000-000000000002',
-      material: 'aluminum',
-      quantityText: '7',
-      note: 'pendiente',
-      step: 1,
-      updatedAt: local.now,
-    );
-    await openApp(tester, initialLocation: AppRoutes.recycling, local: local);
-    expect(find.text('Tienes un nuevo registro sin terminar'), findsOneWidget);
-
-    await tapVisible(tester, find.text('Continuar'));
-    expect(find.text('Recuperamos un borrador'), findsOneWidget);
-    await tapVisible(tester, find.text('Continuar borrador'));
-
-    expect(tester.widget<TextField>(quantityField).controller!.text, '7');
-    expect(tester.widget<TextField>(noteField).controller!.text, 'pendiente');
-    expect(local.records.all, isEmpty);
-  });
+  testWidgets(
+    'registros manuales anteriores siguen editables con borrador al pausar',
+    (tester) async {
+      final record = await f.seedRecord();
+      await openApp(
+        tester,
+        initialLocation: AppRoutes.editRecord(record.id),
+        services: f.services,
+      );
+      await tapVisible(tester, find.text('Siguiente'));
+      final quantity = find.byKey(const Key('quantity-field'));
+      await tester.enterText(quantity, '1.5');
+      await tapVisible(tester, find.text('Siguiente'));
+      expect(
+        find.text('Usa un número entero, sin decimales ni signos.'),
+        findsOneWidget,
+      );
+      await tester.enterText(quantity, '3');
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      await tester.pumpAndSettle();
+      expect(
+        (await f.services.drafts.load('recycling-edit'))!.quantityText,
+        '3',
+      );
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      await tapVisible(tester, find.text('Siguiente'));
+      await tapVisible(tester, find.text('Guardar cambios'));
+      expect(find.text('PET × 3'), findsOneWidget);
+      expect((await f.services.recycling.get(record.id))!.quantity, 3);
+      expect((await f.services.overview.getStatistics()).availablePoints, 30);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

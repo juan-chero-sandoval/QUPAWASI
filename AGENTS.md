@@ -8,9 +8,19 @@ Lee `docs/CONTEXTO_GENERAL.md`, `docs/CONTRATOS.md`, `docs/FLUJO_EQUIPO.md`, `do
 
 ## Invariantes
 
+- Diseño C02 autorizado por el owner: usar `.agents/skills/ui-ux-pro-max/SKILL.md`
+  junto a qupawasi-ui y `design-system/qupawasi/MASTER.md`. Preservar los flujos
+  C01; el rediseño no modifica dominio ni almacenamiento. No usar fuentes de red.
+
+- Corrección C01 autorizada por el owner (29/10/2026): alta mediante QR del
+  tacho con datos de solo lectura, catálogo geográfico SQLite y GPS opcional,
+  aviso de conexión dinámico y sin accesos a Sugerencias. Consultar
+  `prps/C01-QR-MAPA-CONEXION.md` y `docs/QR_Y_UBICACIONES.md`; prevalecen sobre
+  las descripciones históricas de F01–F05 que pedían alta manual/mapa esquemático.
+
 - Unidad II es offline. Flutter/Dart en `apps/mobile/`, MVVM, dominio Dart puro, Drift/SQLite asíncrono para registros y Shared Preferences para tema/onboarding y datos simples.
 - No sustituir SQLite con listas en memoria, JSON o preferencias. Deben persistir Crear, Leer, Actualizar y Eliminar.
-- Toda pantalla rotula “Prototipo offline · EcoPuntos y canjes simulados”. La lógica local no pretende validar depósitos reales.
+- Toda pantalla rotula “EcoPuntos y canjes simulados”; añade “Sin conexión” solo cuando el monitor detecta ausencia de internet. La lógica local no autentica depósitos reales.
 - Un registro editable es un **registro local de reciclaje**. Los puntos e impacto se recalculan desde registros activos; no acumular dos veces al editar. Canjes locales se guardan separadamente; no son dinero.
 - No introducir Supabase, push, pagos, login remoto ni clasificador IA en el teléfono en estos turnos. Dejar interfaces extensibles; la arquitectura conectada de Lab01 queda como evolución.
 - No incluir alumnos reales, contraseñas, tokens, firmas, keystores ni coordenadas personales en fixtures/logs/commits.

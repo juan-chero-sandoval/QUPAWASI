@@ -13,27 +13,25 @@ void main() {
   setUp(() async => f = await LocalFixture.open());
   tearDown(() async => f.dispose());
 
-  test(
-    'base inicial v1: tres puntos, coordenadas desconocidas y cero registros',
-    () async {
-      final points = await f.services.overview.listPoints();
-      expect(points, hasLength(3));
-      expect(
-        points.every(
-          (p) => p.isDemo && p.latitude == null && p.longitude == null,
-        ),
-        isTrue,
-      );
-      expect((await f.services.recycling.watch().first), isEmpty);
-      expect((await f.services.overview.getStatistics()).availablePoints, 0);
-      expect(
-        (await f.db.customSelect('PRAGMA user_version').getSingle()).read<int>(
-          'user_version',
-        ),
-        1,
-      );
-    },
-  );
+  test('base inicial v3: tres puntos activos, coordenadas desconocidas y cero registros', () async {
+    final points = await f.services.overview.listPoints();
+    expect(points, hasLength(3));
+    expect(
+      points.every(
+        (p) =>
+            p.isDemo && p.isActive && p.latitude == null && p.longitude == null,
+      ),
+      isTrue,
+    );
+    expect((await f.services.recycling.watch().first), isEmpty);
+    expect((await f.services.overview.getStatistics()).availablePoints, 0);
+    expect(
+      (await f.db.customSelect('PRAGMA user_version').getSingle()).read<int>(
+        'user_version',
+      ),
+      3,
+    );
+  });
 
   test('CRUD persistente: UUID, mismo ID/createdAt al editar y borrado tras reapertura', () async {
     final created = await f.services.recycling.create(

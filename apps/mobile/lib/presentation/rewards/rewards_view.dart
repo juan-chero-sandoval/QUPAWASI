@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/dependencies.dart';
+import '../../core/widgets/state_message.dart';
+import '../../core/widgets/app_toast.dart';
 import '../../core/widgets/app_card.dart';
+import '../../core/widgets/brand_surfaces.dart';
+import '../../core/theme/app_palette.dart';
 import '../../core/widgets/app_page.dart';
 import '../../domain/entities/reward.dart';
 import '../common/confirm_local.dart';
@@ -46,42 +50,56 @@ class _RewardsBody extends StatelessWidget {
     final vm = context.watch<RewardsViewModel>();
     final overview = context.watch<OverviewViewModel>();
     final balance = overview.data?.availablePoints;
-    return AppPage(
+    final p = AppPalette.of(context);
+    final page = AppPage(
       title: 'Recompensas',
       children: [
-        AppCard(
+        BrandSurface(
           child: LocalState(
             vm: overview,
-            builder: (stats) => Text(
-              'Tu saldo: ${stats.availablePoints} EcoPuntos',
-              style: Theme.of(context).textTheme.headlineSmall,
+            builder: (stats) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.account_balance_wallet_outlined,
+                      color: p.accent,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Tu saldo',
+                      style: TextStyle(color: p.onBrandStrong, fontSize: 14),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${stats.availablePoints} EcoPuntos',
+                  style: Theme.of(context).textTheme.headlineMedium
+                      ?.copyWith(color: p.onBrandStrong),
+                ),
+              ],
             ),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Text(
-            'Canjes simulados: sin entrega comercial, pagos ni transferencia de dinero.',
-          ),
-        ),
-        if (vm.message != null)
-          Semantics(liveRegion: true, child: Text(vm.message!)),
+        const SizedBox(height: 16),
         if (vm.busy)
           const LinearProgressIndicator(
             semanticsLabel: 'Procesando canje local',
           ),
         if (!vm.ready && !vm.busy)
-          OutlinedButton(
+          OutlinedButton.icon(
             onPressed: vm.restore,
-            child: const Text('Recuperar confirmación'),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Recuperar confirmación'),
           ),
         if (vm.pending != null) ...[
-          const Text(
-            'Hay una confirmación pendiente. Reintentar recupera el mismo canje, incluso tras reiniciar.',
-          ),
-          FilledButton(
+          FilledButton.icon(
             onPressed: vm.busy ? null : () => vm.redeem(vm.pending!.rewardId),
-            child: const Text('Reintentar canje pendiente'),
+            icon: const Icon(Icons.replay_rounded),
+            label: const Text('Reintentar canje pendiente'),
           ),
           TextButton(
             onPressed: vm.busy
@@ -98,18 +116,23 @@ class _RewardsBody extends StatelessWidget {
                   },
             child: const Text('Cerrar confirmación pendiente'),
           ),
+          const SizedBox(height: 16),
         ],
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final c in [null, ...RewardCategory.values])
-              ChoiceChip(
-                label: Text(categoryLabel(c)),
-                selected: vm.category == c,
-                onSelected: (_) => vm.filter(c),
-              ),
-          ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final c in [null, ...RewardCategory.values])
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(categoryLabel(c)),
+                    selected: vm.category == c,
+                    onSelected: (_) => vm.filter(c),
+                  ),
+                ),
+            ],
+          ),
         ),
         ListenableBuilder(
           listenable: vm.catalog,
@@ -118,7 +141,10 @@ class _RewardsBody extends StatelessWidget {
             builder: (_) => Column(
               children: [
                 if (vm.filtered.isEmpty)
-                  const Text('No hay recompensas en esta categoría.'),
+                  const StateMessage(
+                    icon: Icons.card_giftcard_outlined,
+                    title: 'Sin recompensas en esta categoría',
+                  ),
                 for (final reward in vm.filtered)
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
@@ -126,17 +152,61 @@ class _RewardsBody extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Icon(Icons.card_giftcard_outlined, size: 40),
+                          Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 12,
+                            runSpacing: 12,
+                            children: [
+                              IconBadge(
+                                icon: switch (reward.category) {
+                                  RewardCategory.photocopies =>
+                                    Icons.print_outlined,
+                                  RewardCategory.mobile =>
+                                    Icons.phone_android_outlined,
+                                  RewardCategory.cafeteria =>
+                                    Icons.local_cafe_outlined,
+                                },
+                                size: 48,
+                              ),
+                              StatusPill(
+                                label:
+                                    balance != null &&
+                                        balance >= reward.costPoints
+                                    ? 'Disponible'
+                                    : 'Bloqueado',
+                                icon:
+                                    balance != null &&
+                                        balance >= reward.costPoints
+                                    ? Icons.check
+                                    : Icons.lock_outline,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
                           Text(
                             reward.title,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
-                          Text(reward.description),
-                          Text('${reward.costPoints} pts simulados'),
+                          const SizedBox(height: 12),
+                          Text(
+                            '${reward.costPoints} pts',
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 22,
+                              color: p.brand,
+                            ),
+                          ),
                           if (balance != null && balance < reward.costPoints)
                             Text(
                               'Te faltan ${reward.costPoints - balance} puntos',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: p.textMuted,
+                              ),
                             ),
+                          const SizedBox(height: 16),
                           FilledButton(
                             onPressed:
                                 vm.busy ||
@@ -150,8 +220,8 @@ class _RewardsBody extends StatelessWidget {
                                 : () async {
                                     if (await confirmLocal(
                                       context,
-                                      'Confirmar canje simulado',
-                                      '${reward.title}: ${reward.costPoints} puntos. No entrega productos ni dinero.',
+                                      '¿Canjear recompensa?',
+                                      '${reward.title}: se descontarán ${reward.costPoints} puntos. Canje simulado, sin entrega real.',
                                       'Confirmar canje',
                                     )) {
                                       await vm.redeem(reward.id);
@@ -167,44 +237,70 @@ class _RewardsBody extends StatelessWidget {
             ),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 16),
-          child: Text('Historial de canjes locales'),
-        ),
+        const SectionHeader(title: 'Historial'),
         ListenableBuilder(
           listenable: vm.history,
           builder: (context, _) => LocalState(
             vm: vm.history,
             builder: (history) => Column(
               children: [
-                if (history.isEmpty) const Text('Aún no hay canjes simulados.'),
+                if (history.isEmpty)
+                  const StateMessage(
+                    icon: Icons.receipt_long_outlined,
+                    title: 'Aún no hay canjes',
+                  ),
                 for (final r in history)
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(r.titleSnapshot),
-                        Text(
-                          '${r.costSnapshot} pts · ${r.isActive ? "Activo" : "Cancelado"}',
-                        ),
-                        Text(RecordFormat.dateTime(context, r.createdAt)),
-                        if (r.isActive)
-                          OutlinedButton(
-                            onPressed: vm.busy
-                                ? null
-                                : () async {
-                                    if (await confirmLocal(
-                                      context,
-                                      'Cancelar canje simulado',
-                                      '${r.titleSnapshot}: liberar ${r.costSnapshot} puntos una sola vez.',
-                                      'Cancelar canje',
-                                    )) {
-                                      await vm.cancel(r.id);
-                                    }
-                                  },
-                            child: const Text('Cancelar canje'),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  r.titleSnapshot,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              StatusPill(
+                                label: r.isActive ? 'Activo' : 'Cancelado',
+                                icon: r.isActive
+                                    ? Icons.check_rounded
+                                    : Icons.block_rounded,
+                                highlighted: r.isActive,
+                              ),
+                            ],
                           ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            '${r.costSnapshot} pts · '
+                            '${RecordFormat.dateTime(context, r.createdAt)}',
+                            style: TextStyle(color: p.textMuted, fontSize: 14),
+                          ),
+                          if (r.isActive) ...[
+                            const SizedBox(height: 12),
+                            OutlinedButton(
+                              onPressed: vm.busy
+                                  ? null
+                                  : () async {
+                                      if (await confirmLocal(
+                                        context,
+                                        '¿Cancelar canje?',
+                                        '${r.titleSnapshot}: liberar ${r.costSnapshot} puntos una sola vez.',
+                                        'Cancelar canje',
+                                      )) {
+                                        await vm.cancel(r.id);
+                                      }
+                                    },
+                              child: const Text('Cancelar canje'),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
               ],
@@ -212,6 +308,12 @@ class _RewardsBody extends StatelessWidget {
           ),
         ),
       ],
+    );
+    return ToastListener(
+      listenable: vm,
+      message: () => vm.message,
+      isError: () => vm.messageIsError,
+      child: page,
     );
   }
 }

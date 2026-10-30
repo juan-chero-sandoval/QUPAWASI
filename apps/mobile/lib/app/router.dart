@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../presentation/admin/admin_point_form_view.dart';
+import '../presentation/admin/admin_points_view.dart';
+import '../presentation/admin/admin_reward_form_view.dart';
+import '../presentation/admin/admin_rewards_view.dart';
 import '../presentation/common/not_found_view.dart';
 import '../presentation/common/placeholder_views.dart';
 import '../presentation/suggestions/suggestions_view.dart';
@@ -10,6 +14,7 @@ import '../presentation/onboarding/welcome_view.dart';
 import '../presentation/profile/profile_view.dart';
 import '../presentation/recycling/record_detail_view.dart';
 import '../presentation/recycling/record_form_view.dart';
+import '../presentation/recycling/qr_deposit_view.dart';
 import '../presentation/recycling/recycling_view.dart';
 import '../presentation/rewards/rewards_view.dart';
 import '../presentation/settings/app_settings_view_model.dart';
@@ -65,7 +70,7 @@ GoRouter createRouter({
                   // `new` va antes que la ruta dinámica `:recordId`.
                   GoRoute(
                     path: 'new',
-                    builder: (context, state) => RecordFormView.create(
+                    builder: (context, state) => QrDepositView(
                       pointId: state.uri.queryParameters['pointId'],
                     ),
                   ),
@@ -125,6 +130,54 @@ GoRouter createRouter({
         path: AppRoutes.suggestions,
         parentNavigatorKey: rootKey,
         builder: (context, state) => const SuggestionsView(),
+      ),
+      // Sin modo administrador activo, cualquier ruta /admin vuelve a Perfil.
+      GoRoute(
+        path: AppRoutes.admin,
+        parentNavigatorKey: rootKey,
+        redirect: (context, state) {
+          if (!settings.adminMode) return AppRoutes.profile;
+          // En una redirección de ruta, matchedLocation es solo '/admin'
+          // aunque se visite una subruta: se compara la ruta completa.
+          return state.uri.path == AppRoutes.admin
+              ? AppRoutes.adminPoints
+              : null;
+        },
+        routes: [
+          GoRoute(
+            path: 'points',
+            builder: (context, state) => const AdminPointsView(),
+            routes: [
+              // `new` va antes que la ruta dinámica `:pointId`.
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const AdminPointFormView(),
+              ),
+              GoRoute(
+                path: ':pointId',
+                builder: (context, state) => AdminPointFormView(
+                  pointId: state.pathParameters['pointId'],
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'rewards',
+            builder: (context, state) => const AdminRewardsView(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const AdminRewardFormView(),
+              ),
+              GoRoute(
+                path: ':rewardId',
+                builder: (context, state) => AdminRewardFormView(
+                  rewardId: state.pathParameters['rewardId'],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );

@@ -6,7 +6,7 @@ import '../../app/routes.dart';
 import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
-import '../../core/widgets/prototype_banner.dart';
+import '../../core/widgets/simulation_chip.dart';
 import '../../core/widgets/state_message.dart';
 import '../common/user_avatar.dart';
 import '../settings/app_settings_view_model.dart';
@@ -30,32 +30,26 @@ class HomeView extends StatelessWidget {
       (vm) => vm.alias,
     );
     return Scaffold(
-      // Reservar espacio: un FAB extendido cubría el CTA al ampliar el texto.
-      persistentFooterButtons: [
-        FilledButton.tonalIcon(
-          onPressed: () => context.push(AppRoutes.suggestions),
-          icon: const Icon(Icons.inbox_outlined),
-          label: const Text('Sugerencias'),
-        ),
-      ],
       body: SafeArea(
-        child: ListView(
-          // Clave propia: no hereda el desplazamiento de otra pantalla.
-          key: const PageStorageKey<String>('home-scroll'),
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.md,
-            AppSpacing.screen,
-            96,
-          ),
-          children: [
-            Row(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppSpacing.contentWidth,
+            ),
+            child: ListView(
+              // Clave propia: no hereda el desplazamiento de otra pantalla.
+              key: const PageStorageKey<String>('home-scroll'),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.md,
+                AppSpacing.screen,
+                96,
+              ),
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
                         "Q'UPA WASI UNP",
                         style: TextStyle(
                           color: palette.brand,
@@ -64,105 +58,84 @@ class HomeView extends StatelessWidget {
                           fontSize: 12,
                         ),
                       ),
-                      Text(
-                        'Hola, $alias',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.w900),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SimulationChip(),
+                  ],
                 ),
-                UserAvatar(
-                  alias: alias,
-                  onTap: () => context.go(AppRoutes.profile),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.md),
-            const PrototypeBanner(),
-            const SizedBox(height: AppSpacing.md),
-            LocalState(
-              vm: overview,
-              builder: (stats) {
-                final summary = HomeSummary.fromStatistics(stats);
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                Row(
                   children: [
-                    PointsSummaryCard(
+                    Expanded(
+                      child: Text(
+                        'Hola, $alias',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    UserAvatar(
+                      alias: alias,
+                      onTap: () => context.go(AppRoutes.profile),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                LocalState(
+                  vm: overview,
+                  builder: (stats) {
+                    final summary = HomeSummary.fromStatistics(stats);
+                    return PointsSummaryCard(
                       points: summary.availablePoints,
                       levelName: summary.levelName,
                       progress: summary.levelProgress,
                       nextLevelText: summary.nextLevelText,
                       onRegister: () => context.go(AppRoutes.newRecord()),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Total ganado: ${stats.earnedPoints} EcoPuntos simulados',
-                    ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: AppSpacing.md),
-            AppCard(
-              onTap: () => context.push(AppRoutes.ranking),
-              child: Row(
-                children: [
-                  const IconBadge(icon: Icons.emoji_events_outlined),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
+                    );
+                  },
+                ),
+                const SizedBox(height: AppSpacing.md),
+                AppCard(
+                  onTap: () => context.push(AppRoutes.ranking),
+                  child: const Row(
+                    children: [
+                      IconBadge(icon: Icons.emoji_events_outlined),
+                      SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
                           'Ranking',
                           style: TextStyle(fontWeight: FontWeight.w800),
                         ),
-                        Text(
-                          'Ejemplo de demostración, sin estudiantes reales',
-                          style: TextStyle(color: palette.textMuted),
+                      ),
+                      Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+                const SectionHeader(title: 'Tu impacto'),
+                LocalState(
+                  vm: overview,
+                  builder: (stats) => Row(
+                    children: [
+                      Expanded(
+                        child: _ImpactTile(
+                          icon: Icons.local_drink_outlined,
+                          value: '${stats.petCount}',
+                          label: 'botellas PET',
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: _ImpactTile(
+                          icon: Icons.inventory_2_outlined,
+                          value: '${stats.aluminumCount}',
+                          label: 'latas',
+                        ),
+                      ),
+                    ],
                   ),
-                  const Icon(Icons.chevron_right),
-                ],
-              ),
+                ),
+                const SectionHeader(title: 'Actividad reciente'),
+                const RecentActivity(),
+              ],
             ),
-            const SectionHeader(
-              title: 'Tu impacto',
-              trailing: 'Conteo de unidades',
-            ),
-            LocalState(
-              vm: overview,
-              builder: (stats) => Row(
-                children: [
-                  Expanded(
-                    child: _ImpactTile(
-                      icon: Icons.local_drink_outlined,
-                      value: '${stats.petCount}',
-                      label: 'botellas PET',
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: _ImpactTile(
-                      icon: Icons.inventory_2_outlined,
-                      value: '${stats.aluminumCount}',
-                      label: 'latas',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Masa y CO₂: estimación no configurada.',
-              style: TextStyle(color: palette.textMuted, fontSize: 12),
-            ),
-            const SectionHeader(title: 'Actividad reciente'),
-            const RecentActivity(),
-          ],
+          ),
         ),
       ),
     );
@@ -186,7 +159,6 @@ class RecentActivity extends StatelessWidget {
             return StateMessage(
               icon: Icons.history,
               title: 'Aún no tienes registros',
-              message: 'Tus registros se guardan en este dispositivo.',
               actionLabel: 'Registrar mi primer reciclaje',
               onAction: () => context.go(AppRoutes.newRecord()),
             );
@@ -195,11 +167,23 @@ class RecentActivity extends StatelessWidget {
             children: [
               for (final record in sorted.take(5))
                 ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: IconBadge(
+                    icon: RecordFormat.materialIcon(record.material),
+                    size: 40,
+                  ),
                   title: Text(
                     RecordFormat.quantity(record.material, record.quantity),
                   ),
                   subtitle: Text(
-                    '${RecordFormat.dateTime(context, record.occurredAt)} · ${record.earnedPoints} pts simulados',
+                    RecordFormat.dateTime(context, record.occurredAt),
+                  ),
+                  trailing: Text(
+                    '+${record.earnedPoints}',
+                    style: TextStyle(
+                      color: AppPalette.of(context).brand,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   onTap: () => context.push(AppRoutes.recordDetail(record.id)),
                 ),
@@ -229,13 +213,10 @@ class _ImpactTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: palette.brand),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
-          ),
-          Text(label, style: TextStyle(color: palette.textMuted)),
+          IconBadge(icon: icon, size: 40),
+          const SizedBox(height: AppSpacing.md),
+          Text(value, style: Theme.of(context).textTheme.headlineMedium),
+          Text(label, style: TextStyle(color: palette.textMuted, fontSize: 14)),
         ],
       ),
     );

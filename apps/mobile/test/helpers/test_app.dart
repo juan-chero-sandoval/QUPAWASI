@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qupa_wasi/app/app.dart';
 import 'package:qupa_wasi/app/dependencies.dart';
+import 'package:qupa_wasi/app/local_services.dart';
+import 'package:qupa_wasi/domain/entities/geo_position.dart';
 import 'package:qupa_wasi/app/routes.dart';
 import 'package:qupa_wasi/data/preferences/shared_preferences_repository.dart';
 import 'package:qupa_wasi/presentation/settings/app_settings_view_model.dart';
@@ -25,6 +27,10 @@ Future<AppSettingsViewModel> openApp(
   WidgetTester tester, {
   String initialLocation = AppRoutes.home,
   FakeLocal? local,
+  LocalServices? services,
+  Future<String?> Function()? scanQr,
+  Future<GeoPosition> Function()? locate,
+  Stream<bool>? internetChanges,
 }) async {
   final repository = SharedPreferencesRepository(SharedPreferencesAsync());
   final settings = AppSettingsViewModel(repository);
@@ -35,7 +41,10 @@ Future<AppSettingsViewModel> openApp(
     QupaWasiApp(
       dependencies: AppDependencies(
         preferencesRepository: repository,
-        local: (local ?? FakeLocal()).services,
+        local: services ?? (local ?? FakeLocal()).services,
+        scanQr: scanQr,
+        locate: locate,
+        internetChanges: internetChanges,
       ),
       settings: settings,
       initialLocation: initialLocation,

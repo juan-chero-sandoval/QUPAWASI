@@ -1,5 +1,19 @@
 # Matriz de requisitos y rúbrica de Unidad II
 
+## Cambio C01 posterior a la entrega original
+
+| Solicitud del owner | Implementación | Verificación |
+| --- | --- | --- |
+| Material/cantidad desde QR | Escáner, JSON v1, confirmación de solo lectura, snapshot UTC/coordenadas | Tests parser, VM/widgets y SQLite; integración nativa adaptada |
+| No duplicar puntos por reescaneo | Recibo único permanente, transacción y registro QR inmutable | Reintentos concurrentes, reapertura, conflicto y eliminación |
+| Mapa y tacho más cercano | Catálogo SQLite importable, GPS opcional, Haversine, mapa geográfico | Catálogo persistente/atómico y proximidad con coordenadas sintéticas |
+| Quitar Sugerencias | Retirados botones Inicio/Perfil; datos históricos conservados | Regresión widgets en texto ampliado |
+| Aviso según internet | Monitor de acceso a internet, unknown/online/offline y reconsulta al reanudar | Widget offline → online → offline y respuesta inicial tardía |
+
+Los casos originales de alta manual M04/M09 se sustituyen por alta QR y
+coincidencia de pointId; M06/M08 permanecen para registros manuales históricos.
+El informe C01 registra resultados reales y pendientes de prueba física.
+
 Fuente: `UNIDAD_2_Trabajo_Grupal_Moviles.pdf`, tres páginas, recibido el 28/10/2026. El documento pide un prototipo offline para una MYPE; aquí se adapta al proyecto Q'UPA WASI trabajado en Lab01, sin afirmar aprobación docente específica para esta adaptación.
 
 La tabla combina evidencia prevista y verificaciones por fase. F01 está integrada y F02 aporta tests de persistencia/dominio; F05 completará evidencias Android/video sin sustituirlas por casillas.
@@ -18,6 +32,16 @@ La tabla combina evidencia prevista y verificaciones por fase. F01 está integra
 | U2-10 | P2: commits de todo el equipo | Cinco fases con autores reales | Todas | Git log y PR sin squash, al menos una contribución real por integrante | Cinco contribuciones de implementación preservadas: PR #2/#4/#6/#7/#9; Carla c367b2e y 1cb94a3; log/shortlog en evidencia F05 |
 | U2-11 | P2: video máx. 5 min en YouTube/Drive | Guion y grabación real del equipo | F05 | Enlace accesible, duración y prueba SQLite al reabrir | Guion 4:50 preparado; video real, duración y enlace accesible siguen PENDIENTES del equipo; no se publicó |
 | U2-12 | P2: ejecutar en emulador/dispositivo y explicar | APK instalado y sustentación repartida | F05/Todos | Android de prueba, versión, hash APK y explicación por autor | APK debug 0.2.0+2 instalado en Android17/API37, hash/certificado/procesos en F05; sustentación individual y teléfono físico/TalkBack pendientes |
+
+## Refuerzo C03 frente a la rúbrica
+
+| Criterio | Qué añade C03 | Evidencia |
+| --- | --- | --- |
+| Persistencia (6) | CRUD completo en SQLite de tachos y recompensas (crear, leer, editar mismo ID, eliminar o desactivar con historial), migración v2 → v3 con datos | `test/data/sqlite_admin_catalog_test.dart` |
+| Interactividad (4) | Formularios con validación por campo, GPS, toasts de éxito/error, confirmaciones | `test/presentation/admin_form_view_model_test.dart`, `admin_flow_test.dart` |
+| Ciclo de vida (3) | Borrador de formularios de admin con debounce, escritura al pausar y oferta al reabrir | Pruebas anteriores y emulador con force-stop ([entrega C03](entregas/C03.md)) |
+| Prefs | Modo administrador persistente | `admin_flow_test.dart` y emulador |
+| Navegación (4) | Rutas `/admin/...` por ID con guarda; botón principal fijo siempre visible | `admin_flow_test.dart`, `layout_test.dart` |
 
 ## Rúbrica de 20 puntos
 

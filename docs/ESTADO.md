@@ -1,5 +1,37 @@
 # Estado y siguiente turno
 
+## Rediseño C03 · avisos y textos
+
+Rama `codex/c03-rediseno-ui` desde `develop` (`b77628c`), de Cristopher. Chip
+«Simulado» en la cabecera, toasts superiores en lugar de SnackBars y mensajes en
+línea, y textos mínimos; paleta, rutas y dominio sin cambios. 164 tests,
+análisis y APK debug aprobados; revisión en emulador. [Entrega C03](entregas/C03.md).
+Segunda parte (rúbrica): CRUD de tachos con GPS y de recompensas en modo
+administrador simulado, migración SQLite v3, borradores de formularios y botón
+principal fijo (corrige el CI `android-integration`). 189 tests. Guion del video
+actualizado al flujo actual.
+Pedido pendiente aparte: Supabase con EcoPuntos verificados, login institucional
+y roles, que requiere acuerdo con el owner porque AGENTS.md lo excluye hoy.
+
+## Diseño C02
+
+En trabajo local en `codex/f05-diseno-c02`, conservando C01 sin commit/push.
+Skill UI/UX Pro Max instalada y aplicada desde `.agents/skills/ui-ux-pro-max/`.
+[Plan C02](../prps/C02-DISENO.md), [sistema visual](../design-system/qupawasi/MASTER.md).
+Rediseño de las cinco secciones, bienvenida, componentes y fuentes locales.
+Validación de layout y accesibilidad en curso; no declarar APK/Android aún.
+
+## Corrección C01 posterior a F05
+
+Implementada localmente en `codex/f05-qr-mapa-conexion`: QR del tacho,
+catálogo SQLite con mapa/proximidad, retiro de botones Sugerencias y conexión
+dinámica. [Plan](../prps/C01-QR-MAPA-CONEXION.md),
+[contrato QR/catálogo](QR_Y_UBICACIONES.md), [entrega](entregas/C01.md).
+La solicitud del owner sustituye el alta manual y el aviso offline fijo de
+las fases originales. 150 tests/análisis/build debug y cuatro integraciones
+Android offline aprobados, con resultados reales en la entrega;
+no confundir este trabajo local con una integración publicada en GitHub.
+
 Actualizado el 29/10/2026 tras verificar e integrar las cinco fases. F05 de Carla, [PR #9](https://github.com/juan-chero-sandoval/QUPAWASI/pull/9), integrada en develop por merge `20fbc52b8a7f00718448b20b31cb817990f02014`, conservando sus commits. Código `c367b2e` y corrección visual `1cb94a3`; 117 tests/análisis/build y [CI móvil con tres integraciones Android aprobados](https://github.com/juan-chero-sandoval/QUPAWASI/actions/runs/40823391705) sobre head `a4cfe5f`. [Informe F05](entregas/F05.md) distingue automatización y manuales. El código queda preparado para integrar develop en main; video real y sustentación siguen pendientes.
 
 - Base remota inspeccionada: `95ac9db6112a4d9cb3d8bdfe141bb49d69c3b46c`, `main`, solo README.
@@ -24,4 +56,4 @@ Actualizado el 29/10/2026 tras verificar e integrar las cinco fases. F05 de Carl
 Cada cierre actualiza esta tabla, añade el informe de fase en `docs/entregas/` y registra su commit y bloqueos reales. Tener permiso en el conector no demuestra las credenciales Git de cada compañero: cada uno las verifica al publicar su rama.
 
 
-Siguiente: el owner publica y fusiona el PR develop → main con Create a merge commit tras aprobar sus checks; los cinco commits de implementación se conservan. Carla/equipo completan video ≤5 minutos/enlace autorizado y sustentación. No hay F06 ni publicación externa automática. APK final local 0.2.0+2: SHA-256 `ed1cb2e0735af9853bb8c3c341e1b375e8fb2de33ab1cc24fd53e0b4a9e76a92`; firma Android Debug. La integración del código no certifica la entrega académica completa ni una firma de producción.
+El cierre original F05 se integró en main por [PR #10](https://github.com/juan-chero-sandoval/QUPAWASI/pull/10), merge `4494e7ac8cf44b9c4223794eec860138f79318f9`, conservando autores. El siguiente trabajo de repositorio es revisar y publicar C01 desde su rama hacia develop, cuando el owner lo indique. Carla/equipo aún completan video ≤5 minutos/enlace autorizado y sustentación. No hay F06 ni publicación externa automática. El APK histórico local 0.2.0+2 tenía SHA-256 `ed1cb2e0735af9853bb8c3c341e1b375e8fb2de33ab1cc24fd53e0b4a9e76a92`; el nuevo APK y su firma están en la entrega C01. La integración del código no certifica la entrega académica completa ni una firma de producción.

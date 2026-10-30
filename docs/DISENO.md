@@ -1,5 +1,30 @@
 # Guía visual y de interacción
 
+## Avisos y textos C03
+
+Rediseño posterior a C02 con la misma paleta: chip «Simulado» en la cabecera
+en lugar de la franja de cada pantalla, notificaciones emergentes superiores
+para éxito y error, y textos reducidos a títulos, datos y acciones.
+[Sistema visual](../design-system/qupawasi/MASTER.md#avisos-y-textos-c03),
+[entrega C03](entregas/C03.md).
+
+## Rediseño C02 · UI/UX Pro Max
+
+El owner pidió mejorar el diseño de toda la app e integrar la skill. Se aplica
+el [sistema visual C02](../design-system/qupawasi/MASTER.md): Outfit/Work Sans
+locales, verde bosque/lima, superficies claras u oscuras con contraste,
+tarjetas de saldo protagonistas, QR en dos pasos, badges y navegación coherentes.
+[Plan C02](../prps/C02-DISENO.md). Las reglas funcionales de C01 se conservan.
+La skill se comparte en `.agents/skills/ui-ux-pro-max/`, con licencia MIT y
+procedencia. Sus reglas de Flutter/accesibilidad se adaptan al proyecto; no se
+adopta su paleta genérica azul/naranja, que no coincidió con reciclaje.
+
+Actualización C01: Reciclar abre escáner y confirmación de solo lectura en
+lugar de elegir material/cantidad; Mapa presenta marcadores geográficos del
+catálogo, carga de ubicaciones y proximidad con permiso. Retirar accesos de
+Sugerencias. Aviso “Sin conexión” dinámico; mantener simulación siempre.
+Estas decisiones sustituyen las interacciones históricas descritas abajo.
+
 Las ocho imágenes en `docs/referencias/` son referencias de una web, no pantallas de una app Flutter existente. Conservar su jerarquía y personalidad; adaptar correctamente al área segura Android sin copiar el marco exterior verde como si fuera parte del contenido.
 
 ## Referencias

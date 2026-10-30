@@ -68,10 +68,11 @@ class _RecyclingBodyState extends State<_RecyclingBody> {
       children: [
         FilledButton.icon(
           onPressed: () => context.go(AppRoutes.newRecord()),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.qr_code_scanner_rounded),
           label: const Text('Nuevo registro'),
         ),
-        if (viewModel.pendingDraft case final draft?) ...[
+        if (viewModel.pendingDraft case final draft?
+            when draft.recordId != null) ...[
           const SizedBox(height: AppSpacing.md),
           _DraftBanner(
             draft: draft,
@@ -85,7 +86,7 @@ class _RecyclingBodyState extends State<_RecyclingBody> {
         ],
         const SizedBox(height: AppSpacing.md),
         _FilterChips(selected: viewModel.material),
-        const SectionHeader(title: 'Mis registros', trailing: 'En este equipo'),
+        const SectionHeader(title: 'Mis registros'),
         switch (viewModel.status) {
           RecordListStatus.loading => const Padding(
             padding: EdgeInsets.all(AppSpacing.xl),
@@ -103,9 +104,6 @@ class _RecyclingBodyState extends State<_RecyclingBody> {
             title: viewModel.material == null
                 ? 'Aún no tienes registros'
                 : 'Sin registros con este filtro',
-            message:
-                'Registra tus botellas PET o latas. Se guardarán en este '
-                'dispositivo y podrás editarlas o eliminarlas.',
             actionLabel: 'Registrar reciclaje',
             onAction: () => context.go(AppRoutes.newRecord()),
           ),

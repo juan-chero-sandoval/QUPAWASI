@@ -7,28 +7,17 @@ import '../../core/theme/app_palette.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/mascot.dart';
-import '../../core/widgets/prototype_banner.dart';
+import '../../core/widgets/app_toast.dart';
+import '../../core/widgets/simulation_chip.dart';
 import '../settings/app_settings_view_model.dart';
 
 class WelcomeView extends StatelessWidget {
   const WelcomeView({super.key});
 
-  static const List<({IconData icon, String title, String body})> steps = [
-    (
-      icon: Icons.place_outlined,
-      title: 'Encuentra un punto',
-      body: 'Ubica un punto Q\'UPA WASI de demostración en el campus.',
-    ),
-    (
-      icon: Icons.local_drink_outlined,
-      title: 'Registra tu reciclaje',
-      body: 'Elige el punto y anota tus botellas PET o latas.',
-    ),
-    (
-      icon: Icons.card_giftcard_outlined,
-      title: 'Suma y canjea',
-      body: 'Acumula EcoPuntos simulados y prueba canjes de demostración.',
-    ),
+  static const List<({IconData icon, String title})> steps = [
+    (icon: Icons.place_outlined, title: 'Encuentra un tacho'),
+    (icon: Icons.qr_code_scanner_rounded, title: 'Escanea su QR'),
+    (icon: Icons.card_giftcard_outlined, title: 'Suma y canjea'),
   ];
 
   Future<void> _start(BuildContext context) async {
@@ -38,12 +27,9 @@ class WelcomeView extends StatelessWidget {
     if (saved) {
       context.go(AppRoutes.home);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            settings.errorMessage ?? 'No se pudo guardar. Inténtalo de nuevo.',
-          ),
-        ),
+      AppToast.error(
+        context,
+        settings.errorMessage ?? 'No se pudo guardar. Inténtalo de nuevo.',
       );
     }
   }
@@ -78,62 +64,69 @@ class WelcomeView extends StatelessWidget {
     );
     return Scaffold(
       body: SafeArea(
-        child: ListView(
-          key: const PageStorageKey<String>('welcome-scroll'),
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.md,
-            AppSpacing.screen,
-            AppSpacing.xl,
-          ),
-          children: [
-            Text(
-              "Q'UPA WASI UNP · Universidad Nacional de Piura",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: palette.brand,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-                fontSize: 12,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: ListView(
+              key: const PageStorageKey<String>('welcome-scroll'),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.md,
+                AppSpacing.screen,
+                AppSpacing.xl,
               ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            const Center(child: Mascot(size: 96)),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              'Recicla. Suma puntos.',
-              textAlign: TextAlign.center,
-              style: textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            Text(
-              'Gana recompensas.',
-              textAlign: TextAlign.center,
-              style: textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: palette.brand,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Una forma simple de practicar el reciclaje en la UNP.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: palette.textMuted),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            for (final (index, step) in steps.indexed) ...[
-              AppCard(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    IconBadge(icon: step.icon),
-                    const SizedBox(width: AppSpacing.md),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text.rich(
+                      child: Text(
+                        "Q'UPA WASI UNP",
+                        style: TextStyle(
+                          color: palette.brand,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    const SimulationChip(),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [palette.iconBadge, palette.background],
+                      ),
+                    ),
+                    child: const Mascot(size: 112),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'Recicla. Suma puntos.',
+                  textAlign: TextAlign.center,
+                  style: textTheme.headlineLarge,
+                ),
+                Text(
+                  'Gana recompensas.',
+                  textAlign: TextAlign.center,
+                  style: textTheme.headlineLarge?.copyWith(
+                    color: palette.brand,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                for (final (index, step) in steps.indexed) ...[
+                  AppCard(
+                    child: Row(
+                      children: [
+                        IconBadge(icon: step.icon),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Text.rich(
                             TextSpan(
                               children: [
                                 TextSpan(
@@ -148,45 +141,33 @@ class WelcomeView extends StatelessWidget {
                               fontSize: 16,
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            step.body,
-                            style: TextStyle(color: palette.textMuted),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+                const SizedBox(height: AppSpacing.md),
+                FilledButton.icon(
+                  onPressed: isSaving ? null : () => _start(context),
+                  iconAlignment: IconAlignment.end,
+                  icon: isSaving
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.arrow_forward),
+                  label: const Text('Empezar'),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-            ],
-            const SizedBox(height: AppSpacing.md),
-            FilledButton.icon(
-              onPressed: isSaving ? null : () => _start(context),
-              iconAlignment: IconAlignment.end,
-              icon: isSaving
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.arrow_forward),
-              label: const Text('Empezar'),
+                const SizedBox(height: AppSpacing.sm),
+                TextButton.icon(
+                  onPressed: () => _showPrivacy(context),
+                  icon: const Icon(Icons.shield_outlined, size: 18),
+                  label: const Text('Cómo cuidamos tus datos'),
+                ),
+              ],
             ),
-            const SizedBox(height: AppSpacing.md),
-            const PrototypeBanner(),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Tus datos se guardan solo en este dispositivo. Sin cuenta ni '
-              'contraseña.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: palette.textMuted, fontSize: 13),
-            ),
-            TextButton(
-              onPressed: () => _showPrivacy(context),
-              child: const Text('Cómo cuidamos tus datos'),
-            ),
-          ],
+          ),
         ),
       ),
     );

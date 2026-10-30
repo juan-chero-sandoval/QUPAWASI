@@ -1,5 +1,22 @@
 # Pruebas y evidencia de aceptación
 
+## Recorridos C01 vigentes
+
+Consultar [entrega C01](entregas/C01.md) y [QR/catálogo](QR_Y_UBICACIONES.md).
+M04 pasa a escanear QR → revisar datos → confirmar → saldo derivado; M09
+comprueba coincidencia del tacho del mapa con el recibo escaneado. M06/M08
+se conservan para históricos manuales. M13 deja de ser acceso público de la
+interfaz; sus datos y pruebas de repositorio históricos se conservan.
+
+Nuevas comprobaciones: QR malformado/futuro/sin zona/coordenadas inválidas,
+reescaneo concurrente y tras reinicio/eliminación, ID con payload distinto,
+migración v1 con datos y borrador, catálogo JSON atómico/idempotente,
+ubicación denegada/sin coordenadas/proximidad, mapa sin teselas, conexión
+offline → online → offline y no sobrescribir con una consulta inicial tardía.
+La integración del decodificador usa PNG QR sintético con plugin Android real;
+el recorrido QR permite inyectar lectura para automatizar UI/SQLite sin lente.
+Estas evidencias no sustituyen probar la cámara/GPS en un teléfono físico.
+
 Ejecutar las pruebas aplicables en cada fase y registrar resultados reales en su entrega. Nunca marcar una prueba manual como aprobada por haber escrito su caso. F05 registra dispositivo, versión Android, commit, variante APK y fecha.
 
 ## Comprobaciones automatizadas

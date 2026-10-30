@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/theme/app_palette.dart';
+
 /// Barra inferior con cinco destinos; cada pestaña conserva su propia pila.
 ///
 /// Back de Android: primero vuelve dentro de la pestaña; en la raíz de una
@@ -47,13 +49,21 @@ class AppShell extends StatelessWidget {
       },
       child: Scaffold(
         body: shell,
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: shell.currentIndex,
-          destinations: destinations,
-          // Tocar la pestaña activa vuelve a su pantalla raíz.
-          onDestinationSelected: (index) => shell.goBranch(
-            index,
-            initialLocation: index == shell.currentIndex,
+        bottomNavigationBar: DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppPalette.of(context).surface,
+            border: Border(
+              top: BorderSide(color: AppPalette.of(context).border),
+            ),
+          ),
+          child: NavigationBar(
+            selectedIndex: shell.currentIndex,
+            destinations: destinations,
+            // Tocar la pestaña activa vuelve a su pantalla raíz.
+            onDestinationSelected: (index) => shell.goBranch(
+              index,
+              initialLocation: index == shell.currentIndex,
+            ),
           ),
         ),
       ),

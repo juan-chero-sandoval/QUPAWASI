@@ -1,5 +1,35 @@
 # Guion del video y sustentación
 
+## Guion vigente (C03) · app actual
+
+Sustituye a los guiones de abajo, que describen el alta manual anterior a C01.
+Cada tramo apunta a un criterio de la rúbrica (20 pts). Grabar el APK en modo
+avión, alias ficticio, sin datos personales.
+
+**Preparación:** generar dos recibos QR distintos y tenerlos impresos o en otra
+pantalla. Ejemplo (requiere `pip install "qrcode[pil]"`):
+
+```powershell
+python scripts/generar_qr_demo.py --deposit-id demo-video-001 --output artifacts/qr-1.png
+python scripts/generar_qr_demo.py --deposit-id demo-video-002 --quantity 10 --output artifacts/qr-2.png
+```
+
+| Tiempo | Quién | Qué mostrar | Criterio |
+| --- | --- | --- | --- |
+| 0:00–0:30 | Cristopher | Modo avión, bienvenida, cinco pestañas, chip «Simulado» (tocarlo). Perfil: tema oscuro y alias | Navegación y UI (4) · Prefs |
+| 0:30–1:20 | Juan | Reciclar → Escanear QR 1 → confirmar. Detalle con su UUID y +20. Inicio se actualiza solo | CRUD **Crear/Leer** (6) · paso de parámetros |
+| 1:20–2:00 | Brianna | Forzar detención y reabrir: el registro sigue (SQLite). Editar su nota; eliminarlo con confirmación y ver saldo 0 | **Persistencia, Actualizar, Eliminar** (6) |
+| 2:00–3:10 | Adriana | Perfil → Modo administrador. Tachos → Nuevo tacho: probar latitud 95 (error junto al campo), «Usar mi ubicación», Guardar (toast). Editarlo. Eliminar un tacho con registros → se ofrece desactivar | CRUD completo con validación (4 + 6) |
+| 3:10–3:50 | Adriana | Recompensas → Nueva recompensa a medias → Home → detener y reabrir → «Recuperamos un borrador» → continuar y guardar | **Ciclo de vida** (3) |
+| 3:50–4:30 | Carla | Reciclar: escanear QR 2 (PET 10 = 100 pts). Premios: canjear fotocopias (80), saldo 20, cancelar el canje. Mostrar commits de los cinco autores y tests | Interactividad (4) · Colaboración (3) |
+| 4:30–4:50 | Carla | Cierre: «App offline; puntos y canjes simulados; adaptamos la MYPE al reciclaje UNP» | Sustentación |
+
+**Preguntas probables y dónde responder:** rutas e IDs (`lib/app/router.dart`),
+preferencias vs SQLite (`shared_preferences_repository.dart`, `schema.drift`),
+MVVM y streams (`*_view_model.dart`), borrador y ciclo de vida
+(`admin_form_view_model.dart`, `record_form_view_model.dart`), migración v3 y
+bloqueo de borrado con historial (`sqlite_admin_catalog_repository.dart`).
+
 ## Video de máximo cinco minutos
 
 Objetivo: demostrar funcionamiento real en Android sin internet y persistencia SQLite después de cerrar/abrir. Grabar la aplicación compilada, no un diseño navegable. Ocultar notificaciones y datos personales ajenos. No acelerar de forma que se pierdan las operaciones. El enlace debe permitir al docente verlo; publicar/subir requiere que el equipo lo haga o autorice ese servicio.

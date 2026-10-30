@@ -1,5 +1,59 @@
 # Arquitectura y contratos comunes
 
+## Ampliación C03 · administrador simulado
+
+Modo administrador **simulado** (sin cuenta ni permisos reales), activado en
+Perfil y guardado en Shared Preferences `qupawasi.v1.adminMode`
+(`PreferencesRepository.setAdminMode`). Habilita el CRUD de tachos y de
+recompensas mediante `LocalServices.admin` (`AdminCatalogUseCases`).
+
+SQLite v3, migración aditiva v2 → v3 probada con datos: `recycling_points.is_active`,
+tabla `form_drafts(key, payload JSON ≤ 4000, updated_at)` para los borradores
+de los formularios de admin y `app_flags` para sembrar los datos de ejemplo una
+sola vez (lo que el admin borra no reaparece). Un tacho con registros o una
+recompensa con canjes no se borra (`LocalDataError.conflict`): se desactiva y
+deja de ofrecerse, conservando historial y snapshots. Coordenadas del tacho
+obligatorias y validadas; se rellenan con GPS o se escriben.
+
+| Ruta | Semántica |
+| --- | --- |
+| `/admin/points` · `/admin/points/new` · `/admin/points/:pointId` | Lista, alta y edición de tachos |
+| `/admin/rewards` · `/admin/rewards/new` · `/admin/rewards/:rewardId` | Lista, alta y edición de recompensas |
+
+Sin modo administrador activo, toda ruta `/admin` redirige a `/profile`.
+
+## Contrato vigente C01
+
+Consultar [QR y ubicaciones](QR_Y_UBICACIONES.md). Sustituye el alta manual
+de `/recycling/new?pointId=...` por `QrDepositView`; pointId exige coincidencia
+con el QR cuando procede del mapa. Edición histórica por ID sigue disponible;
+datos del tacho no editables, protegido también mediante trigger SQLite.
+En registros QR se permite editar solo la nota local (sin cambiar puntos).
+
+SQLite v2 agrega `qr_deposit_id UNIQUE`, `latitude`, `longitude` a registros y
+`deposit_receipts(deposit_id PRIMARY KEY, record_id UNIQUE, payload)`. Migración
+v1 → v2 conserva datos; recibo sin FK deliberadamente para deduplicar tras
+eliminar. Registro y recibo se insertan en la misma transacción.
+
+`local.deposits.decode(raw)` valida JSON/fecha/zona/cantidad/material/ubicación;
+`accept(receipt)` valida tacho, coincidencia de coordenadas conocidas y guarda
+idempotentemente. Un ID con distinto payload falla. Los puntos se calculan
+desde política local, nunca desde un campo points del QR.
+
+`local.catalog.importJson(raw)` valida catálogo completo antes de aplicar
+upserts atómicos por ID. No borra puntos omitidos. `MapViewModel` consulta el
+stream SQLite, solicita GPS mediante adaptador y ordena con Haversine solo
+tachos no demo con coordenadas válidas. Sin datos reales muestra pendiente,
+sin inventar coordenadas. No persiste GPS del usuario. Mapa base remoto opcional.
+
+`ConnectionViewModel` expone unknown/online/offline, escucha cambios de acceso
+a internet y reconsulta al reanudar. Banner conserva simulación y solo muestra
+“Sin conexión” en offline. Internet no implica sincronización ni cuenta remota.
+Sin accesos a Sugerencias en Inicio/Perfil; ruta histórica y datos conservados.
+
+Las secciones siguientes documentan la base F01–F05; alta manual/esquema del
+mapa/aviso fijo quedan sustituidos por esta sección.
+
 Estado: F01 integrada; contratos F02 implementados en `apps/mobile/lib/domain/` y adaptadores en `data/`. La interfaz CRUD visible sigue asignada a F03. Si se ajustan nombres, actualizar este archivo y consumidores juntos.
 
 ## Dependencias y composición
