@@ -1,5 +1,12 @@
 # Pruebas y evidencia de aceptación
 
+## Variante conectada C05
+
+Los casos conectados cubren el aislamiento por cuenta, el consumo único de
+una captura, la edición de nota, el stock, el saldo, el reintento de un canje
+y su devolución. La prueba alojada añade concurrencia entre sesiones y el
+recorrido con cuenta y tacho reales. [Resultados C05](entregas/C05.md)
+
 ## Recorridos C01 vigentes
 
 Consultar [entrega C01](entregas/C01.md) y [QR/catálogo](QR_Y_UBICACIONES.md).

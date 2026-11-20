@@ -13,6 +13,7 @@ class PointsSummaryCard extends StatelessWidget {
     required this.progress,
     required this.nextLevelText,
     required this.onRegister,
+    this.simulated = true,
   });
 
   final int points;
@@ -20,6 +21,7 @@ class PointsSummaryCard extends StatelessWidget {
   final double progress;
   final String nextLevelText;
   final VoidCallback onRegister;
+  final bool simulated;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,9 @@ class PointsSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Semantics(
-            label: '$points EcoPuntos simulados',
+            label: simulated
+                ? '$points EcoPuntos simulados'
+                : '$points EcoPuntos',
             excludeSemantics: true,
             child: Text.rich(
               TextSpan(

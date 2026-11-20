@@ -6,6 +6,7 @@ import 'package:qupa_wasi/app/local_services.dart';
 import 'package:qupa_wasi/domain/entities/geo_position.dart';
 import 'package:qupa_wasi/app/routes.dart';
 import 'package:qupa_wasi/data/preferences/shared_preferences_repository.dart';
+import 'package:qupa_wasi/data/remote/supabase_data_source.dart';
 import 'package:qupa_wasi/presentation/settings/app_settings_view_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
@@ -31,6 +32,7 @@ Future<AppSettingsViewModel> openApp(
   Future<String?> Function()? scanQr,
   Future<GeoPosition> Function()? locate,
   Stream<bool>? internetChanges,
+  SupabaseDataSource? supabase,
 }) async {
   final repository = SharedPreferencesRepository(SharedPreferencesAsync());
   final settings = AppSettingsViewModel(repository);
@@ -42,6 +44,7 @@ Future<AppSettingsViewModel> openApp(
       dependencies: AppDependencies(
         preferencesRepository: repository,
         local: services ?? (local ?? FakeLocal()).services,
+        supabase: supabase,
         scanQr: scanQr,
         locate: locate,
         internetChanges: internetChanges,
