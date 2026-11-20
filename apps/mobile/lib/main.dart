@@ -3,9 +3,14 @@ import 'package:flutter/widgets.dart';
 import 'app/app.dart';
 import 'app/dependencies.dart';
 import 'presentation/settings/app_settings_view_model.dart';
+import 'presentation/account/connected_app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (const bool.fromEnvironment('SUPABASE_TRANSACTIONS')) {
+    runApp(await ConnectedApp.configured());
+    return;
+  }
   final dependencies = await AppDependencies.create();
   // Se leen las preferencias antes del primer frame (con límite de tiempo)
   // para abrir directamente bienvenida o inicio.

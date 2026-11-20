@@ -1,5 +1,21 @@
 # Arquitectura y contratos comunes
 
+## Variante transaccional C05
+
+Con `SUPABASE_TRANSACTIONS=true`, Flutter abre la sesión de Supabase Auth y
+consulta `profiles`, `activity`, `redemptions` y el catálogo remoto. El detalle
+consulta el depósito por UUID y la nota se escribe por RPC. El QR usa el UUID
+de `device_captures` y el mismo `operation_id` se conserva al reintentar un
+canje. Saldo, consumo de la captura y stock se cambian en transacciones de
+PostgreSQL. La configuración académica sigue entrando por `AppDependencies`
+y SQLite. [Contrato y activación de C05](entregas/C05.md)
+
+## Compatibilidad opcional C04
+
+`AppDependencies.supabase` expone el adaptador de lectura Data API para el
+esquema `public`, separado de `AppDependencies.local`. Las variables de
+compilación y el contrato de acceso están en la [entrega C04](entregas/C04.md).
+
 ## Ampliación C03 · administrador simulado
 
 Modo administrador **simulado** (sin cuenta ni permisos reales), activado en

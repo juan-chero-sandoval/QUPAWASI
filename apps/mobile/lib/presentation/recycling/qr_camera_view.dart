@@ -6,7 +6,9 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../core/widgets/simulation_chip.dart';
 
 class QrCameraView extends StatefulWidget {
-  const QrCameraView({super.key});
+  const QrCameraView({super.key, this.simulated = true});
+
+  final bool simulated;
   @override
   State<QrCameraView> createState() => _QrCameraViewState();
 }
@@ -60,7 +62,10 @@ class _QrCameraViewState extends State<QrCameraView>
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: const Text('Escanear QR'),
-      actions: const [SimulationChip(), SizedBox(width: 8)],
+      actions: [
+        if (widget.simulated) const SimulationChip(),
+        const SizedBox(width: 8),
+      ],
     ),
     body: SafeArea(
       top: false,
