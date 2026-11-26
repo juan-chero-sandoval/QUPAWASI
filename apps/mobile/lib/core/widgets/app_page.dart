@@ -15,6 +15,7 @@ class AppPage extends StatelessWidget {
     this.showBack = false,
     this.floatingActionButton,
     this.bottomAction,
+    this.simulated = true,
   });
 
   final String title;
@@ -28,6 +29,7 @@ class AppPage extends StatelessWidget {
   /// Acción principal fija abajo: siempre visible, sin tener que desplazarse
   /// (también en pantallas pequeñas o con texto ampliado).
   final Widget? bottomAction;
+  final bool simulated;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,7 @@ class AppPage extends StatelessWidget {
         ),
         actions: [
           ...?actions,
-          const SimulationChip(),
+          if (simulated) const SimulationChip(),
           const SizedBox(width: AppSpacing.screen - AppSpacing.xs),
         ],
         automaticallyImplyLeading: showBack,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/dependencies.dart';
 import '../../app/routes.dart';
 import '../../core/widgets/app_toast.dart';
 import '../../core/theme/app_palette.dart';
@@ -13,6 +14,7 @@ import '../../domain/entities/app_preferences.dart';
 import '../common/user_avatar.dart';
 import '../settings/app_settings_view_model.dart';
 import 'alias_dialog.dart';
+import 'supabase_connection_tile.dart';
 import '../home/overview_view_model.dart';
 import '../home/home_view.dart';
 import '../common/local_state.dart';
@@ -58,6 +60,7 @@ class ProfileView extends StatelessWidget {
     final palette = AppPalette.of(context);
     final settings = context.watch<AppSettingsViewModel>();
     final overview = context.watch<OverviewViewModel>();
+    final supabase = context.read<AppDependencies>().supabase;
     return AppPage(
       title: 'Mi perfil',
       children: [
@@ -251,6 +254,12 @@ class ProfileView extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push(AppRoutes.ranking),
               ),
+              if (supabase != null) ...[
+                const Divider(indent: 16, endIndent: 16),
+                SupabaseConnectionTile(
+                  checkConnection: supabase.checkConnection,
+                ),
+              ],
             ],
           ),
         ),

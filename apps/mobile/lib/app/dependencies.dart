@@ -1,11 +1,12 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/location/device_location.dart';
 import '../data/preferences/shared_preferences_repository.dart';
+import '../data/remote/supabase_data_source.dart';
+import '../domain/entities/geo_position.dart';
 import '../domain/repositories/preferences_repository.dart';
 import 'local_services.dart';
-import '../data/location/device_location.dart';
-import '../domain/entities/geo_position.dart';
 
 /// Punto único de composición. Las vistas reciben dependencias desde aquí
 /// (vía Provider) y nunca abren almacenamiento por su cuenta.
@@ -17,6 +18,7 @@ class AppDependencies {
   const AppDependencies({
     required this.preferencesRepository,
     required this.local,
+    this.supabase,
     this.internetChanges,
     this.checkInternet,
     this.scanQr,
@@ -25,6 +27,7 @@ class AppDependencies {
 
   final PreferencesRepository preferencesRepository;
   final LocalServices local;
+  final SupabaseDataSource? supabase;
   final Stream<bool>? internetChanges;
   final Future<bool> Function()? checkInternet;
 
@@ -37,6 +40,7 @@ class AppDependencies {
   static Future<AppDependencies> create() async {
     final internet = InternetConnection();
     return AppDependencies(
+      supabase: SupabaseDataSource.fromEnvironment(),
       internetChanges: internet.onStatusChange.map(
         (s) => s == InternetStatus.connected,
       ),
