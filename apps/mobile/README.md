@@ -35,3 +35,10 @@ flutter test integration_test -d ID_DEL_DISPOSITIVO
 Al terminar, `flutter test integration_test` desinstala la app y borra sus datos.
 
 Entrega 0.2.0+2: consultar [README final](../../README.md) y [evidencia F05](../../docs/entregas/F05.md) para versiones, APK y límites reales.
+
+Para preparar una compilación con comprobación manual de Supabase, consulta la
+[configuración C04](../../docs/entregas/C04.md).
+
+La variante conectada C05 usa Supabase para el historial, el saldo y los canjes.
+Requiere la migración C05 desplegada, una cuenta y un tacho que entregue el UUID
+de su captura. [Activación de C05](../../docs/entregas/C05.md)

@@ -1,5 +1,22 @@
 # Estado y siguiente turno
 
+## C05 · depósitos y canjes conectados
+
+Código móvil y migración local sobre la estructura de Supabase compartida.
+Las pruebas transaccionales y concurrentes pasaron en PostgreSQL local y
+Flutter pasó análisis y pruebas locales. Faltan el despliegue administrativo
+tras revisar los flujos web, la verificación en Supabase alojado y el APK.
+[Entrega C05](entregas/C05.md)
+
+## C04 · compatibilidad con Supabase
+
+Adaptador móvil de lectura opcional para el esquema compartido por el owner.
+La compilación predeterminada usa SQLite. Las 12 proyecciones coinciden con
+el esquema, el análisis es limpio y 199 pruebas pasaron. El APK debug 0.4.0+4
+se generó y su firma fue verificada. La activación y la huella constan en la
+[entrega C04](entregas/C04.md). La instalación, la conexión real, el login y las
+operaciones remotas siguen pendientes.
+
 ## Rediseño C03 · avisos y textos
 
 Rama `codex/c03-rediseno-ui` desde `develop` (`b77628c`), de Cristopher. Chip
@@ -10,8 +27,8 @@ Segunda parte (rúbrica): CRUD de tachos con GPS y de recompensas en modo
 administrador simulado, migración SQLite v3, borradores de formularios y botón
 principal fijo (corrige el CI `android-integration`). 189 tests. Guion del video
 actualizado al flujo actual.
-Pedido pendiente aparte: Supabase con EcoPuntos verificados, login institucional
-y roles, que requiere acuerdo con el owner porque AGENTS.md lo excluye hoy.
+La activación con EcoPuntos verificados, login institucional y roles sigue
+como trabajo posterior a C04.
 
 ## Diseño C02
 

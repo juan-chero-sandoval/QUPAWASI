@@ -22,7 +22,7 @@ Lee `docs/CONTEXTO_GENERAL.md`, `docs/CONTRATOS.md`, `docs/FLUJO_EQUIPO.md`, `do
 - No sustituir SQLite con listas en memoria, JSON o preferencias. Deben persistir Crear, Leer, Actualizar y Eliminar.
 - Toda pantalla rotula “EcoPuntos y canjes simulados”; añade “Sin conexión” solo cuando el monitor detecta ausencia de internet. La lógica local no autentica depósitos reales.
 - Un registro editable es un **registro local de reciclaje**. Los puntos e impacto se recalculan desde registros activos; no acumular dos veces al editar. Canjes locales se guardan separadamente; no son dinero.
-- No introducir Supabase, push, pagos, login remoto ni clasificador IA en el teléfono en estos turnos. Dejar interfaces extensibles; la arquitectura conectada de Lab01 queda como evolución.
+- La entrega académica de Unidad II es local. C04 prepara un adaptador Supabase de lectura bajo demanda, desactivado en la compilación predeterminada. Login remoto, sincronización, push, pagos y clasificador IA quedan fuera de C04.
 - No incluir alumnos reales, contraseñas, tokens, firmas, keystores ni coordenadas personales en fixtures/logs/commits.
 - Usa rutas con identificadores y manejo de ID inexistente; una vista no abre directamente la base. Operaciones SQLite asíncronas, estados loading/data/empty/error y pruebas de errores.
 
